@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crea tu cromo</title>
+<meta name="description" content="Creación de personajes para el juego de rol Hechicería y Magia. Guía no oficial, hecha por fans.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,900&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+<style>
+/* Noche de velas: tinta violácea, luz ámbar, pergamino. */
+:root{
+  --noche:#0f0d1b; --noche2:#1a1730; --noche3:#262143;
+  --vela:#e3a93b; --vela2:#f4cf7e; --brasa:#d2492f; --mostaza:#e3a93b; --tomate:#d2492f; --musgo:#79a98f; --lila:#a99bd6;
+  --perg:#f1e6cc; --perg2:#d9c9a3; --tinta:#2a2236;
+  --borde:rgba(243,185,95,.32);
+  --t:'IM Fell English',Georgia,serif; --d:'Bodoni Moda',Georgia,serif; --sc:'IM Fell English SC',Georgia,serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--noche);color:var(--perg);font:400 17px/1.55 var(--t);-webkit-font-smoothing:antialiased;overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--vela2);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* ---------- Estructura ---------- */
+.app{position:relative;height:100svh;display:flex;flex-direction:column}
+.escenario{position:relative;flex:0 0 auto;height:min(46svh,calc(100vw * .5581));overflow:hidden;background:var(--noche2)}
+.cuadro{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.1s ease;transform-origin:50% 45%}
+.cuadro.on{opacity:1;animation:zoom 22s ease-out forwards}
+@keyframes zoom{from{transform:scale(1)}to{transform:scale(1.07)}}
+.arte{position:absolute;inset:0;pointer-events:none} /* lugar reservado para el arte de GG */
+.velo{position:absolute;inset:auto 0 0 0;height:22%;background:linear-gradient(transparent,var(--noche))}
+.dialogo{position:relative;flex:1;overflow:auto;padding:0 18px 28px;background:var(--noche);scroll-behavior:smooth}
+.ficha{position:fixed;top:0;right:0;height:100svh;width:min(88vw,360px);background:#14122a;border-left:1px solid var(--borde);transform:translateX(102%);transition:transform .35s ease;z-index:30;overflow:auto;padding:18px 18px 40px}
+.ficha.abierta{transform:none;box-shadow:-20px 0 60px rgba(0,0,0,.6)}
+.btn-ficha{position:absolute;top:10px;right:10px;z-index:5}
+.btn-cerrar{float:right}
+
+@media (min-width:900px) and (orientation:landscape){
+  .app{display:grid;grid-template-columns:1fr 340px}
+  .escenario{grid-row:1;grid-column:1;height:100svh}
+  .dialogo{position:absolute;left:3vw;bottom:3vh;width:min(780px,calc(100vw - 340px - 6vw));max-height:62vh;background:rgba(15,13,27,.86);backdrop-filter:blur(6px);border:1px solid var(--borde);border-radius:4px;padding:0 26px 26px;box-shadow:0 30px 80px rgba(0,0,0,.55)}
+  .velo{height:0}
+  .escenario::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,transparent 55%,rgba(15,13,27,.55))}
+  .ficha{position:relative;transform:none;width:auto;grid-column:2;grid-row:1}
+  .btn-ficha,.btn-cerrar{display:none}
+}
+
+/* ---------- Barra superior ---------- */
+.velas{position:absolute;top:12px;left:12px;display:flex;gap:6px;z-index:5;align-items:flex-end}
+.velas button{width:12px;height:26px;padding:0;border:0;background:none;position:relative}
+.velas button::before{content:"";position:absolute;bottom:0;left:3px;width:6px;height:16px;background:var(--perg2);opacity:.35;border-radius:1px}
+.velas button::after{content:"";position:absolute;bottom:17px;left:3px;width:6px;height:8px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:var(--vela);opacity:0;box-shadow:0 0 10px var(--vela)}
+.velas button.vista::before{opacity:.8}
+.velas button.vista::after{opacity:.55}
+.velas button.actual::after{opacity:1;animation:llama 1.6s ease-in-out infinite}
+.velas button:disabled{cursor:default}
+
+/* ---------- Diálogo ---------- */
+.lugar{position:sticky;top:0;z-index:2;background:linear-gradient(var(--noche) 70%,transparent);padding:16px 0 10px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+@media (min-width:900px) and (orientation:landscape){.lugar{background:linear-gradient(rgba(15,13,27,.98) 70%,transparent)}}
+.lugar h1{font:900 clamp(26px,4.4vw,38px)/1.05 var(--d);margin:0;color:var(--vela2);letter-spacing:.01em}
+.lugar small{font:400 15px var(--sc);letter-spacing:.08em;color:var(--lila);white-space:nowrap}
+.narra p{font-style:italic;font-size:18px;margin:0 0 .7em;color:#efe6d6;opacity:0;transform:translateY(6px);animation:aparece .7s ease forwards}
+.narra p:nth-child(2){animation-delay:.5s}.narra p:nth-child(3){animation-delay:1s}.narra p:nth-child(4){animation-delay:1.5s}
+.ui{opacity:0;animation:aparece .6s ease forwards;animation-delay:.9s}
+.ui.ya{animation:none;opacity:1}
+h2{font:900 21px/1.2 var(--d);color:var(--vela);margin:22px 0 8px}
+h3{font:400 16px/1.3 var(--sc);letter-spacing:.06em;color:var(--lila);margin:16px 0 6px}
+.nota{font-size:14.5px;color:#c7bcd9;margin:.4em 0}
+.aviso{font-size:14.5px;color:var(--vela2);border-left:2px solid var(--brasa);padding:2px 0 2px 10px;margin:10px 0}
+.prov{color:var(--brasa);font-size:.8em;vertical-align:super}
+
+.ops{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
+.op{min-height:44px;padding:8px 14px;border:1px solid var(--borde);background:rgba(255,255,255,.03);border-radius:3px;text-align:left;line-height:1.25;transition:background .2s,border-color .2s}
+.op:hover{border-color:var(--vela)}
+.op[aria-pressed="true"]{background:var(--vela);color:var(--tinta);border-color:var(--vela)}
+.op:disabled{opacity:.35;cursor:not-allowed}
+.op small{display:block;font-size:12.5px;opacity:.8}
+.op.chico{min-height:38px;padding:6px 10px;font-size:15px}
+.tarjeta{border:1px solid var(--borde);padding:12px 14px;margin:8px 0;border-radius:3px;background:rgba(255,255,255,.025)}
+.tarjeta[aria-pressed="true"]{border-color:var(--vela);background:rgba(243,185,95,.1)}
+button.tarjeta{width:100%;text-align:left;display:block}
+.tarjeta b{font-family:var(--d);font-weight:900;font-size:19px;color:var(--vela2)}
+
+label.campo{display:block;margin:10px 0}
+label.campo span{display:block;font:400 15px var(--sc);letter-spacing:.05em;color:var(--lila);margin-bottom:4px}
+input[type=text],select,textarea{width:100%;min-height:44px;background:rgba(255,255,255,.05);border:1px solid var(--borde);border-radius:3px;padding:8px 10px}
+select option{background:var(--noche2)}
+textarea{min-height:70px;resize:vertical}
+.fila{display:flex;gap:10px;flex-wrap:wrap}.fila>*{flex:1 1 140px}
+
+.attrs{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:8px 0}
+.attr{text-align:center;border:1px solid var(--borde);border-radius:3px;padding:8px 2px}
+.attr .v{font:900 26px/1 var(--d);color:var(--vela2)}
+.attr .n{font:400 13px var(--sc);color:var(--lila)}
+.attr .aj{display:flex;justify-content:center;gap:4px;margin-top:6px}
+.attr .aj button{width:36px;height:36px;border:1px solid var(--borde);background:none;border-radius:50%;padding:0;font-size:18px;line-height:1}
+.attr .aj button[aria-pressed="true"]{background:var(--vela);color:var(--tinta)}
+.attr .aj button:disabled{opacity:.25}
+
+.orden{list-style:none;padding:0;margin:8px 0;counter-reset:o}
+.orden li{display:flex;align-items:center;gap:8px;border-bottom:1px dashed var(--borde);padding:6px 0;min-height:44px}
+.orden li::before{counter-increment:o;content:counter(o);font:400 20px var(--d);color:var(--vela);width:22px}
+.orden li .nom{flex:1}
+.orden li button{border:0;background:none;width:40px;height:40px;color:var(--perg2)}
+.orden li.vacio{color:#7d7499;font-style:italic}
+
+.pie{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:22px;flex-wrap:wrap}
+.seguir{min-height:48px;padding:10px 24px;background:var(--tomate);color:#fff7e6;border:0;border-radius:3px;font:900 19px var(--d);letter-spacing:.02em}
+.seguir:disabled{background:#4a4268;color:#9b93b8;cursor:not-allowed}
+.volver{min-height:44px;background:none;border:0;color:var(--lila);text-decoration:underline;text-underline-offset:3px}
+.falta{font-size:14px;color:#b2a6cf;font-style:italic;flex-basis:100%}
+.dado-btn{display:inline-flex;align-items:center;gap:8px}
+.dado-btn::before{content:"";width:18px;height:18px;border:1.5px solid currentColor;border-radius:4px;background:radial-gradient(circle,currentColor 2px,transparent 2.5px) 50%/100% 100% no-repeat}
+.secundario{border:1px solid var(--borde);background:none;min-height:44px;padding:8px 14px;border-radius:3px}
+
+.barras{margin:10px 0}
+.barra{display:grid;grid-template-columns:96px 1fr 34px;align-items:center;gap:8px;margin:6px 0;font-size:15px}
+.barra i{display:block;height:10px;border-radius:5px;background:var(--musgo);transform-origin:left;animation:crece 1s ease}
+.barra.top i{background:var(--vela)}
+
+/* ---------- Bandeja de dados y revelaciones (en el escenario) ---------- */
+.capa{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:14px;z-index:4;pointer-events:none;flex-wrap:wrap;padding:30px}
+.dado{width:54px;height:54px;background:var(--perg);border-radius:9px;box-shadow:0 8px 20px rgba(0,0,0,.5),inset 0 -4px 0 var(--perg2);display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:8px}
+.dado i{width:9px;height:9px;border-radius:50%;background:var(--tinta);place-self:center;visibility:hidden}
+.dado i.on{visibility:visible}
+.dado.rueda{animation:rueda .14s linear infinite}
+.dado.cae{animation:cae .45s cubic-bezier(.3,1.6,.5,1)}
+.resultado{width:100%;text-align:center;font:900 28px var(--d);color:var(--vela2);text-shadow:0 2px 10px #000}
+
+.revela svg{width:min(80%,420px);height:auto}
+.revela .vara{stroke-dasharray:300;stroke-dashoffset:300;animation:traza 1.6s ease forwards .6s}
+.revela .tapa{animation:tapa 1s ease forwards}
+.revela .chispa{opacity:0;animation:chispa 1.4s ease-out forwards 1.8s}
+
+/* ---------- Ficha ---------- */
+.ficha h2{margin-top:6px}
+.ficha dl{margin:0;font-size:15px}
+.ficha dt{font:400 14px var(--sc);letter-spacing:.05em;color:var(--lila);margin-top:12px}
+.ficha dd{margin:2px 0 0}
+.ficha .vacio{color:#6f6790;font-style:italic}
+.ficha .attrs{gap:4px}.ficha .attr{padding:5px 1px}.ficha .attr .v{font-size:20px}.ficha .attr .n{font-size:10px}
+.legal{font-size:12px;color:#8a81a8;margin-top:26px;line-height:1.4}
+
+/* ---------- Pergamino final ---------- */
+.perg{background:var(--perg);color:var(--tinta);padding:22px 20px;border-radius:2px;margin:12px 0;box-shadow:0 12px 40px rgba(0,0,0,.5);background-image:radial-gradient(ellipse at 20% 0,rgba(255,255,255,.5),transparent 60%),radial-gradient(ellipse at 100% 100%,rgba(140,100,40,.18),transparent 60%)}
+.perg h2{color:#a8321f;font-size:32px;margin:0 0 2px}
+.perg h3{color:#5a4a78}
+.perg .attr{border-color:#b9a77c}.perg .attr .v{color:#7a2f1c}.perg .attr .n{color:#5a4a78}
+.perg ul{margin:4px 0;padding-left:18px}
+.perg .cajas span{display:inline-block;width:18px;height:18px;border:1.5px solid var(--tinta);margin-right:4px;vertical-align:middle}
+.perg .dos{display:grid;grid-template-columns:1fr;gap:4px 24px}
+@media (min-width:600px){.perg .dos{grid-template-columns:1fr 1fr}}
+.copiado{color:var(--musgo);font-size:14px;margin-left:8px}
+
+/* ---------- Portada ---------- */
+.portada{position:fixed;inset:0;z-index:50;background:var(--noche);display:grid;place-items:center;overflow:hidden}
+.portada[hidden]{display:none}
+.portada img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.32;filter:sepia(.3) saturate(.8);animation:zoom 30s ease-out forwards}
+.portada::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(15,13,27,.2),rgba(15,13,27,.92) 75%)}
+.portada-txt{position:relative;z-index:1;text-align:center;padding:24px;max-width:640px}
+.portada .sobre{font:400 17px var(--sc);color:var(--perg2);letter-spacing:.08em;margin:0 0 6px}
+.portada h1{font:900 clamp(52px,13vw,120px)/.86 var(--d);color:var(--mostaza);margin:0;letter-spacing:-.01em}
+.portada h1 span{display:block;color:var(--tomate);font-style:italic;font-weight:500}
+.portada .bajada{font:italic 400 20px/1.4 var(--t);color:#efe6d6;margin:18px auto 24px;max-width:28em}
+.portada .legal{margin-top:20px}
+
+/* ---------- Animaciones ---------- */
+@keyframes aparece{to{opacity:1;transform:none}}
+@keyframes llama{0%,100%{transform:scale(1,1)}50%{transform:scale(.9,1.12) translateY(-1px)}}
+@keyframes titila{0%,100%{opacity:1}40%{opacity:.75}60%{opacity:.92}}
+@keyframes deriva{from{transform:translateX(-6%)}to{transform:translateX(6%)}}
+@keyframes flota{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes rueda{0%{transform:rotate(0) translateY(0)}50%{transform:rotate(180deg) translateY(-8px)}100%{transform:rotate(360deg) translateY(0)}}
+@keyframes cae{from{transform:scale(1.25) rotate(-12deg)}to{transform:none}}
+@keyframes crece{from{transform:scaleX(0)}}
+@keyframes traza{to{stroke-dashoffset:0}}
+@keyframes tapa{to{transform:translate(0,-60px) rotate(-14deg)}}
+@keyframes chispa{0%{opacity:0;transform:scale(.2)}30%{opacity:1}100%{opacity:0;transform:scale(1.6) translateY(-20px)}}
+@keyframes paisaje{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.titila{animation:titila 2.4s ease-in-out infinite}
+.deriva{animation:deriva 14s ease-in-out infinite alternate}
+.flota{animation:flota 5s ease-in-out infinite}
+.paisaje{animation:paisaje 18s linear infinite}
+
+@media print{
+  body{overflow:visible;background:#fff}
+  .app>*:not(.dialogo),.portada,.velas,.btn-ficha,.lugar,.narra,.pie,.ops,.nota,.ficha{display:none!important}
+  .app{display:block;height:auto}
+  .dialogo{position:static!important;max-height:none!important;width:auto!important;background:none!important;border:0!important;box-shadow:none!important;overflow:visible;padding:0}
+  .perg{box-shadow:none;background:#fff;margin:0}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;animation-delay:0s!important;transition:none!important}
+  .narra p,.ui{opacity:1;transform:none}
+  .revela .vara{stroke-dashoffset:0}.revela .chispa{opacity:.8}
+}
+</style>
+</head>
+<body>
+<div class="portada" id="portada" hidden>
+  <img src="arte/e11-f03.webp" alt="">
+  <div class="portada-txt">
+    <p class="sobre">Hechicería y Magia · creación de personajes</p>
+    <h1>Crea tu<span>cromo</span></h1>
+    <p class="bajada">Once escenas, de la carta al banquete. Al final, tu personaje listo para jugar.</p>
+    <button class="seguir" id="empezar">Empezar</button>
+    <p class="legal">Guía no oficial, hecha por fans y sin fines comerciales.</p>
+  </div>
+</div>
+<div class="app">
+  <section class="escenario" id="escenario" aria-hidden="true">
+    <img class="cuadro" id="cuadroA" alt=""><img class="cuadro" id="cuadroB" alt="">
+    <div class="arte" id="arte" data-arte=""></div>
+    <div class="velo"></div>
+    <div class="capa" id="capa"></div>
+  </section>
+  <nav class="velas" id="velas" aria-label="Escenas"></nav>
+  <button class="secundario btn-ficha" id="abrir-ficha" aria-controls="ficha" aria-expanded="false">Ficha</button>
+  <main class="dialogo" id="dialogo" aria-live="polite"></main>
+  <aside class="ficha" id="ficha" aria-label="Ficha del personaje"></aside>
+</div>
+
+<script>
+(()=>{
+'use strict';
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const d6=()=>1+Math.floor(Math.random()*6);
+const sgn=n=>n>0?'+'+n:n<0?'−'+Math.abs(n):'0';
+let SUELTA=true;try{SUELTA=window.self===window.top}catch(e){SUELTA=false}
+const QUIETO=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const espera=ms=>new Promise(r=>setTimeout(r,QUIETO?0:ms));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+
+/* =========================================================
+   Datos (del reglamento; los marcados † son traducciones provisorias)
+   ========================================================= */
+const ATTR=['Cuerpo','Corazón','Mente','Alma','Magia'];
+const FAM={
+  muggle:{n:'Familia de origen no mágico',c:'Origen no mágico',base:[1,0,0,-1,-1],plus:1,minus:0,dados:1,
+    d:'Nadie en tu casa tiene habilidades mágicas. Descubrir que tú sí podías hacer magia fue una sorpresa enorme.',
+    adv:['Entiendes la tecnología, la ciencia y la historia del mundo muggle: +1 en las tiradas sobre esos temas.','Tienes un teléfono móvil y hablas con gente del mundo muggle, aunque sea a escondidas.'],
+    dis:['Sabes poco de historia de brujas y magos: −1 en las tiradas sobre ese tema.']},
+  mixed:{n:'Familia de ascendencia mixta',c:'Sangre mixta',base:[-1,0,0,0,1],plus:2,minus:2,dados:2,
+    d:'Quien no es de linaje puro ni de origen no mágico cuenta como de sangre mixta, aunque tenga dos padres mágicos. No hace falta que sea mitad y mitad.'},
+  pure:{n:'Familia de linaje puro',c:'Linaje puro',base:[-2,-1,0,0,2],plus:1,minus:0,dados:3,
+    d:'Para buena parte del mundo mágico eres de linaje puro si ni tus padres ni tus abuelos fueron muggles o hijos de muggles.',
+    adv:['Hechizo familiar: un hechizo de primer año que dominas muy bien. Siempre está en tu reserva de hechizos.'],
+    dis:['No sabes nada de tecnología, ciencia ni historia muggle: −2 en las tiradas sobre esos temas.']}
+};
+const MIX_ADV={muggle:'Del lado muggle: +1 en tiradas de tecnología, ciencia o historia muggle, y un teléfono móvil.',pure:'Del lado de linaje puro: un hechizo familiar de primer año, siempre en tu reserva.'};
+const MIX_DIS={muggle:'Del lado muggle: −1 en las tiradas de historia de brujas y magos.',pure:'Del lado de linaje puro: −2 en las tiradas de tecnología, ciencia o historia muggle.'};
+
+/* Rasgos: código 2d6 → [nombre, casas que suma] (G Gryffindor, H Hufflepuff, R Ravenclaw, S Slytherin) */
+const POS={11:['Aventurero/a','G'],12:['Ambicioso/a','RS'],13:['Valiente','G'],14:['Atento/a con los demás','HR'],15:['Cauteloso/a','S'],16:['Encantador/a','GS'],21:['Caballeroso/a','G'],22:['Ingenioso/a','RS'],23:['Cooperativo/a','H'],24:['Creativo/a','R'],25:['Decidido/a','GS'],26:['Empático/a','H'],
+31:['Resistente','SH'],32:['Justo/a','HG'],33:['Incansable','RH'],34:['Honesto/a','HG'],35:['Trabajador/a','HG'],36:['Intimidante','SG'],41:['Intuitivo/a','R'],42:['Leal','HG'],43:['Metódico/a','S'],44:['Protector/a','HG'],45:['Observador/a','HR'],46:['Obsesivo/a','S'],
+51:['De mente abierta','RH'],52:['Paciente','H'],53:['Filosófico/a','R'],54:['Confiable','HS'],55:['Reservado/a','RS'],56:['Astuto/a','SG'],61:['Inteligente','R'],62:['Profundo/a','RS'],63:['Fuerte','GS'],64:['Estudioso/a','RH'],65:['Tradicional','S'],66:['Ocurrente','RG']};
+const NEG={11:['Áspero/a','GS'],12:['Agresivo/a','G'],13:['Distante','R'],14:['Ansioso/a','R'],15:['Arrogante','G'],16:['Insensible','S'],21:['Despistado/a','HG'],22:['Torpe','HG'],23:['Conformista','H'],24:['Crítico/a','GR'],25:['Mentiroso/a','S'],26:['Despectivo/a','RS'],
+31:['Dominante','G'],32:['Aburrido/a','H'],33:['Excéntrico/a','R'],34:['Crédulo/a','HG'],35:['Indeciso/a','R'],36:['Inseguro/a','HS'],41:['Sabelotodo','R'],42:['Perezoso/a','H'],43:['Manipulador/a','S'],44:['Melancólico/a','RS'],45:['Ingenuo/a','HG'],46:['Narcisista','GS'],
+51:['Común','H'],52:['Pasivo/a','HR'],53:['Orgulloso/a','GS'],54:['Influenciable','H'],55:['Callado/a','HR'],56:['Imprudente','G'],61:['Reservado/a en secretos','RS'],62:['Santurrón/a','G'],63:['Escéptico/a','RS'],64:['Blando/a','HS'],65:['Arisco/a','R'],66:['Estricto/a','S']};
+const TR={pos:POS,neg:NEG};
+const LOOK={
+ body:{t:'Cuerpo',d:{11:'Andrógino/a',12:'Anguloso/a',13:'Atlético/a',14:'Promedio',15:'Desgarbado/a',16:'Grande',21:'Huesudo/a',22:'Encorvado/a',23:'Sordo/a*',24:'Digno/a',25:'Desaliñado/a',26:'Enérgico/a',31:'Frágil',32:'Grácil',33:'Robusto/a',34:'Relajado/a',35:'Larguirucho/a',36:'Enjuto/a',41:'Ágil',42:'Mudo/a*',43:'Menudo/a',44:'Rígido/a',45:'Con cicatrices',46:'Enfermizo/a',51:'Esbelto/a',52:'Pequeño/a',53:'Maloliente',54:'Espigado/a',55:'Corpulento/a',56:'Alto/a',61:'Imponente',62:'Tembloroso/a',63:'Débil',64:'Etéreo/a',65:'Estilizado/a',66:'Fibroso/a'}},
+ eyes:{t:'Ojos',d:{11:'Analíticos',12:'Ansiosos',13:'Arrogantes',14:'Atentos',15:'Hermosos',16:'Ciegos*',21:'Despreocupados',22:'Alegres',23:'Fríos',24:'Curiosos',25:'Oscuros',26:'Dignos',31:'Desinteresados',32:'Distraídos',33:'Temerosos',34:'Intrépidos',35:'Concentrados',36:'Culpables',41:'Hipnóticos',42:'Indiferentes',43:'Inocentes',44:'Inteligentes',45:'Intensos',46:'Amables',51:'Grandes',52:'Traviesos',53:'Nobles',54:'Penetrantes',55:'Punzantes',56:'Profundos',61:'Tímidos',62:'Escépticos',63:'Suspicaces',64:'Cansados',65:'Comprensivos',66:'Cálidos'}},
+ face:{t:'Cara',d:{11:'Andrógina',12:'Aprensiva',13:'Aristocrática',14:'Aburrida',15:'Cautivadora',16:'Infantil',21:'Decidida',22:'Desproporcionada',23:'Demacrada',24:'Entusiasmada',25:'Inexpresiva',26:'Expresiva',31:'Sonrojada',32:'Amigable',33:'Adusta',34:'Ojerosa',35:'Indiferente',36:'Angosta',41:'Pálida',42:'Bonita',43:'Tranquilizadora',44:'Redonda',45:'Triste',46:'Con cicatrices',51:'Afilada',52:'Sonriente',53:'Suave',54:'Apesadumbrada',55:'De mandíbula cuadrada',56:'Severa',61:'Sudorosa',62:'Tensa',63:'Delgada',64:'Dura',65:'Común',66:'Salvaje'}}
+};
+const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const DIAS=[31,29,31,30,31,30,31,31,30,31,30,31];
+const MADERAS=[
+  {n:'Abedul',a:[12,24],b:[1,20]},{n:'Serbal',a:[1,21],b:[2,17]},{n:'Fresno',a:[2,18],b:[3,17]},{n:'Aliso',a:[3,18],b:[4,14]},
+  {n:'Sauce',a:[4,15],b:[5,12]},{n:'Espino',a:[5,13],b:[6,9]},{n:'Roble',a:[6,10],b:[7,7]},{n:'Acebo',a:[7,8],b:[8,4]},
+  {n:'Avellano',a:[8,5],b:[9,1]},{n:'Vid',a:[9,2],b:[9,29]},{n:'Hiedra',a:[9,30],b:[10,27]},{n:'Caña',a:[10,28],b:[11,24]},{n:'Saúco',a:[11,25],b:[12,23]}];
+function maderaDe(m,d){ if(!m||!d)return null; const v=m*100+d;
+  return MADERAS.find(w=>{const s=w.a[0]*100+w.a[1],e=w.b[0]*100+w.b[1];return s<=e?(v>=s&&v<=e):(v>=s||v<=e)})||null; }
+const NUCLEO=r=>r<=2?'Pelo de cola de unicornio':r<=4?'Fibra de corazón de dragón':'Pluma de fénix';
+const FLEX=['Muy flexible','Flexible','Bastante flexible','Algo elástica','Ligeramente elástica','Elástica','Cimbreante','Maleable','Razonablemente maleable','Dócil','Quebradiza','Dura','Sólida','Firme','Rígida','Inflexible','Apenas cede','Que no cede','Como un látigo'];
+const PET=r=>r<=2?'Gato':r<=4?'Lechuza':'Sapo';
+const CASAS={G:'Gryffindor',H:'Hufflepuff',R:'Ravenclaw',S:'Slytherin'};
+const BENEF={
+ G:['Una vez por día, superas automáticamente una tirada de Mostrar valor.','Una vez por día, te sacudes la condición Herido. No era para tanto, ¿no?','Una vez por día, +1 en todas las tiradas de Cuerpo durante una escena.'],
+ H:['Una vez por día, superas automáticamente una tirada de Curar heridas.','Una vez por día, te sacudes la condición Agotado. Seamos sinceros: tienes chocolate.','Una vez por día, +1 en todas las tiradas de Alma durante una escena.'],
+ R:['Una vez por día, superas automáticamente una tirada de Leí sobre eso.','Una vez por día, te sacudes la condición Aturdido.','Una vez por día, +1 en todas las tiradas de Mente durante una escena.'],
+ S:['Una vez por día, superas automáticamente una tirada de Convencer.','Una vez por día, te sacudes la condición Alterado.','«Nadie vio eso»: una vez por día, repites una tirada.']};
+const COLOR_CASA={G:'#c8553d',H:'#d9a73b',R:'#5f7fc2',S:'#4f9a76'};
+const PREG=['¿Cuál es tu mayor miedo?','¿Cuál es tu merienda favorita?','¿Cómo es tu familia?','¿De quién buscas aprobación?','¿A quién quieres más?','¿Cuál es tu actividad física favorita?','¿Qué es lo más importante para ti?','¿Cuál es tu pasatiempo favorito?','¿Cuál es tu libro favorito?','¿Qué tipo de magia te interesa más?'];
+const PAGO={nuevo:['Todo nuevo','Tu familia paga lo mejor de cada tienda.'],usado:['De segunda mano','Libros con notas ajenas y túnica heredada.'],mezcla:['Un poco de cada cosa','Lo importante, nuevo; el resto, como venga.']};
+const EXTRAS=[['Caldero plegable',3],['Lupa',3],['Mapamundi',4],['Telescopio de latón',5],['Brújula',6],['Balanza de plata',7],['Globo de la Luna',13]];
+/* Hechizos de primer año: [nombre, descripción, tipo, provisorio] */
+const SP1=[
+['Alohomora','Abre cerraduras y puertas, incluso las selladas con un hechizo de cierre, salvo que estén encantadas para resistirlo.','Encantamiento'],
+['Acoso','Transforma las cosas en tejones.','Transformación',1],
+['Baubillious','Hace salir chispas blancas de la punta de la varita.','Encantamiento'],
+['Bolas de nieve encantadas','Las bolas de nieve salen disparadas solas contra el objetivo.','Encantamiento',1],
+['Llamas de campanilla','Crea llamas azules que se pueden guardar en un frasco. No queman al tacto, pero sí pueden dañar ropa y plantas.','Encantamiento',1],
+['Incendio','Produce fuego.','Encantamiento, conjuración'],
+['Locomotor mortis','Une las piernas del objetivo.','Maldición'],
+['Lumos','Ilumina la punta de la varita para ver en la oscuridad.','Encantamiento'],
+['Moco en exceso','Provoca un resfriado fortísimo con muchísima mucosidad. Sin tratamiento, la víctima puede desmayarse.','Maldición',1],
+['Nox','Apaga la luz de la varita. Es el contrahechizo de Lumos.','Encantamiento'],
+['Oculus Reparo','Repara anteojos.','Encantamiento'],
+['Papyrus Reparo','Repara papel rasgado.','Encantamiento'],
+['Petrificus Totalus','Deja el cuerpo del objetivo rígido como un soldado en posición de firme. Suele caer al suelo.','Maldición'],
+['Reducción','Achica un objeto. Su contrahechizo es el de agrandar.','Encantamiento',1],
+['Reparifarge','Revierte transformaciones incompletas.','Transformación'],
+['Reparación','Repara objetos rotos sin dejar marcas.','Encantamiento',1],
+['Maleficio resbaladizo','Vuelve resbaladizo un objeto y difícil de sostener.','Maleficio',1],
+['Spongify','Ablanda los objetos y los vuelve elásticos.','Encantamiento'],
+['Tarantallegra','Provoca espasmos en las piernas del objetivo, que parece bailar.','Maleficio'],
+['Maleficio de tropiezo','Hace que el objetivo tropiece y caiga.','Maleficio',1],
+['Verdemillius','Hace salir chispas verdes de la varita.','Encantamiento'],
+['Hechizo lavaplatos','Hace que los platos sucios se laven solos.','Encantamiento',1],
+['Wingardium Leviosa','Hace volar o levitar objetos.','Encantamiento']];
+
+/* =========================================================
+   Estado
+   ========================================================= */
+const CLAVE='escenas-personaje-v1';
+const NUEVO=()=>({v:1,esc:0,max:0,name:'',mes:0,dia:0,fam:'',plus:[],minus:[],mixAdv:'',mixDis:'',gal:null,pos:[],neg:[],tab:'pos',
+  look:{body:[],eyes:[],face:[]},core:0,len:0,flex:'',varita:false,pet:'',pago:'',extras:[],padres:'',hermanos:'',parientes:[],resp:{},
+  empezo:false,otros:['','','',''],mas:-1,menos:-1,casa:'',benef:-1,famSpell:'',bank:[]});
+let S=NUEVO();
+try{const g=JSON.parse(localStorage.getItem(CLAVE)||'null');if(g&&g.v===1)S=Object.assign(NUEVO(),g)}catch(e){}
+const guardar=()=>{try{localStorage.setItem(CLAVE,JSON.stringify(S))}catch(e){}};
+
+const attrs=()=>{const b=S.fam?FAM[S.fam].base.slice():[0,0,0,0,0];
+  S.plus.forEach(i=>b[i]++);S.minus.forEach(i=>b[i]--);return b;};
+const madera=()=>maderaDe(+S.mes,+S.dia);
+const tieneFamSpell=()=>S.fam==='pure'||(S.fam==='mixed'&&S.mixAdv==='pure');
+const puntajes=()=>{const p={G:0,H:0,R:0,S:0};
+  ['pos','neg'].forEach(k=>S[k].forEach((c,i)=>{[...TR[k][c][1]].forEach(h=>p[h]+=5-i)}));return p;};
+const nombreTr=(k,c)=>TR[k][c][0];
+const gasto=()=>S.extras.reduce((t,n)=>t+(EXTRAS.find(e=>e[0]===n)||[0,0])[1],0);
+
+/* =========================================================
+   Dados y revelación
+   ========================================================= */
+const PIPS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+const dadoHTML=v=>`<div class="dado">${Array.from({length:9},(_,i)=>`<i class="${PIPS[v].includes(i)?'on':''}"></i>`).join('')}</div>`;
+let rodando=false;
+async function tirar(n,etiqueta){
+  rodando=true;const capa=$('#capa');const res=Array.from({length:n},d6);
+  capa.innerHTML=res.map(()=>dadoHTML(d6())).join('');
+  const dados=[...capa.querySelectorAll('.dado')];
+  if(!QUIETO){dados.forEach(d=>d.classList.add('rueda'));
+    for(let k=0;k<9;k++){await espera(70);dados.forEach(d=>{d.outerHTML;const v=d6();d.querySelectorAll('i').forEach((p,i)=>p.className=PIPS[v].includes(i)?'on':'')});}
+    dados.forEach(d=>{d.classList.remove('rueda');d.classList.add('cae')});}
+  dados.forEach((d,j)=>d.querySelectorAll('i').forEach((p,i)=>p.className=PIPS[res[j]].includes(i)?'on':''));
+  if(etiqueta){const r=document.createElement('div');r.className='resultado';r.textContent=etiqueta(res);capa.appendChild(r);}
+  rodando=false;
+  setTimeout(()=>{if(!rodando)capa.innerHTML=''},QUIETO?2500:2600);
+  return res;
+}
+async function revelarVarita(){
+  const m=madera();ponerCuadro(3);await espera(1700);ponerCuadro(4);
+  $('#capa').innerHTML=`<div class="resultado">${esc(m?m.n:'')}</div>`;await espera(1600);$('#capa').innerHTML='';
+}
+
+/* =========================================================
+   Cuadros del storyboard (arte de GG): arte/eNN-fNN.webp
+   Cada escena elige su cuadro según cuánto se avanzó en ella.
+   ========================================================= */
+let cuadroActual='',capaA=true,relojes=[];
+function ponerCuadro(i){const n=String(S.esc+1).padStart(2,'0'),src=`arte/e${n}-f${String(i+1).padStart(2,'0')}.webp`;
+  if(src===cuadroActual)return;cuadroActual=src;
+  const a=$(capaA?'#cuadroB':'#cuadroA'),b=$(capaA?'#cuadroA':'#cuadroB');capaA=!capaA;
+  a.onload=()=>{a.classList.add('on');b.classList.remove('on')};a.src=src;}
+function precargar(e){const n=String(e+1).padStart(2,'0');for(let i=1;i<=(CUAD[ESC[e]?.id]||{n:0}).n;i++){const im=new Image();im.src=`arte/e${n}-f${String(i).padStart(2,'0')}.webp`;}}
+const CUAD={
+ carta:{n:5,auto:[0,1,2],f:()=>!S.name.trim()?null:(!+S.mes||!+S.dia)?3:4},
+ casa:{n:4,f:()=>!S.fam?0:ESC[1].falta()==='Tira los dados de los galeones.'?2:S.gal!=null?3:1},
+ espejo:{n:4,f:()=>{const t=S.pos.length+S.neg.length;return t===0?0:t<5?1:t<10?2:3}},
+ reflejo:{n:4,f:()=>Object.values(S.look).filter(a=>a.length).length},
+ varitas:{n:5,f:()=>S.varita?4:(S.core&&S.len&&S.flex)?2:(S.core||S.len)?1:0},
+ callejon:{n:4,f:()=>S.pet&&S.pago?3:S.pago?2:S.pet?1:0},
+ noche:{n:4,f:()=>[S.padres.trim(),S.hermanos.trim()||S.parientes.length,Object.values(S.resp).some(x=>x&&x.trim())].filter(Boolean).length},
+ anden:{n:4,f:()=>{const k=S.otros.filter(x=>x.trim()).length;return k===0?0:(S.mas>=0&&S.menos>=0)?3:k<2?1:2}},
+ comedor:{n:4,auto:[0,1],f:()=>S.benef>=0?3:S.casa?2:null},
+ practica:{n:5,f:()=>{const b=S.bank.length;return b===3?4:b?b:(tieneFamSpell()&&S.famSpell)?3:0}},
+ pergamino:{n:3,auto:[0,1,2],f:()=>null}
+};
+function cuadroDeEscena(nueva){const c=CUAD[ESC[S.esc].id];relojes.forEach(clearTimeout);relojes=[];
+  const v=c.f();
+  if(v!=null){ponerCuadro(Math.min(v,c.n-1));return;}
+  if(nueva&&c.auto){c.auto.forEach((k,i)=>relojes.push(setTimeout(()=>{if(c.f()==null)ponerCuadro(k)},QUIETO?0:i*2600)));}
+}
+
+/* =========================================================
+   Escenas
+   ========================================================= */
+const op=(act,v,txt,on,extra='',dis=false)=>`<button class="op ${extra}" data-act="${act}" data-v="${esc(v)}" aria-pressed="${!!on}" ${dis?'disabled':''}>${txt}</button>`;
+const ESC=[
+{id:'carta',lugar:'Tu habitación',t:'La carta',
+ narra:()=>['Amanece. Algo golpea el vidrio de tu ventana: una lechuza que no es de nadie que conozcas deja caer un sobre sobre tu cama.','Lleva tu nombre escrito a mano y un sello de cera verde. Lo rompes. La carta dice, sin rodeos, que el primero de septiembre te esperan en el Colegio Hogwarts de Magia y Hechicería.','Antes del viaje hay cosas que decidir: quién eres, de dónde vienes y con qué varita vas a aprender. Empecemos por lo primero.'],
+ ui:()=>{const dias=S.mes?DIAS[S.mes-1]:31;
+  return `<label class="campo"><span>Firma aquí con tu nombre</span><input type="text" data-in="name" value="${esc(S.name)}" autocomplete="off" maxlength="60" placeholder="Nombre y apellido"></label>
+  <div class="fila"><label class="campo"><span>Día de cumpleaños</span><select data-in="dia"><option value="0">—</option>${Array.from({length:dias},(_,i)=>`<option ${+S.dia===i+1?'selected':''}>${i+1}</option>`).join('')}</select></label>
+  <label class="campo"><span>Mes</span><select data-in="mes" data-re="1"><option value="0">—</option>${MESES.map((m,i)=>`<option value="${i+1}" ${+S.mes===i+1?'selected':''}>${m}</option>`).join('')}</select></label></div>
+  <p class="nota">Tu cumpleaños va a importar más adelante: decide la madera de tu varita.</p>`;},
+ falta:()=>!S.name.trim()?'Falta tu nombre.':(!+S.mes||!+S.dia)?'Falta tu cumpleaños.':''},
+
+{id:'casa',lugar:'El comedor de tu casa',t:'De dónde vienes',
+ narra:()=>[`En el desayuno, la carta pasa de mano en mano. ${S.name.trim()?esc(S.name.trim().split(' ')[0])+', nadie':'Nadie'} dice mucho, pero todos te miran distinto.`,'La familia en la que creciste dice mucho de ti, aunque todavía no sepas qué. ¿Quiénes son?'],
+ ui:()=>{let h=`<div>${Object.entries(FAM).map(([k,f])=>`<button class="tarjeta" data-act="fam" data-v="${k}" aria-pressed="${S.fam===k}"><b>${f.n}</b><br><span class="nota">${f.d}</span></button>`).join('')}</div>`;
+  if(!S.fam)return h;const f=FAM[S.fam],a=attrs();
+  h+=`<h2>Tus atributos</h2><p class="nota">${S.fam==='mixed'?'Suma +1 a dos atributos y resta 1 a otros dos.':'Suma +1 a un atributo.'} Ningún atributo puede pasar de +2 ni bajar de −2; al final, todo suma 0.</p>
+  <div class="attrs">${ATTR.map((n,i)=>{const pOn=S.plus.includes(i),mOn=S.minus.includes(i);
+   return `<div class="attr"><div class="v">${sgn(a[i])}</div><div class="n">${n}</div><div class="aj">
+   ${f.minus?`<button data-act="minus" data-v="${i}" aria-pressed="${mOn}" aria-label="Restar 1 a ${n}" ${(!mOn&&(pOn||S.minus.length>=f.minus||a[i]<=-2))?'disabled':''}>−</button>`:''}
+   <button data-act="plus" data-v="${i}" aria-pressed="${pOn}" aria-label="Sumar 1 a ${n}" ${(!pOn&&(mOn||S.plus.length>=f.plus||a[i]>=2))?'disabled':''}>+</button></div></div>`}).join('')}</div>`;
+  if(S.fam==='mixed'){
+   h+=`<h3>Ventaja: elige un lado de la familia</h3><div class="ops">${op('mixAdv','muggle',MIX_ADV.muggle,S.mixAdv==='muggle')}${op('mixAdv','pure',MIX_ADV.pure,S.mixAdv==='pure')}</div>
+   <h3>Desventaja: elige un lado</h3><div class="ops">${op('mixDis','muggle',MIX_DIS.muggle,S.mixDis==='muggle')}${op('mixDis','pure',MIX_DIS.pure,S.mixDis==='pure')}</div>`;
+  }else h+=`<h3>Ventaja</h3>${f.adv.map(x=>`<p class="nota">${x}</p>`).join('')}<h3>Desventaja</h3>${f.dis.map(x=>`<p class="nota">${x}</p>`).join('')}`;
+  h+=`<h2>La bolsa para el viaje</h2><p class="nota">Antes de salir, te dan unas monedas: ${f.dados}d6 + 6 galeones.</p>
+  ${S.gal==null?`<button class="secundario dado-btn" data-act="gal">Tirar ${f.dados}d6</button>`:`<p><b style="font:400 24px var(--d);color:var(--vela2)">${S.gal} galeones</b></p>`}`;
+  return h;},
+ falta:()=>{if(!S.fam)return 'Elige tu familia.';const f=FAM[S.fam];
+  if(S.plus.length<f.plus||S.minus.length<f.minus)return 'Termina de ajustar los atributos.';
+  if(S.fam==='mixed'&&(!S.mixAdv||!S.mixDis))return 'Elige la ventaja y la desventaja.';
+  if(S.gal==null)return 'Tira los dados de los galeones.';return '';}},
+
+{id:'espejo',lugar:'El pasillo, de noche',t:'El espejo',fondo:'espejo',
+ narra:()=>['Esa noche te detienes frente al espejo del pasillo. No te devuelve tu cara: te devuelve preguntas.','¿Qué te hace fuerte? ¿Qué te traiciona? Elige cinco virtudes y cinco defectos, del que más te define al que menos.'],
+ ui:()=>{const k=S.tab,lista=S[k],tabla=TR[k];
+  return `<div class="ops" role="tablist">${op('tab','pos',`Virtudes (${S.pos.length}/5)`,k==='pos','chico')}${op('tab','neg',`Defectos (${S.neg.length}/5)`,k==='neg','chico')}</div>
+  <ol class="orden">${Array.from({length:5},(_,i)=>lista[i]?`<li><span class="nom">${esc(tabla[lista[i]][0])}</span><button data-act="subir" data-v="${i}" aria-label="Subir" ${i?'':'disabled'}>↑</button><button data-act="quitar" data-v="${i}" aria-label="Quitar">✕</button></li>`:`<li class="vacio"><span class="nom">—</span></li>`).join('')}</ol>
+  <button class="secundario dado-btn" data-act="azarTr" ${lista.length>=5?'disabled':''}>Dejarlo al azar (2d6)</button>
+  <div class="ops" style="margin-top:12px">${Object.keys(tabla).map(c=>op('tr',c,esc(tabla[c][0]),lista.includes(c),'chico',!lista.includes(c)&&lista.length>=5)).join('')}</div>
+  <p class="nota">El orden importa: al llegar al castillo, esto va a tener consecuencias.</p>`;},
+ falta:()=>S.pos.length<5?'Faltan virtudes.':S.neg.length<5?'Faltan defectos.':''},
+
+{id:'reflejo',lugar:'El pasillo, de noche',t:'El reflejo',fondo:'reflejo',
+ narra:()=>['Ahora sí, el espejo te muestra tal cual eres. Mírate bien: así te van a ver mañana en el andén.','Elige al menos un rasgo de cada parte, o deja que los dados decidan.'],
+ ui:()=>Object.entries(LOOK).map(([k,L])=>`<h3>${L.t}</h3><div class="ops">${Object.keys(L.d).map(c=>op('look',k+':'+c,L.d[c],S.look[k].includes(c),'chico')).join('')}</div>
+   <button class="secundario dado-btn" data-act="azarLook" data-v="${k}">Al azar</button>`).join('')+
+   `<p class="nota">* Las brujas y los magos pueden encontrar maneras creativas de compensarlo. Convérsalo con tu grupo.</p>`,
+ falta:()=>Object.values(S.look).some(a=>!a.length)?'Elige algo para cuerpo, ojos y cara.':''},
+
+{id:'varitas',lugar:'Callejón Diagon',t:'La tienda de varitas',
+ narra:()=>{const m=madera();return ['Una tienda angosta, polvo flotando en el aire y miles de cajas apiladas hasta el techo.','Nadie te pregunta el nombre. Te preguntan cuándo naciste.',m?`Para ${S.dia} de ${MESES[S.mes-1]}, la madera es una sola: <b>${m.n}</b>. El núcleo y el largo los deciden los dados.`:'Sin fecha de cumpleaños no hay madera: vuelve a la carta.'];},
+ ui:()=>`<div class="fila"><div class="tarjeta"><h3 style="margin-top:0">Núcleo · 1d6</h3>${S.core?`<b>${NUCLEO(S.core)}</b> <span class="nota">(${S.core})</span>`:`<button class="secundario dado-btn" data-act="core">Tirar</button>`}<p class="nota">1–2 unicornio · 3–4 dragón · 5–6 fénix</p></div>
+  <div class="tarjeta"><h3 style="margin-top:0">Largo · 1d6 + 8</h3>${S.len?`<b>${S.len} pulgadas</b> <span class="nota">(${Math.round(S.len*2.54)} cm)</span>`:`<button class="secundario dado-btn" data-act="len">Tirar</button>`}</div></div>
+  <h3>Flexibilidad</h3><p class="nota">Elígela según tu carácter y qué tan abierta es tu mente.</p>
+  <select data-in="flex" data-re="1"><option value="">—</option>${FLEX.map(f=>`<option ${S.flex===f?'selected':''}>${f}</option>`).join('')}</select>
+  ${(S.core&&S.len&&S.flex)?`<div class="pie" style="justify-content:flex-start">${S.varita?`<p class="aviso">${madera().n}, ${NUCLEO(S.core).toLowerCase()}, ${S.len} pulgadas, ${S.flex.toLowerCase()}. Es tuya.</p>`:`<button class="seguir" data-act="probar">Probar la varita</button>`}</div>`:''}`,
+ falta:()=>!madera()?'Falta tu cumpleaños.':!S.core||!S.len?'Tira los dados.':!S.flex?'Elige la flexibilidad.':!S.varita?'Prueba la varita.':''},
+
+{id:'callejon',lugar:'Callejón Diagon',t:'Compras',
+ narra:()=>['Afuera, el callejón es un río de gente: lechuzas en jaulas, calderos apilados en la vereda, carteles que cambian de color.','Te falta un compañero de viaje y el resto de los útiles.'],
+ ui:()=>`<h2>Tu mascota</h2><div class="ops">${['Gato','Lechuza','Sapo'].map(p=>op('pet',p,p,S.pet===p)).join('')}</div><button class="secundario dado-btn" data-act="azarPet">Que decida el dado</button>
+  <h2>¿Cómo se pagan los útiles?</h2><div class="ops">${Object.entries(PAGO).map(([k,p])=>op('pago',k,`${p[0]}<small>${p[1]}</small>`,S.pago===k)).join('')}</div>
+  <h2>Algún capricho</h2><p class="nota">Lo básico está cubierto. Tienes <b>${(S.gal||0)-gasto()}</b> de ${S.gal||0} galeones para extras (los precios definitivos los decide quien dirige la partida).</p>
+  <div class="ops">${EXTRAS.map(([n,p])=>op('extra',n,`${n}<small>${p} galeones</small>`,S.extras.includes(n),'',!S.extras.includes(n)&&p>(S.gal||0)-gasto())).join('')}</div>`,
+ falta:()=>!S.pet?'Elige una mascota.':!S.pago?'Elige cómo se pagan los útiles.':''},
+
+{id:'noche',lugar:'La última noche en casa',t:'Lo que dejas atrás',
+ narra:()=>['El baúl ya está cerrado. Desde la cama escuchas a tu familia moverse por la casa.','Antes de dormir, piensa en ellos y en ti. Nada de esto es obligatorio, pero quien dirija la partida lo va a aprovechar.'],
+ ui:()=>`<label class="campo"><span>Tus padres</span><textarea data-in="padres" placeholder="¿Quiénes son? ¿Siguen juntos? ¿Qué piensan de la magia? ¿Qué piensas tú de ellos?">${esc(S.padres)}</textarea></label>
+  <label class="campo"><span>Hermanos</span><textarea data-in="hermanos" placeholder="¿Cuántos? ¿Nombres, edades? ¿Alguno en Hogwarts? ¿Cómo se llevan?">${esc(S.hermanos)}</textarea></label>
+  <button class="secundario dado-btn" data-act="pariente">Tirar rasgos para un familiar (2 virtudes, 2 defectos)</button>
+  ${S.parientes.length?`<ul class="nota">${S.parientes.map((p,i)=>`<li>Familiar ${i+1}: ${esc(p)}</li>`).join('')}</ul>`:''}
+  <details style="margin-top:14px"><summary class="nota" style="cursor:pointer">Preguntas para ti (${Object.values(S.resp).filter(x=>x&&x.trim()).length}/10)</summary>
+  ${PREG.map((q,i)=>`<label class="campo"><span>${q}</span><input type="text" data-in="resp:${i}" value="${esc(S.resp[i]||'')}"></label>`).join('')}</details>`,
+ falta:()=>''},
+
+{id:'anden',lugar:'Andén nueve y tres cuartos',t:'El tren',
+ narra:()=>['Atraviesas la pared con los ojos cerrados y del otro lado te recibe el vapor. A las once en punto, el tren arranca.','En el pasillo, entre paquetes de golosinas y baúles, conoces al resto del grupo. Con alguien te llevas bien desde el primer minuto; con alguien, no tanto.'],
+ ui:()=>`<p class="nota">Escribe los nombres de los demás personajes del grupo.</p><div class="fila">${S.otros.map((n,i)=>`<label class="campo"><span>Estudiante ${i+1}</span><input type="text" data-in="otro:${i}" value="${esc(n)}" maxlength="40"></label>`).join('')}</div><div id="vinc">${vincHTML()}</div>`,
+ falta:()=>{const n=S.otros.filter(x=>x.trim()).length;if(n<2)return '';
+  return (S.mas<0||S.menos<0||!S.otros[S.mas]?.trim()||!S.otros[S.menos]?.trim())?'Elige un +1 y un −1.':'';}},
+
+{id:'comedor',lugar:'El Gran Comedor',t:'La Selección',
+ narra:()=>['Cientos de velas flotan bajo un techo que parece el cielo nocturno. Te llaman por tu nombre y el silencio se vuelve enorme.','El Sombrero Seleccionador escucha lo que el espejo ya sabía: tus virtudes y tus defectos, en el orden en que los pusiste.'],
+ ui:()=>{const p=puntajes(),max=Math.max(...Object.values(p))||1,orden=Object.keys(p).sort((a,b)=>p[b]-p[a]);
+  const cerca=orden.filter(h=>p[orden[0]]-p[h]<=5);
+  let h=`<div class="barras">${orden.map(k=>`<div class="barra ${cerca.includes(k)?'top':''}"><span>${CASAS[k]}</span><i style="width:${p[k]/max*100}%;background:${COLOR_CASA[k]}"></i><b>${p[k]}</b></div>`).join('')}</div>
+  <p class="aviso">${cerca.length>1?`El Sombrero duda entre ${cerca.map(k=>CASAS[k]).join(' y ')}. La última palabra es tuya.`:`El Sombrero sugiere ${CASAS[orden[0]]}. Si insistes en otra casa, quien dirige la partida lo tendrá en cuenta.`}</p>
+  <div class="ops">${orden.map(k=>op('casa',k,CASAS[k],S.casa===k)).join('')}</div>`;
+  if(S.casa)h+=`<h2>Beneficio de ${CASAS[S.casa]}</h2>${BENEF[S.casa].map((b,i)=>`<button class="tarjeta" data-act="benef" data-v="${i}" aria-pressed="${S.benef===i}">${b}</button>`).join('')}`;
+  return h;},
+ falta:()=>!S.casa?'Elige tu casa.':S.benef<0?'Elige un beneficio.':''},
+
+{id:'practica',lugar:'Primera semana',t:'Primeras prácticas',
+ narra:()=>['En un aula con olor a tiza vieja practicas los movimientos de varita hasta que te duelen las muñecas.',`Tres hechizos empiezan a salirte mejor que los demás: van a tu reserva y te dan +1 al lanzarlos.${tieneFamSpell()?' Y hay uno que traes de casa.':''}`],
+ ui:()=>{let h='';
+  if(tieneFamSpell())h+=`<h3>Hechizo familiar</h3><select data-in="famSpell" data-re="1"><option value="">—</option>${SP1.map(s=>`<option ${S.famSpell===s[0]?'selected':''}>${s[0]}</option>`).join('')}</select>`;
+  h+=`<h3>Tu reserva (${S.bank.length}/3)</h3>`+SP1.map(([n,d,t,p])=>{const on=S.bank.includes(n),fam=n===S.famSpell;
+   return `<button class="tarjeta" data-act="bank" data-v="${esc(n)}" aria-pressed="${on||fam}" ${fam||(!on&&S.bank.length>=3)?'disabled style="opacity:.45"':''}><b>${esc(n)}</b>${p?'<span class="prov">†</span>':''} <span class="nota">· ${t}${fam?' · familiar':''}</span><br><span class="nota">${d}</span></button>`}).join('');
+  return h+`<p class="nota"><span class="prov">†</span> Nombre provisorio, a confirmar con la traducción de referencia.</p>`;},
+ falta:()=>tieneFamSpell()&&!S.famSpell?'Elige tu hechizo familiar.':S.bank.length<3?'Elige tres hechizos.':''},
+
+{id:'pergamino',lugar:'La sala común',t:'El pergamino',
+ narra:()=>['Esa noche, junto al fuego, desenrollas un pergamino en blanco. Todo lo que decidiste cabe en una hoja. Guárdala bien: el castillo cambia a quien lo habita, y esta ficha va a cambiar contigo.'],
+ ui:()=>`${hoja()}<div class="ops"><button class="secundario" data-act="copiarTxt">Copiar ficha</button><button class="secundario" data-act="copiarJson">Copiar datos</button>${SUELTA?'<button class="secundario" data-act="bajar">Descargar ficha (.json)</button><button class="secundario" data-act="imprimir">Imprimir</button>':''}
+  <label class="secundario" style="display:inline-flex;align-items:center;cursor:pointer">Cargar datos<input type="file" accept=".json,.txt,application/json" data-in="importar" class="sr"></label>
+  <button class="secundario" data-act="reiniciar">Empezar de nuevo</button><span class="copiado" id="msg"></span></div>
+  <p class="nota">${SUELTA?'El archivo .json se puede volver a cargar acá para seguir editando.':'«Copiar datos» guarda un texto que puedes pegar en un archivo .json y volver a cargar acá.'}</p>`,
+ falta:()=>''}
+];
+ESC.forEach((e,i)=>e.n=i);
+function vincHTML(){const nom=S.otros.map((n,i)=>[n.trim(),i]).filter(x=>x[0]);
+ if(S.mas>=0&&!S.otros[S.mas]?.trim())S.mas=-1; if(S.menos>=0&&!S.otros[S.menos]?.trim())S.menos=-1;
+ return nom.length>=2?`<h3>Con quién te llevas bien (+1)</h3><div class="ops">${nom.map(([n,i])=>op('mas',i,esc(n),S.mas===i,'',S.menos===i)).join('')}</div>
+ <h3>Con quién no tanto (−1)</h3><div class="ops">${nom.map(([n,i])=>op('menos',i,esc(n),S.menos===i,'',S.mas===i)).join('')}</div>`:'<p class="nota">Con dos nombres o más, eliges tus vínculos. Si juegas en solitario, puedes seguir.</p>';}
+
+/* =========================================================
+   Ficha
+   ========================================================= */
+function resumen(){const m=madera(),a=attrs(),f=S.fam&&FAM[S.fam];
+ return {nombre:S.name.trim(),cumple:+S.mes&&+S.dia?`${S.dia} de ${MESES[S.mes-1]}`:'',familia:f?f.c:'',a,
+  pos:S.pos.map(c=>POS[c][0]),neg:S.neg.map(c=>NEG[c][0]),
+  look:Object.keys(LOOK).map(k=>S.look[k].map(c=>LOOK[k].d[c]).join(', ')).filter(Boolean).join(' · '),
+  varita:m&&S.core&&S.len?`${m.n}, ${NUCLEO(S.core).toLowerCase()}, ${S.len} pulgadas${S.flex?', '+S.flex.toLowerCase():''}`:'',
+  ventaja:f?(S.fam==='mixed'?(S.mixAdv?MIX_ADV[S.mixAdv]:''):f.adv.join(' ')):'',desventaja:f?(S.fam==='mixed'?(S.mixDis?MIX_DIS[S.mixDis]:''):f.dis.join(' ')):'',
+  casa:S.casa?CASAS[S.casa]:'',benef:S.casa&&S.benef>=0?BENEF[S.casa][S.benef]:'',
+  hechizos:[...(S.famSpell&&tieneFamSpell()?[S.famSpell+' (familiar)']:[]),...S.bank],
+  rel:[S.mas>=0&&S.otros[S.mas]?.trim()?`${S.otros[S.mas].trim()} +1`:'',S.menos>=0&&S.otros[S.menos]?.trim()?`${S.otros[S.menos].trim()} −1`:''].filter(Boolean),
+  gal:S.gal==null?'':((S.gal-gasto())+' galeones'),cosas:[S.pet,...S.extras].filter(Boolean).join(', ')};}
+const dd=(t,v)=>`<dt>${t}</dt><dd>${v?v:'<span class="vacio">todavía no</span>'}</dd>`;
+function pintarFicha(){const r=resumen();
+ $('#ficha').innerHTML=`<button class="secundario btn-cerrar" data-act="cerrarFicha">Cerrar</button><h2>${esc(r.nombre)||'<span class="vacio">Sin nombre</span>'}</h2>
+ <div class="nota">${[r.familia,r.casa,r.cumple].filter(Boolean).map(esc).join(' · ')||'Primer año'}</div>
+ <div class="attrs">${ATTR.map((n,i)=>`<div class="attr"><div class="v">${S.fam?sgn(r.a[i]):'·'}</div><div class="n">${n}</div></div>`).join('')}</div>
+ <dl>${dd('Virtudes',esc(r.pos.join(', ')))}${dd('Defectos',esc(r.neg.join(', ')))}${dd('Aspecto',esc(r.look))}${dd('Varita',esc(r.varita))}
+ ${dd('Pertenencias',esc(r.cosas))}${dd('Galeones',esc(r.gal))}${dd('Vínculos',esc(r.rel.join(' · ')))}${dd('Beneficio de casa',esc(r.benef))}${dd('Reserva de hechizos',esc(r.hechizos.join(', ')))}</dl>
+ <p class="legal">Guía no oficial, hecha por fans y sin fines comerciales. No tiene relación con los titulares de la obra en la que se inspira. Lo que cargas se guarda solo en este navegador.</p>`;}
+function hoja(){const r=resumen();const li=a=>a.length?`<ul>${a.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'<p>—</p>';
+ return `<div class="perg"><h2>${esc(r.nombre)}</h2><p>${esc([r.familia,r.casa,'Primer año',r.cumple&&'Cumple el '+r.cumple].filter(Boolean).join(' · '))}</p>
+ <div class="attrs">${ATTR.map((n,i)=>`<div class="attr"><div class="v">${sgn(r.a[i])}</div><div class="n">${n}</div></div>`).join('')}</div>
+ <div class="dos"><div><h3>Virtudes</h3>${li(r.pos)}</div><div><h3>Defectos</h3>${li(r.neg)}</div>
+ <div><h3>Ventaja</h3><p>${esc(r.ventaja)}</p></div><div><h3>Desventaja</h3><p>${esc(r.desventaja)}</p></div>
+ <div><h3>Varita</h3><p>${esc(r.varita)}</p></div><div><h3>Aspecto</h3><p>${esc(r.look)}</p></div>
+ <div><h3>Reserva de hechizos (+1)</h3>${li(r.hechizos)}</div><div><h3>Beneficio de ${esc(r.casa)}</h3><p>${esc(r.benef)}</p></div>
+ <div><h3>Pertenencias</h3><p>${esc(r.cosas)} · ${esc(r.gal)}</p></div><div><h3>Vínculos</h3>${li(r.rel)}</div>
+ <div><h3>Condiciones</h3><p class="cajas"><span></span>Herido <span></span>Aturdido <span></span>Alterado<br><span></span>Agotado <span></span>Hechizado</p></div>
+ <div><h3>Experiencia</h3><p class="cajas"><span></span><span></span><span></span><span></span><span></span></p></div></div></div>`;}
+function texto(){const r=resumen();return [r.nombre,[r.familia,r.casa,'Primer año'].filter(Boolean).join(' · '),
+ ATTR.map((n,i)=>`${n} ${sgn(r.a[i])}`).join(' | '),'Virtudes: '+r.pos.join(', '),'Defectos: '+r.neg.join(', '),'Ventaja: '+r.ventaja,'Desventaja: '+r.desventaja,
+ 'Varita: '+r.varita,'Aspecto: '+r.look,'Hechizos: '+r.hechizos.join(', '),'Beneficio: '+r.benef,'Pertenencias: '+r.cosas+' · '+r.gal,'Vínculos: '+r.rel.join(', ')].join('\n');}
+
+/* =========================================================
+   Pintado
+   ========================================================= */
+let pintada=-1;
+function pintar(){
+ const e=ESC[S.esc],nueva=pintada!==S.esc,dlg=$('#dialogo'),scroll=dlg.scrollTop;
+ if(nueva){$('#arte').dataset.arte=e.id;$('#capa').innerHTML='';precargar(S.esc+1);}
+ const falta=e.falta();
+ dlg.innerHTML=`<div class="lugar"><h1>${e.t}</h1><small>${e.lugar}</small></div>
+  <div class="narra">${e.narra().map(p=>`<p>${p}</p>`).join('')}</div>
+  <div class="ui ${nueva?'':'ya'}">${e.ui()}
+  <div class="pie">${S.esc?`<button class="volver" data-act="atras">← Volver</button>`:'<span></span>'}
+  ${S.esc<ESC.length-1?`<button class="seguir" data-act="sigue" ${falta?'disabled':''}>Seguir</button>`:''}
+  ${falta?`<p class="falta">${falta}</p>`:''}</div></div>`;
+ if(!nueva)dlg.querySelectorAll('.narra p').forEach(p=>{p.style.animation='none';p.style.opacity=1;p.style.transform='none'});
+ dlg.scrollTop=nueva?0:scroll;pintada=S.esc;
+ $('#velas').innerHTML=ESC.map((x,i)=>`<button data-act="ir" data-v="${i}" class="${i<=S.max?'vista':''} ${i===S.esc?'actual':''}" ${i>S.max?'disabled':''} aria-label="${x.t}" aria-current="${i===S.esc?'step':'false'}"></button>`).join('');
+ cuadroDeEscena(nueva);pintarFicha();guardar();
+}
+function actualizarPie(){const e=ESC[S.esc],falta=e.falta(),b=$('.seguir[data-act="sigue"]');if(b)b.disabled=!!falta;
+ const p=$('.pie');let f=p&&p.querySelector('.falta');if(falta){if(!f){f=document.createElement('p');f.className='falta';p.appendChild(f)}f.textContent=falta}else if(f)f.remove();
+ cuadroDeEscena(false);pintarFicha();guardar();}
+
+/* =========================================================
+   Acciones
+   ========================================================= */
+const toggle=(arr,v,max)=>{const i=arr.indexOf(v);if(i>=0)arr.splice(i,1);else if(arr.length<max)arr.push(v);};
+async function copiar(t,msg){try{await navigator.clipboard.writeText(t);$('#msg').textContent=msg}catch(e){$('#msg').textContent='No se pudo copiar en este navegador.'}}
+const ACT={
+ sigue(){if(ESC[S.esc].falta())return;S.esc++;S.max=Math.max(S.max,S.esc);},
+ atras(){S.esc=Math.max(0,S.esc-1)},
+ ir(v){if(+v<=S.max)S.esc=+v},
+ fam(v){if(S.fam!==v){S.fam=v;S.plus=[];S.minus=[];S.gal=null;S.mixAdv='';S.mixDis='';}},
+ plus(v){v=+v;toggle(S.plus,v,FAM[S.fam].plus)}, minus(v){v=+v;toggle(S.minus,v,FAM[S.fam].minus)},
+ mixAdv(v){S.mixAdv=v}, mixDis(v){S.mixDis=v},
+ async gal(){const n=FAM[S.fam].dados;const r=await tirar(n,r=>`${r.reduce((a,b)=>a+b,0)} + 6 = ${r.reduce((a,b)=>a+b,0)+6} galeones`);S.gal=r.reduce((a,b)=>a+b,0)+6;},
+ tab(v){S.tab=v},
+ tr(v){toggle(S[S.tab],v,5)},
+ subir(v){v=+v;const a=S[S.tab];if(v>0)[a[v-1],a[v]]=[a[v],a[v-1]]},
+ quitar(v){S[S.tab].splice(+v,1)},
+ async azarTr(){const a=S[S.tab],t=TR[S.tab];if(a.length>=5)return;let r;
+  do{r=await tirar(2,x=>t[''+x[0]+x[1]][0]);}while(a.includes(''+r[0]+r[1]));a.push(''+r[0]+r[1]);},
+ look(v){const[k,c]=v.split(':');toggle(S.look[k],c,6)},
+ async azarLook(k){const r=await tirar(2,x=>LOOK[k].d[''+x[0]+x[1]]);const c=''+r[0]+r[1];if(!S.look[k].includes(c))S.look[k].push(c);},
+ async core(){const r=await tirar(1,x=>NUCLEO(x[0]));S.core=r[0];S.varita=false;},
+ async len(){const r=await tirar(1,x=>`${x[0]} + 8 = ${x[0]+8} pulgadas`);S.len=r[0]+8;S.varita=false;},
+ async probar(){await revelarVarita();S.varita=true;},
+ pet(v){S.pet=v}, async azarPet(){const r=await tirar(1,x=>PET(x[0]));S.pet=PET(r[0]);},
+ pago(v){S.pago=v}, extra(v){const i=S.extras.indexOf(v);if(i>=0)S.extras.splice(i,1);else S.extras.push(v)},
+ async pariente(){const tomar=t=>{const o=[];while(o.length<2){const c=''+d6()+d6();if(!o.includes(c))o.push(c)}return o.map(c=>t[c][0])};
+  await tirar(4);S.parientes.push([...tomar(POS),...tomar(NEG)].join(', '));},
+ mas(v){S.mas=+v}, menos(v){S.menos=+v},
+ casa(v){if(S.casa!==v){S.casa=v;S.benef=-1}}, benef(v){S.benef=+v},
+ bank(v){toggle(S.bank,v,3)},
+ copiarTxt(){copiar(texto(),'Ficha copiada.');return 'no'},
+ copiarJson(){copiar(JSON.stringify(S,null,1),'Datos copiados.');return 'no'},
+ reiniciar(){const b=$('[data-act="reiniciar"]');if(b.dataset.ok){S=NUEVO();cuadroActual='';$('#portada').hidden=false;}else{b.dataset.ok=1;b.textContent='¿Seguro? Toca de nuevo';return 'no'}},
+ cerrarFicha(){abrirFicha(false);return 'no'},
+ bajar(){const b=new Blob([JSON.stringify(S,null,1)],{type:'application/json'}),a=document.createElement('a');
+  a.href=URL.createObjectURL(b);a.download=(S.name.trim()||'personaje').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'.json';
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);return 'no'},
+ imprimir(){try{window.print()}catch(e){}return 'no'}
+};
+document.addEventListener('click',async ev=>{
+ const b=ev.target.closest('[data-act]');if(!b||b.disabled||rodando)return;
+ const f=ACT[b.dataset.act];if(!f)return;
+ const r=await f(b.dataset.v);if(r!=='no')pintar();
+});
+document.addEventListener('input',ev=>{
+ const el=ev.target;const k=el.dataset&&el.dataset.in;if(!k||k==='importar')return;
+ const[a,b]=k.split(':');
+ if(a==='resp')S.resp[b]=el.value;else if(a==='otro'){S.otros[+b]=el.value;const v=$('#vinc');if(v)v.innerHTML=vincHTML();}
+ else S[a]=el.value;
+ if(a==='mes'){const max=DIAS[(+S.mes||1)-1];if(+S.dia>max)S.dia=max;S.varita=false;}
+ if(a==='dia')S.varita=false;
+ if(a==='famSpell')S.bank=S.bank.filter(x=>x!==S.famSpell);
+ if(el.dataset.re&&ev.type==='input'&&el.tagName!=='INPUT')pintar();else actualizarPie();
+});
+document.addEventListener('change',ev=>{
+ const el=ev.target;
+ if(el.dataset.in==='importar'&&el.files[0]){const fr=new FileReader();fr.onload=()=>{try{const g=JSON.parse(fr.result);if(g.v!==1)throw 0;S=Object.assign(NUEVO(),g);pintada=-1;pintar();}catch(e){$('#msg').textContent='Ese archivo no es una ficha válida.'}};fr.readAsText(el.files[0]);}
+});
+function abrirFicha(si){$('#ficha').classList.toggle('abierta',si);$('#abrir-ficha').setAttribute('aria-expanded',si)}
+$('#empezar').addEventListener('click',()=>{$('#portada').hidden=true;S.empezo=true;guardar();});
+if(!S.empezo)$('#portada').hidden=false;
+$('#abrir-ficha').addEventListener('click',()=>abrirFicha(!$('#ficha').classList.contains('abierta')));
+pintar();
+})();
+</script>
+</body>
+</html>
