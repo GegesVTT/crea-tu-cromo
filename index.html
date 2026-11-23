@@ -2,227 +2,347 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Crea tu cromo</title>
 <meta name="description" content="Creación de personajes para el juego de rol Hechicería y Magia. Guía no oficial, hecha por fans.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,900&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
 <style>
-/* Noche de velas: tinta violácea, luz ámbar, pergamino. */
+/* Noche de velas. Una decisión a la vez, el texto sobre la escena y la elección contestada con luz. */
 :root{
-  --noche:#0f0d1b; --noche2:#1a1730; --noche3:#262143;
-  --vela:#e3a93b; --vela2:#f4cf7e; --brasa:#d2492f; --mostaza:#e3a93b; --tomate:#d2492f; --musgo:#79a98f; --lila:#a99bd6;
-  --perg:#f1e6cc; --perg2:#d9c9a3; --tinta:#2a2236;
-  --borde:rgba(243,185,95,.32);
+  --noche:#0f0d1b; --noche2:#1a1730;
+  --mostaza:#e3a93b; --mostaza2:#f4cf7e; --tomate:#d2492f; --ciruela:#a2558f; --ciruela2:#e0a6d0; --musgo:#79a98f; --lila:#b3a6de;
+  --perg:#efe3c4; --perg2:#d9c9a3; --tinta:#2a2236; --crema:#efe6d6;
+  --luz:var(--mostaza); --luz2:var(--mostaza2);
   --t:'IM Fell English',Georgia,serif; --d:'Bodoni Moda',Georgia,serif; --sc:'IM Fell English SC',Georgia,serif;
 }
+.app[data-tinta="ciruela"]{--luz:var(--ciruela);--luz2:var(--ciruela2)}
 *{box-sizing:border-box}
-html,body{margin:0;height:100%}
-body{background:var(--noche);color:var(--perg);font:400 17px/1.55 var(--t);-webkit-font-smoothing:antialiased;overflow:hidden}
+html,body{margin:0}
+body{background:var(--noche);color:var(--crema);font:400 18px/1.5 var(--t);-webkit-font-smoothing:antialiased;min-height:100svh}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
-:focus-visible{outline:2px solid var(--vela2);outline-offset:2px}
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+:focus-visible{outline:2px solid var(--luz2);outline-offset:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+[hidden]{display:none!important}
 
-/* ---------- Estructura ---------- */
-.app{position:relative;height:100svh;display:flex;flex-direction:column}
-.escenario{position:relative;flex:0 0 auto;height:min(46svh,calc(100vw * .5581));overflow:hidden;background:var(--noche2)}
-.cuadro{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.1s ease;transform-origin:50% 45%}
-.cuadro.on{opacity:1;animation:zoom 22s ease-out forwards}
-@keyframes zoom{from{transform:scale(1)}to{transform:scale(1.07)}}
-.arte{position:absolute;inset:0;pointer-events:none} /* lugar reservado para el arte de GG */
-.velo{position:absolute;inset:auto 0 0 0;height:22%;background:linear-gradient(transparent,var(--noche))}
-.dialogo{position:relative;flex:1;overflow:auto;padding:0 18px 28px;background:var(--noche);scroll-behavior:smooth}
-.ficha{position:fixed;top:0;right:0;height:100svh;width:min(88vw,360px);background:#14122a;border-left:1px solid var(--borde);transform:translateX(102%);transition:transform .35s ease;z-index:30;overflow:auto;padding:18px 18px 40px}
-.ficha.abierta{transform:none;box-shadow:-20px 0 60px rgba(0,0,0,.6)}
-.btn-ficha{position:absolute;top:10px;right:10px;z-index:5}
-.btn-cerrar{float:right}
-
-@media (min-width:900px) and (orientation:landscape){
-  .app{display:grid;grid-template-columns:1fr 340px}
-  .escenario{grid-row:1;grid-column:1;height:100svh}
-  .dialogo{position:absolute;left:3vw;bottom:3vh;width:min(780px,calc(100vw - 340px - 6vw));max-height:62vh;background:rgba(15,13,27,.86);backdrop-filter:blur(6px);border:1px solid var(--borde);border-radius:4px;padding:0 26px 26px;box-shadow:0 30px 80px rgba(0,0,0,.55)}
-  .velo{height:0}
-  .escenario::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,transparent 55%,rgba(15,13,27,.55))}
-  .ficha{position:relative;transform:none;width:auto;grid-column:2;grid-row:1}
-  .btn-ficha,.btn-cerrar{display:none}
-}
+/* ---------- Lienzo: el arte de GG, fundido con la noche ---------- */
+.lienzo{position:fixed;top:0;left:0;right:0;height:52svh;overflow:hidden;z-index:0;pointer-events:none;
+  -webkit-mask-image:radial-gradient(ellipse 78% 74% at 50% 42%,#000 48%,transparent 96%);
+          mask-image:radial-gradient(ellipse 78% 74% at 50% 42%,#000 48%,transparent 96%)}
+.cuadro{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:60% 45%;opacity:0;transition:opacity 1.2s ease;filter:sepia(.12) brightness(.9) contrast(1.06)}
+.cuadro.on{opacity:1;animation:acerca 24s ease-out forwards}
+@keyframes acerca{from{transform:scale(1.02)}to{transform:scale(1.09)}}
 
 /* ---------- Barra superior ---------- */
-.velas{position:absolute;top:12px;left:12px;display:flex;gap:6px;z-index:5;align-items:flex-end}
-.velas button{width:12px;height:26px;padding:0;border:0;background:none;position:relative}
-.velas button::before{content:"";position:absolute;bottom:0;left:3px;width:6px;height:16px;background:var(--perg2);opacity:.35;border-radius:1px}
-.velas button::after{content:"";position:absolute;bottom:17px;left:3px;width:6px;height:8px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:var(--vela);opacity:0;box-shadow:0 0 10px var(--vela)}
-.velas button.vista::before{opacity:.8}
-.velas button.vista::after{opacity:.55}
-.velas button.actual::after{opacity:1;animation:llama 1.6s ease-in-out infinite}
-.velas button:disabled{cursor:default}
+.barra{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:flex-end;gap:8px;padding:12px 14px;padding-top:max(12px,env(safe-area-inset-top));background:linear-gradient(rgba(15,13,27,.75),transparent);pointer-events:none}
+.barra>*{pointer-events:auto}
+.icono{min-width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 12px;background:rgba(15,13,27,.6);border:1px solid rgba(243,207,126,.35);border-radius:22px;color:var(--crema);font:400 15px var(--sc);letter-spacing:.06em}
+.icono svg{width:20px;height:20px}
+.icono[aria-pressed="true"]{border-color:var(--mostaza);color:var(--mostaza2);box-shadow:0 0 14px rgba(227,169,59,.35)}
+.cuenta{min-width:22px;height:22px;border-radius:11px;background:var(--tomate);color:#fff7e6;font:900 13px/22px var(--d);text-align:center;padding:0 5px}
 
-/* ---------- Diálogo ---------- */
-.lugar{position:sticky;top:0;z-index:2;background:linear-gradient(var(--noche) 70%,transparent);padding:16px 0 10px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-@media (min-width:900px) and (orientation:landscape){.lugar{background:linear-gradient(rgba(15,13,27,.98) 70%,transparent)}}
-.lugar h1{font:900 clamp(26px,4.4vw,38px)/1.05 var(--d);margin:0;color:var(--vela2);letter-spacing:.01em}
-.lugar small{font:400 15px var(--sc);letter-spacing:.08em;color:var(--lila);white-space:nowrap}
-.narra p{font-style:italic;font-size:18px;margin:0 0 .7em;color:#efe6d6;opacity:0;transform:translateY(6px);animation:aparece .7s ease forwards}
-.narra p:nth-child(2){animation-delay:.5s}.narra p:nth-child(3){animation-delay:1s}.narra p:nth-child(4){animation-delay:1.5s}
-.ui{opacity:0;animation:aparece .6s ease forwards;animation-delay:.9s}
-.ui.ya{animation:none;opacity:1}
-h2{font:900 21px/1.2 var(--d);color:var(--vela);margin:22px 0 8px}
-h3{font:400 16px/1.3 var(--sc);letter-spacing:.06em;color:var(--lila);margin:16px 0 6px}
-.nota{font-size:14.5px;color:#c7bcd9;margin:.4em 0}
-.aviso{font-size:14.5px;color:var(--vela2);border-left:2px solid var(--brasa);padding:2px 0 2px 10px;margin:10px 0}
-.prov{color:var(--brasa);font-size:.8em;vertical-align:super}
+/* ---------- Relato ---------- */
+.relato{position:relative;z-index:5;min-height:100svh;padding:40svh 20px 130px}
+.relato::before{content:"";position:absolute;inset:28svh 0 0 0;background:linear-gradient(transparent,var(--noche) 14svh);z-index:-1}
+.cuerpo{max-width:660px;margin:0 auto;transition:opacity .25s ease,transform .25s ease}
+.cuerpo.sale{opacity:0;transform:translateY(8px)}
+.lugar{font:400 15px var(--sc);letter-spacing:.1em;color:var(--lila);margin:0 0 2px}
+h1{font:900 clamp(34px,8vw,52px)/1 var(--d);color:var(--mostaza2);margin:0 0 6px}
+.nudo-sep{display:block;width:180px;height:16px;margin:2px 0 14px;color:var(--mostaza)}
+.narra p{font-style:italic;font-size:clamp(19px,4.6vw,22px);line-height:1.5;margin:0 0 .6em;text-shadow:0 1px 12px rgba(15,13,27,.9)}
+.narra .w{display:inline-block;opacity:0;filter:blur(6px);transform:translateY(4px);animation:enfoca .7s ease forwards}
+.narra.ya .w{animation:none;opacity:1;filter:none;transform:none}
 
-.ops{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
-.op{min-height:44px;padding:8px 14px;border:1px solid var(--borde);background:rgba(255,255,255,.03);border-radius:3px;text-align:left;line-height:1.25;transition:background .2s,border-color .2s}
-.op:hover{border-color:var(--vela)}
-.op[aria-pressed="true"]{background:var(--vela);color:var(--tinta);border-color:var(--vela)}
-.op:disabled{opacity:.35;cursor:not-allowed}
-.op small{display:block;font-size:12.5px;opacity:.8}
-.op.chico{min-height:38px;padding:6px 10px;font-size:15px}
-.tarjeta{border:1px solid var(--borde);padding:12px 14px;margin:8px 0;border-radius:3px;background:rgba(255,255,255,.025)}
-.tarjeta[aria-pressed="true"]{border-color:var(--vela);background:rgba(243,185,95,.1)}
-button.tarjeta{width:100%;text-align:left;display:block}
-.tarjeta b{font-family:var(--d);font-weight:900;font-size:19px;color:var(--vela2)}
+/* ---------- Pasos: aparecen de a uno ---------- */
+.paso{margin:26px 0 0;animation:aparece .5s ease}
+.paso.ya{animation:none}
+h2{font:900 clamp(25px,6vw,36px)/1.08 var(--d);color:var(--luz2);margin:0 0 6px}
+.ayuda{font-size:16px;color:var(--lila);font-style:italic;margin:0 0 12px}
+.nota{font-size:16px;color:#c9bfdc;font-style:italic;margin:.5em 0}
+.prov{color:var(--tomate);font-size:.8em;vertical-align:super}
+.resumen{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:16px 0 0;padding:8px 0 10px;border-bottom:1px solid rgba(243,207,126,.14)}
+.resumen .q{font:400 14px var(--sc);letter-spacing:.08em;color:var(--lila);min-width:7.5em}
+.resumen .r{flex:1;font-size:18px;color:var(--crema)}
+.cambiar{background:none;border:0;color:var(--perg2);text-decoration:underline;text-underline-offset:3px;font-size:15px;padding:4px 0;min-height:36px}
 
-label.campo{display:block;margin:10px 0}
-label.campo span{display:block;font:400 15px var(--sc);letter-spacing:.05em;color:var(--lila);margin-bottom:4px}
-input[type=text],select,textarea{width:100%;min-height:44px;background:rgba(255,255,255,.05);border:1px solid var(--borde);border-radius:3px;padding:8px 10px}
-select option{background:var(--noche2)}
-textarea{min-height:70px;resize:vertical}
-.fila{display:flex;gap:10px;flex-wrap:wrap}.fila>*{flex:1 1 140px}
+/* ---------- Tarjetas de papel ---------- */
+.naipes{display:grid;grid-template-columns:1fr 1fr;gap:12px;touch-action:pan-y;transition:opacity .2s,transform .2s}
+.naipes.uno{grid-template-columns:1fr}
+.naipes.tres{grid-template-columns:repeat(3,1fr)}
+.naipes.cambia{opacity:0;transform:translateX(var(--dx,12px))}
+.naipe{position:relative;min-height:60px;padding:13px 12px;border:0;border-radius:3px;color:var(--tinta);
+  background-color:var(--perg);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .22 0 0 0 0 .1 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),radial-gradient(ellipse at 20% 0,rgba(255,255,255,.55),transparent 60%),radial-gradient(ellipse at 100% 100%,rgba(140,100,40,.22),transparent 65%);
+  font:400 18px/1.2 var(--t);text-align:center;
+  box-shadow:0 1px 0 rgba(255,255,255,.45) inset,0 -2px 0 rgba(120,90,40,.18) inset,0 8px 18px rgba(0,0,0,.5);
+  transition:transform .22s ease,box-shadow .25s ease,opacity .3s ease,filter .3s ease}
+.naipe::before{content:"";position:absolute;inset:5px;border:1px solid rgba(42,34,54,.3);border-radius:2px;pointer-events:none}
+.naipe b{display:block;font:900 19px/1.15 var(--d);color:#7a2f1c;margin-bottom:4px}
+.naipe small{display:block;font-size:14.5px;line-height:1.3;color:#4a3f5c;margin-top:3px}
+.naipe.izq{text-align:left;padding:14px 16px}
+@media (hover:hover){.naipe:not(:disabled):hover{transform:translateY(-3px);box-shadow:0 1px 0 rgba(255,255,255,.45) inset,0 0 0 2px var(--luz),0 0 30px color-mix(in srgb,var(--luz) 50%,transparent),0 12px 24px rgba(0,0,0,.5)}}
+.naipe[aria-pressed="true"]{transform:translateY(-3px);box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 0 0 2px var(--luz),0 0 44px color-mix(in srgb,var(--luz) 70%,transparent),0 12px 26px rgba(0,0,0,.5)}
+.naipes.unica .naipe[aria-pressed="false"]{opacity:.6;filter:saturate(.4) brightness(.82)}
+.naipe:disabled{opacity:.32!important;cursor:not-allowed;filter:saturate(.2)}
+.lacre{position:absolute;top:-11px;right:-9px;width:32px;height:32px;border-radius:48% 52% 50% 46%;background:radial-gradient(circle at 35% 30%,#e36b50,#a8321f 58%,#701d12);color:#fbe9d0;font:900 15px/32px var(--d);text-align:center;box-shadow:0 2px 5px rgba(0,0,0,.55);transform:scale(0) rotate(-25deg);transition:transform .38s cubic-bezier(.3,1.7,.5,1)}
+.naipe[aria-pressed="true"] .lacre{transform:scale(1) rotate(-8deg)}
 
+/* ---------- Páginas (la tabla de 2d6: primer dado = página) ---------- */
+.paginas{display:flex;align-items:center;gap:6px;margin:4px 0 12px}
+.cara{width:40px;height:40px;padding:0;border:1px solid rgba(243,207,126,.28);background:rgba(15,13,27,.5);border-radius:8px;display:grid;place-items:center}
+.cara svg{width:24px;height:24px}
+.cara[aria-current="true"]{border-color:var(--luz);box-shadow:0 0 12px color-mix(in srgb,var(--luz) 55%,transparent)}
+.flecha{width:36px;height:40px;border:0;background:none;color:var(--perg2);font-size:26px;line-height:1;padding:0}
+.flecha:disabled{opacity:.25;cursor:default}
+.paginas .dado-btn{margin-left:auto}
+.secundario{min-height:42px;padding:6px 16px;border:1px solid rgba(243,207,126,.35);background:rgba(15,13,27,.5);border-radius:21px;display:inline-flex;align-items:center;gap:8px;font-size:16px}
+.secundario:disabled{opacity:.4;cursor:not-allowed}
+.dado-btn::before{content:"";width:16px;height:16px;border:1.5px solid currentColor;border-radius:4px;background:radial-gradient(circle,currentColor 2px,transparent 2.5px) 50%/100% 100% no-repeat}
+@media (max-width:480px){.paginas .dado-btn .txt{display:none}.paginas .dado-btn{padding:0 10px;gap:0}.cara{width:36px;height:36px}.naipe{min-height:54px;padding:11px 10px}.naipes{gap:10px}.naipes.tres{grid-template-columns:1fr 1fr}}
+
+/* ---------- Huecos elegidos y listas para ordenar ---------- */
+.huecos{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:4px 0 14px}
+.hueco{position:relative;min-height:44px;border:1px dashed rgba(243,207,126,.3);border-radius:3px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:13.5px;line-height:1.1;padding:6px 4px;color:#8f86ad;background:none}
+.hueco b{position:absolute;top:-8px;left:-6px;font:900 13px/20px var(--d);width:20px;height:20px;border-radius:50%;background:#2c2648;color:var(--perg2);text-align:center}
+.hueco.lleno{border:1px solid var(--luz);background:color-mix(in srgb,var(--luz) 14%,transparent);color:var(--crema);cursor:pointer}
+.hueco.lleno b{background:var(--tomate);color:#fbe9d0}
+.hueco.lleno::after{content:"×";position:absolute;top:-9px;right:-5px;width:18px;height:18px;border-radius:50%;background:var(--noche2);color:var(--lila);font:400 15px/17px var(--t);border:1px solid rgba(179,166,222,.4)}
+.orden{list-style:none;margin:0;padding:0}
+.orden li{position:relative;display:flex;align-items:center;gap:8px;min-height:48px;padding:6px 6px 6px 10px;margin:0 0 6px;border-radius:3px;background:rgba(239,227,196,.06);border:1px solid rgba(243,207,126,.2);touch-action:none;cursor:grab;user-select:none;transition:transform .18s ease,box-shadow .2s,background .2s}
+.orden li .n{font:900 17px var(--d);color:var(--tomate);width:18px}
+.orden li .nom{flex:1;font-size:18px}
+.orden li .asa{width:14px;height:20px;background:radial-gradient(circle,var(--perg2) 1.4px,transparent 1.8px) 0 0/7px 6px;opacity:.6}
+.orden li button{width:34px;height:34px;border:0;background:none;color:var(--perg2);font-size:14px;padding:0}
+.orden li button:disabled{opacity:.2}
+.orden li.arrastra{z-index:3;cursor:grabbing;transition:none;background:var(--perg);color:var(--tinta);box-shadow:0 0 0 2px var(--luz),0 12px 28px rgba(0,0,0,.55)}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:6px 22px}
+.dos h3{font:400 16px var(--sc);letter-spacing:.08em;margin:0 0 6px;color:var(--mostaza2)}
+.dos .d h3{color:var(--ciruela2)}
+@media (max-width:480px){.dos{grid-template-columns:1fr;gap:14px}.hueco{font-size:12.5px}}
+
+/* ---------- Campos para escribir: grandes y sin caja ---------- */
+.firma{display:block;width:100%;background:none;border:0;border-bottom:1.5px solid var(--luz);padding:8px 2px;font:italic 400 clamp(24px,6vw,32px) var(--t);color:var(--crema);border-radius:0}
+.firma::placeholder{color:#7d7499}
+.firma:focus{outline:none;border-bottom-color:var(--luz2);box-shadow:0 8px 16px -12px var(--luz)}
+.fecha{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;font-size:22px;font-style:italic}
+.fecha select{background:none;border:0;border-bottom:1.5px solid var(--luz);color:var(--crema);font:italic 400 24px var(--t);padding:4px 2px;min-height:44px}
+.fecha select option{background:var(--noche2);color:var(--crema)}
+.campo{display:block;margin:12px 0}
+.campo span{display:block;font:400 15px var(--sc);letter-spacing:.06em;color:var(--lila);margin-bottom:4px}
+.campo input,.campo textarea{width:100%;background:rgba(239,227,196,.05);border:0;border-bottom:1px solid rgba(243,207,126,.4);border-radius:2px;padding:9px 8px;min-height:44px}
+.campo textarea{min-height:76px;resize:vertical}
+.fila{display:flex;gap:12px;flex-wrap:wrap}.fila>*{flex:1 1 140px}
+
+/* ---------- Pliegue de lo opcional ---------- */
+.pliegue{margin:26px 0 0;border-top:1px solid rgba(243,207,126,.18);border-bottom:1px solid rgba(243,207,126,.18)}
+.pliegue summary{list-style:none;cursor:pointer;padding:14px 0;display:flex;align-items:center;gap:10px;font:400 17px var(--sc);letter-spacing:.06em;color:var(--perg2)}
+.pliegue summary::-webkit-details-marker{display:none}
+.pliegue summary::before{content:"+";width:24px;height:24px;border:1px solid var(--luz);border-radius:50%;display:grid;place-items:center;font:400 18px/1 var(--t);color:var(--luz2)}
+.pliegue[open] summary::before{content:"−"}
+.pliegue summary small{font:italic 400 15px var(--t);color:var(--lila);letter-spacing:0}
+.pliegue .dentro{padding:0 0 16px}
+
+/* ---------- Atributos ---------- */
 .attrs{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:8px 0}
-.attr{text-align:center;border:1px solid var(--borde);border-radius:3px;padding:8px 2px}
-.attr .v{font:900 26px/1 var(--d);color:var(--vela2)}
+.attr{text-align:center;border:1px solid rgba(243,207,126,.28);border-radius:3px;padding:8px 2px;background:rgba(15,13,27,.4)}
+.attr .v{font:900 26px/1 var(--d);color:var(--mostaza2)}
 .attr .n{font:400 13px var(--sc);color:var(--lila)}
 .attr .aj{display:flex;justify-content:center;gap:4px;margin-top:6px}
-.attr .aj button{width:36px;height:36px;border:1px solid var(--borde);background:none;border-radius:50%;padding:0;font-size:18px;line-height:1}
-.attr .aj button[aria-pressed="true"]{background:var(--vela);color:var(--tinta)}
+.attr .aj button{width:34px;height:34px;border:1px solid rgba(243,207,126,.35);background:none;border-radius:50%;padding:0;font-size:18px;line-height:1}
+.attr .aj button[aria-pressed="true"]{background:var(--mostaza);color:var(--tinta)}
 .attr .aj button:disabled{opacity:.25}
+@media (max-width:480px){.attrs{gap:4px}.attr{padding:6px 0}.attr .v{font-size:22px}.attr .n{font-size:11.5px}.attr .aj{gap:2px}.attr .aj button{width:28px;height:28px;font-size:16px}}
 
-.orden{list-style:none;padding:0;margin:8px 0;counter-reset:o}
-.orden li{display:flex;align-items:center;gap:8px;border-bottom:1px dashed var(--borde);padding:6px 0;min-height:44px}
-.orden li::before{counter-increment:o;content:counter(o);font:400 20px var(--d);color:var(--vela);width:22px}
-.orden li .nom{flex:1}
-.orden li button{border:0;background:none;width:40px;height:40px;color:var(--perg2)}
-.orden li.vacio{color:#7d7499;font-style:italic}
+/* ---------- Estandartes de las casas (sin escudos) ---------- */
+.estandartes{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:start;margin:8px 0 6px}
+.estandarte{background:none;border:0;padding:0;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--crema);transition:opacity .3s,filter .3s}
+.estandarte .asta{width:100%;height:6px;border-radius:3px;background:linear-gradient(var(--perg2),#8d7a55)}
+.estandarte svg{width:82%;height:var(--alto);min-height:70px;transition:height .9s cubic-bezier(.3,1.2,.4,1),filter .3s;filter:drop-shadow(0 6px 10px rgba(0,0,0,.45))}
+.estandarte .nom{font:400 15px var(--sc);letter-spacing:.04em}
+.estandarte .pts{font:900 18px var(--d);color:var(--mostaza2)}
+.estandarte .sug{font:italic 400 13px var(--t);color:var(--luz2);min-height:1.2em}
+.estandarte[aria-pressed="true"] svg{filter:drop-shadow(0 0 16px rgba(243,207,126,.7)) drop-shadow(0 6px 10px rgba(0,0,0,.45))}
+.estandartes.hay .estandarte[aria-pressed="false"]{opacity:.55;filter:saturate(.5)}
+@media (max-width:420px){.estandarte .nom{font-size:13px}}
 
-.pie{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:22px;flex-wrap:wrap}
-.seguir{min-height:48px;padding:10px 24px;background:var(--tomate);color:#fff7e6;border:0;border-radius:3px;font:900 19px var(--d);letter-spacing:.02em}
-.seguir:disabled{background:#4a4268;color:#9b93b8;cursor:not-allowed}
-.volver{min-height:44px;background:none;border:0;color:var(--lila);text-decoration:underline;text-underline-offset:3px}
-.falta{font-size:14px;color:#b2a6cf;font-style:italic;flex-basis:100%}
-.dado-btn{display:inline-flex;align-items:center;gap:8px}
-.dado-btn::before{content:"";width:18px;height:18px;border:1.5px solid currentColor;border-radius:4px;background:radial-gradient(circle,currentColor 2px,transparent 2.5px) 50%/100% 100% no-repeat}
-.secundario{border:1px solid var(--borde);background:none;min-height:44px;padding:8px 14px;border-radius:3px}
+/* ---------- Pie: Volver y Seguir ---------- */
+.pie{position:fixed;left:0;right:0;bottom:0;z-index:15;padding:16px 20px;padding-bottom:max(16px,env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--noche) 45%)}
+.pie-in{max-width:660px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.pie-in{flex-wrap:wrap}
+.falta{order:-1;flex-basis:100%;font-size:14.5px;color:#b2a6cf;font-style:italic;text-align:right;margin:0 0 -6px;min-height:0}
+.falta:empty{display:none}
+.volver{white-space:nowrap;min-height:48px;background:none;border:0;color:var(--lila);text-decoration:underline;text-underline-offset:4px;font-size:17px}
+/* Seguir: marco de nudo recto (trenzado a 45°). Las puntas son SVG; las reglas siguen en CSS para estirar con el texto. */
+.seguir{--o-l:var(--mostaza);--o-f:var(--perg2);--o-h:var(--mostaza);--o-texto:var(--mostaza2);
+  position:relative;height:64px;min-width:180px;padding:0 58px;border:0;background:none;color:var(--o-texto);font:900 21px/64px var(--d);letter-spacing:.03em;white-space:nowrap;transition:color .25s,filter .3s}
+.seguir::before,.seguir::after{content:"";position:absolute;left:39px;right:39px;height:1.3px;background:var(--o-l)}
+.seguir::before{top:5.35px}.seguir::after{bottom:5.35px}
+.seguir svg{position:absolute;top:0;width:52px;height:64px;overflow:visible}
+.seguir .izq{left:0}.seguir .der{right:0;transform:scaleX(-1)}
+@media (hover:hover){.seguir:not(:disabled):hover{--o-l:var(--mostaza2);--o-f:#fff2cf;--o-texto:#fff7e6;filter:drop-shadow(0 0 10px rgba(243,185,95,.45))}}
+.seguir:not(:disabled):active,.seguir:focus-visible{outline:none;filter:drop-shadow(0 0 12px rgba(243,185,95,.6))}
+.seguir:disabled{--o-l:#4e4769;--o-f:#433d5d;--o-h:#5c5379;--o-texto:#8a83a8;cursor:not-allowed}
 
-.barras{margin:10px 0}
-.barra{display:grid;grid-template-columns:96px 1fr 34px;align-items:center;gap:8px;margin:6px 0;font-size:15px}
-.barra i{display:block;height:10px;border-radius:5px;background:var(--musgo);transform-origin:left;animation:crece 1s ease}
-.barra.top i{background:var(--vela)}
+/* ---------- Cajón de la ficha ---------- */
+.cajon{position:fixed;top:0;right:0;bottom:0;width:min(90vw,400px);z-index:30;background:#16132b;border-left:1px solid rgba(243,207,126,.3);padding:20px 22px 40px;overflow:auto;transform:translateX(104%);transition:transform .38s cubic-bezier(.3,.9,.3,1);box-shadow:-24px 0 60px rgba(0,0,0,.6)}
+.cajon.abierto{transform:none}
+.cajon h2{font-size:30px;color:var(--mostaza2);margin:6px 0 2px}
+.cajon dl{margin:0;font-size:16px}
+.cajon dt{font:400 14px var(--sc);letter-spacing:.06em;color:var(--lila);margin-top:12px}
+.cajon dd{margin:2px 0 0}
+.cajon .vacio{color:#71698f;font-style:italic}
+.cajon .cerrar{float:right}
+.cajon .attrs{gap:4px}.cajon .attr{padding:5px 1px}.cajon .attr .v{font-size:20px}.cajon .attr .n{font-size:10px}
+.escenas{list-style:none;padding:0;margin:8px 0 0;columns:2;column-gap:12px}
+.escenas button{background:none;border:0;padding:4px 0;color:var(--perg2);text-align:left;font-size:15.5px;min-height:34px}
+.escenas button[aria-current="true"]{color:var(--mostaza2);text-decoration:underline}
+.escenas button:disabled{color:#5e5680;cursor:default}
+.velo{position:fixed;inset:0;z-index:25;background:rgba(8,7,16,.55);opacity:0;pointer-events:none;transition:opacity .3s}
+.velo.on{opacity:1;pointer-events:auto}
+.legal{font-size:13px;color:#8a81a8;line-height:1.45;margin-top:26px}
+.legal a{color:var(--perg2)}
 
-/* ---------- Bandeja de dados y revelaciones (en el escenario) ---------- */
-.capa{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:14px;z-index:4;pointer-events:none;flex-wrap:wrap;padding:30px}
-.dado{width:54px;height:54px;background:var(--perg);border-radius:9px;box-shadow:0 8px 20px rgba(0,0,0,.5),inset 0 -4px 0 var(--perg2);display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:8px}
-.dado i{width:9px;height:9px;border-radius:50%;background:var(--tinta);place-self:center;visibility:hidden}
+/* ---------- Dados y revelaciones ---------- */
+.capa{position:fixed;inset:0;z-index:35;display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;align-content:center;pointer-events:none;padding:30px}
+.capa:empty{display:none}
+.capa::before{content:"";position:absolute;inset:0;background:radial-gradient(circle,rgba(15,13,27,.72),transparent 62%)}
+.dado{position:relative;width:60px;height:60px;background:var(--perg);border-radius:10px;box-shadow:0 10px 24px rgba(0,0,0,.55),inset 0 -4px 0 var(--perg2);display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:9px}
+.dado i{width:10px;height:10px;border-radius:50%;background:var(--tinta);place-self:center;visibility:hidden}
 .dado i.on{visibility:visible}
 .dado.rueda{animation:rueda .14s linear infinite}
 .dado.cae{animation:cae .45s cubic-bezier(.3,1.6,.5,1)}
-.resultado{width:100%;text-align:center;font:900 28px var(--d);color:var(--vela2);text-shadow:0 2px 10px #000}
-
-.revela svg{width:min(80%,420px);height:auto}
-.revela .vara{stroke-dasharray:300;stroke-dashoffset:300;animation:traza 1.6s ease forwards .6s}
-.revela .tapa{animation:tapa 1s ease forwards}
-.revela .chispa{opacity:0;animation:chispa 1.4s ease-out forwards 1.8s}
-
-/* ---------- Ficha ---------- */
-.ficha h2{margin-top:6px}
-.ficha dl{margin:0;font-size:15px}
-.ficha dt{font:400 14px var(--sc);letter-spacing:.05em;color:var(--lila);margin-top:12px}
-.ficha dd{margin:2px 0 0}
-.ficha .vacio{color:#6f6790;font-style:italic}
-.ficha .attrs{gap:4px}.ficha .attr{padding:5px 1px}.ficha .attr .v{font-size:20px}.ficha .attr .n{font-size:10px}
-.legal{font-size:12px;color:#8a81a8;margin-top:26px;line-height:1.4}
+.resultado{position:relative;width:100%;text-align:center;font:900 30px var(--d);color:var(--mostaza2);text-shadow:0 2px 12px #000}
 
 /* ---------- Pergamino final ---------- */
 .perg{background:var(--perg);color:var(--tinta);padding:22px 20px;border-radius:2px;margin:12px 0;box-shadow:0 12px 40px rgba(0,0,0,.5);background-image:radial-gradient(ellipse at 20% 0,rgba(255,255,255,.5),transparent 60%),radial-gradient(ellipse at 100% 100%,rgba(140,100,40,.18),transparent 60%)}
 .perg h2{color:#a8321f;font-size:32px;margin:0 0 2px}
-.perg h3{color:#5a4a78}
-.perg .attr{border-color:#b9a77c}.perg .attr .v{color:#7a2f1c}.perg .attr .n{color:#5a4a78}
+.perg h3{font:400 15px var(--sc);letter-spacing:.06em;color:#5a4a78;margin:14px 0 4px}
+.perg .attr{border-color:#b9a77c;background:none}.perg .attr .v{color:#7a2f1c}.perg .attr .n{color:#5a4a78}
 .perg ul{margin:4px 0;padding-left:18px}
 .perg .cajas span{display:inline-block;width:18px;height:18px;border:1.5px solid var(--tinta);margin-right:4px;vertical-align:middle}
-.perg .dos{display:grid;grid-template-columns:1fr;gap:4px 24px}
-@media (min-width:600px){.perg .dos{grid-template-columns:1fr 1fr}}
-.copiado{color:var(--musgo);font-size:14px;margin-left:8px}
+.perg .grilla{display:grid;grid-template-columns:1fr;gap:4px 24px}
+@media (min-width:600px){.perg .grilla{grid-template-columns:1fr 1fr}}
+.acciones-perg{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.copiado{color:var(--musgo);font-size:15px}
 
 /* ---------- Portada ---------- */
 .portada{position:fixed;inset:0;z-index:50;background:var(--noche);display:grid;place-items:center;overflow:hidden}
-.portada[hidden]{display:none}
-.portada img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.32;filter:sepia(.3) saturate(.8);animation:zoom 30s ease-out forwards}
+.portada img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.3;filter:sepia(.3) saturate(.8);animation:acerca 30s ease-out forwards}
 .portada::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(15,13,27,.2),rgba(15,13,27,.92) 75%)}
 .portada-txt{position:relative;z-index:1;text-align:center;padding:24px;max-width:640px}
 .portada .sobre{font:400 17px var(--sc);color:var(--perg2);letter-spacing:.08em;margin:0 0 6px}
-.portada h1{font:900 clamp(52px,13vw,120px)/.86 var(--d);color:var(--mostaza);margin:0;letter-spacing:-.01em}
+.portada h1{font:900 clamp(52px,13vw,120px)/.86 var(--d);color:var(--mostaza);margin:0}
 .portada h1 span{display:block;color:var(--tomate);font-style:italic;font-weight:500}
-.portada .bajada{font:italic 400 20px/1.4 var(--t);color:#efe6d6;margin:18px auto 24px;max-width:28em}
-.portada .legal{margin-top:20px}
+.portada .nudo-sep{margin:16px auto 0;width:220px}
+.portada .bajada{font:italic 400 20px/1.4 var(--t);color:#efe6d6;margin:14px auto 22px;max-width:28em}
 
-/* ---------- Animaciones ---------- */
-@keyframes aparece{to{opacity:1;transform:none}}
-@keyframes llama{0%,100%{transform:scale(1,1)}50%{transform:scale(.9,1.12) translateY(-1px)}}
-@keyframes titila{0%,100%{opacity:1}40%{opacity:.75}60%{opacity:.92}}
-@keyframes deriva{from{transform:translateX(-6%)}to{transform:translateX(6%)}}
-@keyframes flota{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+/* ---------- La llegada: escena puente a pantalla completa ---------- */
+.llegada{position:fixed;inset:0;z-index:45;background:var(--noche);overflow:hidden}
+.llegada .lienzo2{position:absolute;inset:0;-webkit-mask-image:radial-gradient(ellipse 80% 78% at 50% 46%,#000 52%,transparent 97%);mask-image:radial-gradient(ellipse 80% 78% at 50% 46%,#000 52%,transparent 97%)}
+.llegada .lienzo2 img{position:absolute;inset:-2%;width:104%;height:104%;object-fit:cover;opacity:0;transition:opacity 1.6s ease;filter:sepia(.1) contrast(1.05)}
+.llegada .lienzo2 img.on{opacity:1}
+.llegada .aire{position:absolute;inset:0;pointer-events:none;mix-blend-mode:multiply;transition:background 3s ease}
+.llegada .viñeta{position:absolute;inset:0;pointer-events:none;background:linear-gradient(transparent 52%,rgba(15,13,27,.88) 86%)}
+.llegada .toca{position:absolute;inset:0;background:none;border:0;cursor:pointer}
+.llegada .linea{position:absolute;left:0;right:0;bottom:clamp(110px,16svh,170px);padding:0 24px;text-align:center;pointer-events:none}
+.llegada .linea p{max-width:30em;margin:0 auto;font-style:italic;font-size:clamp(21px,5vw,28px);line-height:1.4;text-shadow:0 2px 16px rgba(15,13,27,.95)}
+.llegada .linea .lugar{display:block;margin:0 0 8px}
+.llegada .w{display:inline-block;opacity:0;filter:blur(6px);transform:translateY(4px);animation:enfoca .75s ease forwards}
+.llegada .hilo{position:absolute;left:50%;bottom:clamp(84px,11svh,120px);transform:translateX(-50%);width:min(220px,50vw);height:1.5px;background:rgba(217,201,163,.18)}
+.llegada .hilo i{position:absolute;inset:0 auto 0 0;width:0;background:var(--mostaza);transition:width .6s ease}
+.llegada .saltar{position:absolute;top:max(12px,env(safe-area-inset-top));right:14px}
+.llegada .final{position:absolute;left:0;right:0;bottom:max(22px,env(safe-area-inset-bottom));display:flex;justify-content:center;opacity:0;pointer-events:none;transition:opacity .8s}
+.llegada .final.on{opacity:1;pointer-events:auto}
+
+/* ---------- Horizontal: el arte a la derecha, el relato a la izquierda ---------- */
+@media (min-width:900px) and (orientation:landscape){
+  .lienzo{left:30vw;height:100svh;
+    -webkit-mask-image:radial-gradient(ellipse 66% 74% at 54% 50%,#000 46%,transparent 94%);
+            mask-image:radial-gradient(ellipse 66% 74% at 54% 50%,#000 46%,transparent 94%)}
+  .relato{padding:100px 0 130px 6vw;max-width:calc(min(680px,44vw) + 6vw);display:flex;flex-direction:column;justify-content:center}
+  .relato::before{inset:0;background:linear-gradient(90deg,var(--noche) 0,rgba(15,13,27,.94) 38vw,transparent 58vw)}
+  .cuerpo{margin:0;width:100%}
+  .naipes.tres,.naipes.auto{grid-template-columns:repeat(3,1fr)}
+  .pie{background:linear-gradient(transparent,rgba(15,13,27,.85) 50%)}
+  .pie-in{margin:0 0 0 calc(6vw - 20px);max-width:min(680px,44vw)}
+}
+
+@keyframes enfoca{to{opacity:1;filter:none;transform:none}}
+@keyframes aparece{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @keyframes rueda{0%{transform:rotate(0) translateY(0)}50%{transform:rotate(180deg) translateY(-8px)}100%{transform:rotate(360deg) translateY(0)}}
 @keyframes cae{from{transform:scale(1.25) rotate(-12deg)}to{transform:none}}
-@keyframes crece{from{transform:scaleX(0)}}
 @keyframes traza{to{stroke-dashoffset:0}}
-@keyframes tapa{to{transform:translate(0,-60px) rotate(-14deg)}}
-@keyframes chispa{0%{opacity:0;transform:scale(.2)}30%{opacity:1}100%{opacity:0;transform:scale(1.6) translateY(-20px)}}
-@keyframes paisaje{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.titila{animation:titila 2.4s ease-in-out infinite}
-.deriva{animation:deriva 14s ease-in-out infinite alternate}
-.flota{animation:flota 5s ease-in-out infinite}
-.paisaje{animation:paisaje 18s linear infinite}
 
 @media print{
-  body{overflow:visible;background:#fff}
-  .app>*:not(.dialogo),.portada,.velas,.btn-ficha,.lugar,.narra,.pie,.ops,.nota,.ficha{display:none!important}
-  .app{display:block;height:auto}
-  .dialogo{position:static!important;max-height:none!important;width:auto!important;background:none!important;border:0!important;box-shadow:none!important;overflow:visible;padding:0}
+  body{background:#fff;min-height:0}
+  .lienzo,.barra,.pie,.cajon,.velo,.capa,.portada,.llegada,.lugar,h1,.nudo-sep,.narra,.acciones-perg,.nota,.relato::before{display:none!important}
+  .relato{padding:0;min-height:0;max-width:none}
   .perg{box-shadow:none;background:#fff;margin:0}
 }
 @media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;animation-delay:0s!important;transition:none!important}
-  .narra p,.ui{opacity:1;transform:none}
-  .revela .vara{stroke-dashoffset:0}.revela .chispa{opacity:.8}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;animation-delay:0s!important;transition-duration:.01ms!important}
+  .narra .w,.llegada .w{opacity:1;filter:none;transform:none}
 }
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="nudo" viewBox="0 0 52 64">
+ <path style="fill:none;stroke:var(--o-l);stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round" d="M52,6 H30 L4,32 L30,58 H52"/>
+ <path style="fill:none;stroke:#0f0d1b;stroke-width:4" d="M48,14 L30,14 L12,32"/>
+ <path style="fill:none;stroke:var(--o-f);stroke-width:1;stroke-linecap:round;stroke-linejoin:round" d="M48,14 H30 L12,32 L30,50 H48"/>
+ <path style="fill:none;stroke:#0f0d1b;stroke-width:4" d="M22,6 L48,32"/>
+ <path style="fill:none;stroke:var(--o-l);stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round" d="M22,6 L48,32 L22,58"/>
+ <path style="fill:var(--o-h)" d="M4,32 l3.2,-3.2 l3.2,3.2 l-3.2,3.2z"/>
+</symbol>
+<symbol id="sep" viewBox="0 0 180 16">
+ <path fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" d="M1,8 H68 L79,1.5 L90,8 L101,1.5 L112,8 H179"/>
+ <path fill="none" stroke="#d9c9a3" stroke-width=".9" stroke-linecap="round" stroke-linejoin="round" d="M68,8 L79,14.5 L90,8 L101,14.5 L112,8"/>
+</symbol>
+</defs></svg>
+
 <div class="portada" id="portada" hidden>
   <img src="arte/e11-f03.webp" alt="">
   <div class="portada-txt">
     <p class="sobre">Hechicería y Magia · creación de personajes</p>
     <h1>Crea tu<span>cromo</span></h1>
+    <svg class="nudo-sep" aria-hidden="true"><use href="#sep"/></svg>
     <p class="bajada">Once escenas, de la carta al banquete. Al final, tu personaje listo para jugar.</p>
-    <button class="seguir" id="empezar">Empezar</button>
-    <p class="legal">Guía no oficial, hecha por fans y sin fines comerciales.</p>
+    <button class="seguir" id="empezar"><svg class="izq" aria-hidden="true"><use href="#nudo"/></svg>Empezar<svg class="der" aria-hidden="true"><use href="#nudo"/></svg></button>
+    <p class="legal">Guía no oficial, hecha por fans y sin fines comerciales. Arte de GG. Música original de <a href="https://www.instagram.com/rodrigesualdo" target="_blank" rel="noopener">@rodrigesualdo</a>.</p>
   </div>
 </div>
-<div class="app">
-  <section class="escenario" id="escenario" aria-hidden="true">
-    <img class="cuadro" id="cuadroA" alt=""><img class="cuadro" id="cuadroB" alt="">
-    <div class="arte" id="arte" data-arte=""></div>
-    <div class="velo"></div>
-    <div class="capa" id="capa"></div>
-  </section>
-  <nav class="velas" id="velas" aria-label="Escenas"></nav>
-  <button class="secundario btn-ficha" id="abrir-ficha" aria-controls="ficha" aria-expanded="false">Ficha</button>
-  <main class="dialogo" id="dialogo" aria-live="polite"></main>
-  <aside class="ficha" id="ficha" aria-label="Ficha del personaje"></aside>
+
+<div class="app" id="app" data-tinta="mostaza">
+  <div class="lienzo" aria-hidden="true"><img class="cuadro" id="cuadroA" alt=""><img class="cuadro" id="cuadroB" alt=""></div>
+  <header class="barra">
+    <button class="icono" id="btn-son" aria-pressed="false" title="Música">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+      <span class="sr">Música</span>
+    </button>
+    <button class="icono" id="btn-ficha" aria-controls="cajon" aria-expanded="false">Ficha</button>
+  </header>
+  <main class="relato" id="relato"><div class="cuerpo" id="cuerpo" aria-live="polite"></div></main>
+  <div class="pie"><div class="pie-in">
+    <button class="volver" id="volver">← Volver</button>
+    <span class="falta" id="falta"></span>
+    <button class="seguir" id="seguir"><svg class="izq" aria-hidden="true"><use href="#nudo"/></svg><span id="seguir-txt">Seguir</span><svg class="der" aria-hidden="true"><use href="#nudo"/></svg></button>
+  </div></div>
+  <div class="velo" id="velo"></div>
+  <aside class="cajon" id="cajon" aria-label="Ficha del personaje" aria-hidden="true"></aside>
+  <div class="capa" id="capa" aria-hidden="true"></div>
+</div>
+
+<div class="llegada" id="llegada" hidden>
+  <div class="lienzo2" aria-hidden="true"><img id="llA" alt=""><img id="llB" alt=""></div>
+  <div class="aire" id="llAire"></div><div class="viñeta"></div>
+  <button class="toca" id="llToca" aria-label="Siguiente cuadro"></button>
+  <div class="linea" id="llLinea" aria-live="polite"></div>
+  <div class="hilo" aria-hidden="true"><i id="llHilo"></i></div>
+  <button class="icono saltar" id="llSaltar">Saltar</button>
+  <div class="final" id="llFinal"><button class="seguir" id="llSeguir"><svg class="izq" aria-hidden="true"><use href="#nudo"/></svg>Entrar al Gran Comedor<svg class="der" aria-hidden="true"><use href="#nudo"/></svg></button></div>
 </div>
 
 <script>
@@ -235,7 +355,6 @@ const sgn=n=>n>0?'+'+n:n<0?'−'+Math.abs(n):'0';
 let SUELTA=true;try{SUELTA=window.self===window.top}catch(e){SUELTA=false}
 const QUIETO=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const espera=ms=>new Promise(r=>setTimeout(r,QUIETO?0:ms));
-const pick=a=>a[Math.floor(Math.random()*a.length)];
 
 /* =========================================================
    Datos (del reglamento; los marcados † son traducciones provisorias)
@@ -316,17 +435,18 @@ const SP1=[
 ['Hechizo lavaplatos','Hace que los platos sucios se laven solos.','Encantamiento',1],
 ['Wingardium Leviosa','Hace volar o levitar objetos.','Encantamiento']];
 
+
 /* =========================================================
-   Estado
+   Estado (la misma clave y forma que la versión anterior: las fichas guardadas siguen andando)
    ========================================================= */
 const CLAVE='escenas-personaje-v1';
 const NUEVO=()=>({v:1,esc:0,max:0,name:'',mes:0,dia:0,fam:'',plus:[],minus:[],mixAdv:'',mixDis:'',gal:null,pos:[],neg:[],tab:'pos',
   look:{body:[],eyes:[],face:[]},core:0,len:0,flex:'',varita:false,pet:'',pago:'',extras:[],padres:'',hermanos:'',parientes:[],resp:{},
-  empezo:false,otros:['','','',''],mas:-1,menos:-1,casa:'',benef:-1,famSpell:'',bank:[]});
+  empezo:false,otros:['','','',''],mas:-1,menos:-1,casa:'',benef:-1,famSpell:'',bank:[],
+  pag:{pos:1,neg:1,body:1,eyes:1,face:1},abierto:{},visto:{},llegada:false});
 let S=NUEVO();
-try{const g=JSON.parse(localStorage.getItem(CLAVE)||'null');if(g&&g.v===1)S=Object.assign(NUEVO(),g)}catch(e){}
+try{const g=JSON.parse(localStorage.getItem(CLAVE)||'null');if(g&&g.v===1)S=Object.assign(NUEVO(),g,{pag:Object.assign(NUEVO().pag,g.pag||{})})}catch(e){}
 const guardar=()=>{try{localStorage.setItem(CLAVE,JSON.stringify(S))}catch(e){}};
-
 const attrs=()=>{const b=S.fam?FAM[S.fam].base.slice():[0,0,0,0,0];
   S.plus.forEach(i=>b[i]++);S.minus.forEach(i=>b[i]--);return b;};
 const madera=()=>maderaDe(+S.mes,+S.dia);
@@ -336,181 +456,232 @@ const puntajes=()=>{const p={G:0,H:0,R:0,S:0};
 const nombreTr=(k,c)=>TR[k][c][0];
 const gasto=()=>S.extras.reduce((t,n)=>t+(EXTRAS.find(e=>e[0]===n)||[0,0])[1],0);
 
+
 /* =========================================================
-   Dados y revelación
+   Música (de @rodrigesualdo) y campanita
+   ========================================================= */
+let son=false,musica=null,ctx=null;
+function funde(a,hasta,ms){return new Promise(r=>{const desde=a.volume,t0=performance.now();
+  const paso=t=>{const k=Math.min(1,(t-t0)/ms);a.volume=Math.min(1,Math.max(0,desde+(hasta-desde)*k));k<1?requestAnimationFrame(paso):r()};requestAnimationFrame(paso)})}
+function sonido(on){son=on;$('#btn-son').setAttribute('aria-pressed',on);
+  if(on){if(!musica){musica=new Audio('audio/musica-partida-2020.mp3');musica.loop=true;musica.preload='auto';}
+    musica.volume=0;musica.play().then(()=>funde(musica,.38,1600)).catch(()=>{});}
+  else if(musica)funde(musica,0,500).then(()=>musica.pause());}
+function campana(alto){if(!son)return;try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();
+  const t=ctx.currentTime,base=alto?1318.5:1046.5;
+  [[base,.045],[base*2,.018],[base*3.01,.008]].forEach(([f,g0])=>{const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(g0,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+1.2);
+    o.connect(g).connect(ctx.destination);o.start(t);o.stop(t+1.3);});}catch(e){}}
+
+/* =========================================================
+   Dados
    ========================================================= */
 const PIPS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
 const dadoHTML=v=>`<div class="dado">${Array.from({length:9},(_,i)=>`<i class="${PIPS[v].includes(i)?'on':''}"></i>`).join('')}</div>`;
+const caraSVG=v=>{const p=[[6,6],[12,6],[18,6],[6,12],[12,12],[18,12],[6,18],[12,18],[18,18]];
+  return `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="21" rx="4.5" fill="none" stroke="currentColor" stroke-width="1.4"/>${PIPS[v].map(i=>`<circle cx="${p[i][0]}" cy="${p[i][1]}" r="1.9" fill="currentColor"/>`).join('')}</svg>`;};
 let rodando=false;
-async function tirar(n,etiqueta){
-  rodando=true;const capa=$('#capa');const res=Array.from({length:n},d6);
-  capa.innerHTML=res.map(()=>dadoHTML(d6())).join('');
-  const dados=[...capa.querySelectorAll('.dado')];
+async function tirar(n,etiqueta){rodando=true;const capa=$('#capa'),res=Array.from({length:n},d6);
+  capa.innerHTML=res.map(()=>dadoHTML(d6())).join('');const dados=[...capa.querySelectorAll('.dado')];
   if(!QUIETO){dados.forEach(d=>d.classList.add('rueda'));
-    for(let k=0;k<9;k++){await espera(70);dados.forEach(d=>{d.outerHTML;const v=d6();d.querySelectorAll('i').forEach((p,i)=>p.className=PIPS[v].includes(i)?'on':'')});}
+    for(let k=0;k<9;k++){await espera(70);dados.forEach(d=>{const v=d6();d.querySelectorAll('i').forEach((p,i)=>p.className=PIPS[v].includes(i)?'on':'')});}
     dados.forEach(d=>{d.classList.remove('rueda');d.classList.add('cae')});}
   dados.forEach((d,j)=>d.querySelectorAll('i').forEach((p,i)=>p.className=PIPS[res[j]].includes(i)?'on':''));
   if(etiqueta){const r=document.createElement('div');r.className='resultado';r.textContent=etiqueta(res);capa.appendChild(r);}
-  rodando=false;
-  setTimeout(()=>{if(!rodando)capa.innerHTML=''},QUIETO?2500:2600);
-  return res;
-}
-async function revelarVarita(){
-  const m=madera();ponerCuadro(3);await espera(1700);ponerCuadro(4);
-  $('#capa').innerHTML=`<div class="resultado">${esc(m?m.n:'')}</div>`;await espera(1600);$('#capa').innerHTML='';
-}
+  await espera(1200);capa.innerHTML='';rodando=false;campana(false);return res;}
 
 /* =========================================================
    Cuadros del storyboard (arte de GG): arte/eNN-fNN.webp
-   Cada escena elige su cuadro según cuánto se avanzó en ella.
    ========================================================= */
 let cuadroActual='',capaA=true,relojes=[];
 function ponerCuadro(i){const n=String(S.esc+1).padStart(2,'0'),src=`arte/e${n}-f${String(i+1).padStart(2,'0')}.webp`;
   if(src===cuadroActual)return;cuadroActual=src;
   const a=$(capaA?'#cuadroB':'#cuadroA'),b=$(capaA?'#cuadroA':'#cuadroB');capaA=!capaA;
-  a.onload=()=>{a.classList.add('on');b.classList.remove('on')};a.src=src;}
-function precargar(e){const n=String(e+1).padStart(2,'0');for(let i=1;i<=(CUAD[ESC[e]?.id]||{n:0}).n;i++){const im=new Image();im.src=`arte/e${n}-f${String(i).padStart(2,'0')}.webp`;}}
+  a.onload=()=>{a.classList.remove('on');void a.offsetWidth;a.classList.add('on');b.classList.remove('on')};a.src=src;}
+function precargar(e){if(e>=ESC.length)return;const n=String(e+1).padStart(2,'0');for(let i=1;i<=(CUAD[ESC[e].id]||{n:0}).n;i++){const im=new Image();im.src=`arte/e${n}-f${String(i).padStart(2,'0')}.webp`;}}
+const enGrupo=()=>S.otros.some(x=>x.trim());
 const CUAD={
  carta:{n:5,auto:[0,1,2],f:()=>!S.name.trim()?null:(!+S.mes||!+S.dia)?3:4},
- casa:{n:4,f:()=>!S.fam?0:ESC[1].falta()==='Tira los dados de los galeones.'?2:S.gal!=null?3:1},
+ casa:{n:4,f:()=>!S.fam?0:S.gal!=null?3:(S.plus.length>=FAM[S.fam].plus&&S.minus.length>=FAM[S.fam].minus)?2:1},
  espejo:{n:4,f:()=>{const t=S.pos.length+S.neg.length;return t===0?0:t<5?1:t<10?2:3}},
  reflejo:{n:4,f:()=>Object.values(S.look).filter(a=>a.length).length},
  varitas:{n:5,f:()=>S.varita?4:(S.core&&S.len&&S.flex)?2:(S.core||S.len)?1:0},
  callejon:{n:4,f:()=>S.pet&&S.pago?3:S.pago?2:S.pet?1:0},
  noche:{n:4,f:()=>[S.padres.trim(),S.hermanos.trim()||S.parientes.length,Object.values(S.resp).some(x=>x&&x.trim())].filter(Boolean).length},
- anden:{n:4,f:()=>{const k=S.otros.filter(x=>x.trim()).length;return k===0?0:(S.mas>=0&&S.menos>=0)?3:k<2?1:2}},
+ anden:{n:5,auto:[0,1,2,3],f:()=>enGrupo()?4:null},
  comedor:{n:4,auto:[0,1],f:()=>S.benef>=0?3:S.casa?2:null},
  practica:{n:5,f:()=>{const b=S.bank.length;return b===3?4:b?b:(tieneFamSpell()&&S.famSpell)?3:0}},
  pergamino:{n:3,auto:[0,1,2],f:()=>null}
 };
 function cuadroDeEscena(nueva){const c=CUAD[ESC[S.esc].id];relojes.forEach(clearTimeout);relojes=[];
-  const v=c.f();
-  if(v!=null){ponerCuadro(Math.min(v,c.n-1));return;}
-  if(nueva&&c.auto){c.auto.forEach((k,i)=>relojes.push(setTimeout(()=>{if(c.f()==null)ponerCuadro(k)},QUIETO?0:i*2600)));}
-}
+  const v=c.f();if(v!=null){ponerCuadro(Math.min(v,c.n-1));return;}
+  if(nueva&&c.auto)c.auto.forEach((k,i)=>relojes.push(setTimeout(()=>{if(c.f()==null)ponerCuadro(k)},QUIETO?0:i*2600)));
+  else if(nueva)ponerCuadro(0);}
 
 /* =========================================================
-   Escenas
+   Piezas que se repiten
    ========================================================= */
-const op=(act,v,txt,on,extra='',dis=false)=>`<button class="op ${extra}" data-act="${act}" data-v="${esc(v)}" aria-pressed="${!!on}" ${dis?'disabled':''}>${txt}</button>`;
+const naipe=(act,v,inner,on,extra='',dis=false)=>`<button class="naipe ${extra}" data-act="${act}" data-v="${esc(v)}" aria-pressed="${!!on}" ${dis?'disabled':''}>${inner}<span class="lacre" aria-hidden="true"></span></button>`;
+const sep='<svg class="nudo-sep" aria-hidden="true"><use href="#sep"/></svg>';
+function narra(parrafos){const ya=S.visto['n'+S.esc];let n=0;
+  return `<div class="narra ${ya?'ya':''}" id="narra">${parrafos.map(p=>{const h=`<p>${String(p).split(' ').map(w=>`<span class="w" style="animation-delay:${(n++)*50}ms">${w}</span>`).join(' ')}</p>`;n+=4;return h}).join('')}</div>`;}
+function paginas(k,tabla,lleno,act){const p=S.pag[k]||1;
+  return `<div class="paginas" role="group" aria-label="Páginas">
+   <button class="flecha" data-act="pag" data-v="${k}:${p-1}" aria-label="Página anterior" ${p<=1?'disabled':''}>‹</button>
+   ${[1,2,3,4,5,6].map(q=>`<button class="cara" data-act="pag" data-v="${k}:${q}" aria-current="${p===q}" aria-label="Página ${q} de 6">${caraSVG(q)}</button>`).join('')}
+   <button class="flecha" data-act="pag" data-v="${k}:${p+1}" aria-label="Página siguiente" ${p>=6?'disabled':''}>›</button>
+   <button class="secundario dado-btn" data-act="${act}" data-v="${k}" ${lleno?'disabled':''} aria-label="Al azar: que decidan los dados"><span class="txt">Al azar</span></button></div>`;}
+function grilla(k,tabla,lista,max,act,num){const p=S.pag[k]||1,lleno=lista.length>=max;
+  return `<div class="naipes" data-pags="${k}">${[1,2,3,4,5,6].map(s=>{const c=''+p+s,i=lista.indexOf(c),on=i>=0;
+    return `<button class="naipe" data-act="${act}" data-v="${k}:${c}" aria-pressed="${on}" ${!on&&lleno?'disabled':''}>${esc(Array.isArray(tabla[c])?tabla[c][0]:tabla[c])}<span class="lacre" aria-hidden="true">${on&&num?i+1:on?'✓':''}</span></button>`}).join('')}</div>`;}
+function huecos(k,lista,tabla){return `<div class="huecos" role="list">${[0,1,2,3,4].map(i=>lista[i]
+  ?`<button class="hueco lleno" role="listitem" data-act="soltarTr" data-v="${k}:${lista[i]}" aria-label="Quitar ${esc(tabla[lista[i]][0])}"><b>${i+1}</b>${esc(tabla[lista[i]][0])}</button>`
+  :`<div class="hueco" role="listitem"><b>${i+1}</b>—</div>`).join('')}</div>`;}
+function ordenable(k){const L=S[k],t=TR[k];return `<ol class="orden" data-k="${k}">${L.map((c,i)=>`<li tabindex="0" data-i="${i}" aria-label="${i+1}. ${esc(t[c][0])}. Arrastra o usa Alt y las flechas para moverlo.">
+  <span class="asa" aria-hidden="true"></span><span class="n">${i+1}</span><span class="nom">${esc(t[c][0])}</span>
+  <button data-act="mover" data-v="${k}:${i}:-1" aria-label="Subir" ${i?'':'disabled'}>▲</button><button data-act="mover" data-v="${k}:${i}:1" aria-label="Bajar" ${i<L.length-1?'':'disabled'}>▼</button></li>`).join('')}</ol>`;}
+const resumenUI=(id,q,r)=>`<div class="resumen"><span class="q">${q}</span><span class="r">${r}</span><button class="cambiar" data-act="abrir" data-v="${id}">Cambiar</button></div>`;
+function estandarte(k,p,max,sug){const alto=40+60*(max?p/max:0),col=COLOR_CASA[k];
+  return `<button class="estandarte" data-act="casa" data-v="${k}" aria-pressed="${S.casa===k}" style="--alto:${Math.round(alto*1.8)}px" aria-label="${CASAS[k]}, ${p} puntos">
+   <span class="asta"></span><svg viewBox="0 0 60 100" preserveAspectRatio="none" aria-hidden="true"><path d="M2,0 H58 V100 L30,84 L2,100 Z" fill="${col}"/><path d="M8,6 H52 V90 L30,78 L8,90 Z" fill="none" stroke="rgba(255,240,210,.45)" stroke-width="1"/></svg>
+   <span class="nom">${CASAS[k]}</span><span class="pts">${p}</span><span class="sug">${sug?'sugerida':''}</span></button>`;}
+
+/* =========================================================
+   Escenas. Cada una tiene pasos que aparecen de a uno.
+   listo: el paso está resuelto. cierra: se pliega en un resumen al resolverse.
+   ========================================================= */
 const ESC=[
 {id:'carta',lugar:'Tu habitación',t:'La carta',
- narra:()=>['Amanece. Algo golpea el vidrio de tu ventana: una lechuza que no es de nadie que conozcas deja caer un sobre sobre tu cama.','Lleva tu nombre escrito a mano y un sello de cera verde. Lo rompes. La carta dice, sin rodeos, que el primero de septiembre te esperan en el Colegio Hogwarts de Magia y Hechicería.','Antes del viaje hay cosas que decidir: quién eres, de dónde vienes y con qué varita vas a aprender. Empecemos por lo primero.'],
- ui:()=>{const dias=S.mes?DIAS[S.mes-1]:31;
-  return `<label class="campo"><span>Firma aquí con tu nombre</span><input type="text" data-in="name" value="${esc(S.name)}" autocomplete="off" maxlength="60" placeholder="Nombre y apellido"></label>
-  <div class="fila"><label class="campo"><span>Día de cumpleaños</span><select data-in="dia"><option value="0">—</option>${Array.from({length:dias},(_,i)=>`<option ${+S.dia===i+1?'selected':''}>${i+1}</option>`).join('')}</select></label>
-  <label class="campo"><span>Mes</span><select data-in="mes" data-re="1"><option value="0">—</option>${MESES.map((m,i)=>`<option value="${i+1}" ${+S.mes===i+1?'selected':''}>${m}</option>`).join('')}</select></label></div>
-  <p class="nota">Tu cumpleaños va a importar más adelante: decide la madera de tu varita.</p>`;},
- falta:()=>!S.name.trim()?'Falta tu nombre.':(!+S.mes||!+S.dia)?'Falta tu cumpleaños.':''},
+ narra:()=>['Amanece. Algo golpea el vidrio de tu ventana: una lechuza que no es de nadie que conozcas deja caer un sobre sobre tu cama.','Lleva tu nombre escrito a mano y un sello de cera verde. Lo rompes. La carta dice, sin rodeos, que el primero de septiembre te esperan en el Colegio Hogwarts de Magia y Hechicería.'],
+ pasos:[
+  {id:'nombre',listo:()=>!!S.name.trim(),q:'Tu nombre',r:()=>esc(S.name.trim()),cierra:false,
+   html:()=>`<h2>Firma aquí con tu nombre</h2><input class="firma" type="text" data-in="name" value="${esc(S.name)}" autocomplete="off" maxlength="60" placeholder="Nombre y apellido" enterkeyhint="next">`},
+  {id:'cumple',listo:()=>!!(+S.mes&&+S.dia),cierra:false,
+   html:()=>{const dias=S.mes?DIAS[S.mes-1]:31;return `<h2>¿Cuándo es tu cumpleaños?</h2>
+    <div class="fecha">el <select data-in="dia" aria-label="Día"><option value="0">—</option>${Array.from({length:dias},(_,i)=>`<option ${+S.dia===i+1?'selected':''}>${i+1}</option>`).join('')}</select>
+    de <select data-in="mes" aria-label="Mes"><option value="0">—</option>${MESES.map((m,i)=>`<option value="${i+1}" ${+S.mes===i+1?'selected':''}>${m}</option>`).join('')}</select></div>
+    <p class="nota">Tu cumpleaños va a importar más adelante: decide la madera de tu varita.</p>`}}]},
 
 {id:'casa',lugar:'El comedor de tu casa',t:'De dónde vienes',
  narra:()=>[`En el desayuno, la carta pasa de mano en mano. ${S.name.trim()?esc(S.name.trim().split(' ')[0])+', nadie':'Nadie'} dice mucho, pero todos te miran distinto.`,'La familia en la que creciste dice mucho de ti, aunque todavía no sepas qué. ¿Quiénes son?'],
- ui:()=>{let h=`<div>${Object.entries(FAM).map(([k,f])=>`<button class="tarjeta" data-act="fam" data-v="${k}" aria-pressed="${S.fam===k}"><b>${f.n}</b><br><span class="nota">${f.d}</span></button>`).join('')}</div>`;
-  if(!S.fam)return h;const f=FAM[S.fam],a=attrs();
-  h+=`<h2>Tus atributos</h2><p class="nota">${S.fam==='mixed'?'Suma +1 a dos atributos y resta 1 a otros dos.':'Suma +1 a un atributo.'} Ningún atributo puede pasar de +2 ni bajar de −2; al final, todo suma 0.</p>
-  <div class="attrs">${ATTR.map((n,i)=>{const pOn=S.plus.includes(i),mOn=S.minus.includes(i);
-   return `<div class="attr"><div class="v">${sgn(a[i])}</div><div class="n">${n}</div><div class="aj">
-   ${f.minus?`<button data-act="minus" data-v="${i}" aria-pressed="${mOn}" aria-label="Restar 1 a ${n}" ${(!mOn&&(pOn||S.minus.length>=f.minus||a[i]<=-2))?'disabled':''}>−</button>`:''}
-   <button data-act="plus" data-v="${i}" aria-pressed="${pOn}" aria-label="Sumar 1 a ${n}" ${(!pOn&&(mOn||S.plus.length>=f.plus||a[i]>=2))?'disabled':''}>+</button></div></div>`}).join('')}</div>`;
-  if(S.fam==='mixed'){
-   h+=`<h3>Ventaja: elige un lado de la familia</h3><div class="ops">${op('mixAdv','muggle',MIX_ADV.muggle,S.mixAdv==='muggle')}${op('mixAdv','pure',MIX_ADV.pure,S.mixAdv==='pure')}</div>
-   <h3>Desventaja: elige un lado</h3><div class="ops">${op('mixDis','muggle',MIX_DIS.muggle,S.mixDis==='muggle')}${op('mixDis','pure',MIX_DIS.pure,S.mixDis==='pure')}</div>`;
-  }else h+=`<h3>Ventaja</h3>${f.adv.map(x=>`<p class="nota">${x}</p>`).join('')}<h3>Desventaja</h3>${f.dis.map(x=>`<p class="nota">${x}</p>`).join('')}`;
-  h+=`<h2>La bolsa para el viaje</h2><p class="nota">Antes de salir, te dan unas monedas: ${f.dados}d6 + 6 galeones.</p>
-  ${S.gal==null?`<button class="secundario dado-btn" data-act="gal">Tirar ${f.dados}d6</button>`:`<p><b style="font:400 24px var(--d);color:var(--vela2)">${S.gal} galeones</b></p>`}`;
-  return h;},
- falta:()=>{if(!S.fam)return 'Elige tu familia.';const f=FAM[S.fam];
-  if(S.plus.length<f.plus||S.minus.length<f.minus)return 'Termina de ajustar los atributos.';
-  if(S.fam==='mixed'&&(!S.mixAdv||!S.mixDis))return 'Elige la ventaja y la desventaja.';
-  if(S.gal==null)return 'Tira los dados de los galeones.';return '';}},
+ pasos:[
+  {id:'fam',listo:()=>!!S.fam,cierra:true,q:'Familia',r:()=>FAM[S.fam].n,
+   html:()=>`<h2>Tu familia</h2><div class="naipes uno unica">${Object.entries(FAM).map(([k,f])=>naipe('fam',k,`<b>${f.n}</b><small>${f.d}</small>`,S.fam===k,'izq')).join('')}</div>`},
+  {id:'attrs',listo:()=>S.fam&&S.plus.length>=FAM[S.fam].plus&&S.minus.length>=FAM[S.fam].minus,cierra:false,
+   html:()=>{const f=FAM[S.fam],a=attrs();return `<h2>Tus atributos</h2><p class="ayuda">${S.fam==='mixed'?'Suma 1 a dos atributos y resta 1 a otros dos.':'Suma 1 a un atributo.'} Ninguno pasa de +2 ni baja de −2.</p>
+    <div class="attrs">${ATTR.map((n,i)=>{const pOn=S.plus.includes(i),mOn=S.minus.includes(i);
+     return `<div class="attr"><div class="v">${sgn(a[i])}</div><div class="n">${n}</div><div class="aj">
+     ${f.minus?`<button data-act="minus" data-v="${i}" aria-pressed="${mOn}" aria-label="Restar 1 a ${n}" ${(!mOn&&(pOn||S.minus.length>=f.minus||a[i]<=-2))?'disabled':''}>−</button>`:''}
+     <button data-act="plus" data-v="${i}" aria-pressed="${pOn}" aria-label="Sumar 1 a ${n}" ${(!pOn&&(mOn||S.plus.length>=f.plus||a[i]>=2))?'disabled':''}>+</button></div></div>`}).join('')}</div>`}},
+  {id:'lados',listo:()=>S.fam!=='mixed'||(S.mixAdv&&S.mixDis),cierra:false,
+   html:()=>{const f=FAM[S.fam];if(S.fam!=='mixed')return `<h2>Lo que trae tu familia</h2><p class="nota"><b>Ventaja.</b> ${f.adv.join(' ')}</p><p class="nota"><b>Desventaja.</b> ${f.dis.join(' ')}</p>`;
+    return `<h2>Lo que trae cada lado</h2><p class="ayuda">Ventaja: elige un lado de la familia.</p><div class="naipes unica">${naipe('mixAdv','muggle',MIX_ADV.muggle,S.mixAdv==='muggle','izq')}${naipe('mixAdv','pure',MIX_ADV.pure,S.mixAdv==='pure','izq')}</div>
+     <p class="ayuda" style="margin-top:16px">Desventaja: elige un lado.</p><div class="naipes unica">${naipe('mixDis','muggle',MIX_DIS.muggle,S.mixDis==='muggle','izq')}${naipe('mixDis','pure',MIX_DIS.pure,S.mixDis==='pure','izq')}</div>`}},
+  {id:'gal',listo:()=>S.gal!=null,cierra:false,
+   html:()=>{const f=FAM[S.fam];return `<h2>La bolsa para el viaje</h2><p class="ayuda">Antes de salir, te dan unas monedas: ${f.dados}d6 + 6 galeones.</p>
+    ${S.gal==null?`<button class="secundario dado-btn" data-act="gal">Tirar ${f.dados}d6</button>`:`<p style="font:900 28px var(--d);color:var(--mostaza2);margin:4px 0">${S.gal} galeones</p>`}`}}]},
 
-{id:'espejo',lugar:'El pasillo, de noche',t:'El espejo',fondo:'espejo',
- narra:()=>['Esa noche te detienes frente al espejo del pasillo. No te devuelve tu cara: te devuelve preguntas.','¿Qué te hace fuerte? ¿Qué te traiciona? Elige cinco virtudes y cinco defectos, del que más te define al que menos.'],
- ui:()=>{const k=S.tab,lista=S[k],tabla=TR[k];
-  return `<div class="ops" role="tablist">${op('tab','pos',`Virtudes (${S.pos.length}/5)`,k==='pos','chico')}${op('tab','neg',`Defectos (${S.neg.length}/5)`,k==='neg','chico')}</div>
-  <ol class="orden">${Array.from({length:5},(_,i)=>lista[i]?`<li><span class="nom">${esc(tabla[lista[i]][0])}</span><button data-act="subir" data-v="${i}" aria-label="Subir" ${i?'':'disabled'}>↑</button><button data-act="quitar" data-v="${i}" aria-label="Quitar">✕</button></li>`:`<li class="vacio"><span class="nom">—</span></li>`).join('')}</ol>
-  <button class="secundario dado-btn" data-act="azarTr" ${lista.length>=5?'disabled':''}>Dejarlo al azar (2d6)</button>
-  <div class="ops" style="margin-top:12px">${Object.keys(tabla).map(c=>op('tr',c,esc(tabla[c][0]),lista.includes(c),'chico',!lista.includes(c)&&lista.length>=5)).join('')}</div>
-  <p class="nota">El orden importa: al llegar al castillo, esto va a tener consecuencias.</p>`;},
- falta:()=>S.pos.length<5?'Faltan virtudes.':S.neg.length<5?'Faltan defectos.':''},
+{id:'espejo',lugar:'El pasillo, de noche',t:'El espejo',
+ narra:()=>['Esa noche te detienes frente al espejo del pasillo. No te devuelve tu cara: te devuelve preguntas.','¿Qué te hace fuerte? ¿Qué te traiciona? Toca para elegir; después vas a poder ordenarlos.'],
+ pasos:[
+  {id:'pos',listo:()=>S.pos.length>=5,cierra:true,q:'Virtudes',r:()=>S.pos.map(c=>POS[c][0]).join(', '),
+   html:()=>{const n=S.pos.length;return `<h2>${n<5?`Tu ${['primera','segunda','tercera','cuarta','quinta'][n]} virtud`:'Tus cinco virtudes'}</h2><p class="ayuda">Toca para elegir. Toca de nuevo, o la cruz, para soltar.</p>${huecos('pos',S.pos,POS)}${paginas('pos',POS,n>=5,'azarTr')}${grilla('pos',POS,S.pos,5,'tr',true)}`}},
+  {id:'neg',listo:()=>S.neg.length>=5,cierra:true,q:'Defectos',r:()=>S.neg.map(c=>NEG[c][0]).join(', '),tinta:'ciruela',
+   html:()=>{const n=S.neg.length;return `<p class="nota">El vidrio se empaña y, del otro lado, tu reflejo baja la mirada.</p><h2>${n<5?`Tu ${['primer','segundo','tercer','cuarto','quinto'][n]} defecto`:'Tus cinco defectos'}</h2><p class="ayuda">Toca para elegir. Toca de nuevo, o la cruz, para soltar.</p>${huecos('neg',S.neg,NEG)}${paginas('neg',NEG,n>=5,'azarTr')}${grilla('neg',NEG,S.neg,5,'tr',true)}`}},
+  {id:'orden',listo:()=>true,cierra:false,
+   html:()=>`<h2 style="color:var(--mostaza2)">Así te ve el espejo</h2><p class="ayuda">Ordénalos arrastrando: arriba, lo que más te define. El orden importa al llegar al castillo.</p>
+    <div class="dos"><div class="v"><h3>Virtudes</h3>${ordenable('pos')}</div><div class="d"><h3>Defectos</h3>${ordenable('neg')}</div></div>`}]},
 
-{id:'reflejo',lugar:'El pasillo, de noche',t:'El reflejo',fondo:'reflejo',
+{id:'reflejo',lugar:'El pasillo, de noche',t:'El reflejo',
  narra:()=>['Ahora sí, el espejo te muestra tal cual eres. Mírate bien: así te van a ver mañana en el andén.','Elige al menos un rasgo de cada parte, o deja que los dados decidan.'],
- ui:()=>Object.entries(LOOK).map(([k,L])=>`<h3>${L.t}</h3><div class="ops">${Object.keys(L.d).map(c=>op('look',k+':'+c,L.d[c],S.look[k].includes(c),'chico')).join('')}</div>
-   <button class="secundario dado-btn" data-act="azarLook" data-v="${k}">Al azar</button>`).join('')+
-   `<p class="nota">* Las brujas y los magos pueden encontrar maneras creativas de compensarlo. Convérsalo con tu grupo.</p>`,
- falta:()=>Object.values(S.look).some(a=>!a.length)?'Elige algo para cuerpo, ojos y cara.':''},
+ pasos:['body','eyes','face'].map(k=>({id:k,listo:()=>S.look[k].length>0,cierra:false,
+   html:()=>`<h2>${LOOK[k].t}</h2>${paginas(k,LOOK[k].d,S.look[k].length>=6,'azarLook')}${grilla(k,LOOK[k].d,S.look[k],6,'look',false)}${k==='face'?'<p class="nota">* Las brujas y los magos pueden encontrar maneras creativas de compensarlo. Convérsalo con tu grupo.</p>':''}`})),
+ pie:()=>''},
 
 {id:'varitas',lugar:'Callejón Diagon',t:'La tienda de varitas',
- narra:()=>{const m=madera();return ['Una tienda angosta, polvo flotando en el aire y miles de cajas apiladas hasta el techo.','Nadie te pregunta el nombre. Te preguntan cuándo naciste.',m?`Para ${S.dia} de ${MESES[S.mes-1]}, la madera es una sola: <b>${m.n}</b>. El núcleo y el largo los deciden los dados.`:'Sin fecha de cumpleaños no hay madera: vuelve a la carta.'];},
- ui:()=>`<div class="fila"><div class="tarjeta"><h3 style="margin-top:0">Núcleo · 1d6</h3>${S.core?`<b>${NUCLEO(S.core)}</b> <span class="nota">(${S.core})</span>`:`<button class="secundario dado-btn" data-act="core">Tirar</button>`}<p class="nota">1–2 unicornio · 3–4 dragón · 5–6 fénix</p></div>
-  <div class="tarjeta"><h3 style="margin-top:0">Largo · 1d6 + 8</h3>${S.len?`<b>${S.len} pulgadas</b> <span class="nota">(${Math.round(S.len*2.54)} cm)</span>`:`<button class="secundario dado-btn" data-act="len">Tirar</button>`}</div></div>
-  <h3>Flexibilidad</h3><p class="nota">Elígela según tu carácter y qué tan abierta es tu mente.</p>
-  <select data-in="flex" data-re="1"><option value="">—</option>${FLEX.map(f=>`<option ${S.flex===f?'selected':''}>${f}</option>`).join('')}</select>
-  ${(S.core&&S.len&&S.flex)?`<div class="pie" style="justify-content:flex-start">${S.varita?`<p class="aviso">${madera().n}, ${NUCLEO(S.core).toLowerCase()}, ${S.len} pulgadas, ${S.flex.toLowerCase()}. Es tuya.</p>`:`<button class="seguir" data-act="probar">Probar la varita</button>`}</div>`:''}`,
- falta:()=>!madera()?'Falta tu cumpleaños.':!S.core||!S.len?'Tira los dados.':!S.flex?'Elige la flexibilidad.':!S.varita?'Prueba la varita.':''},
+ narra:()=>{const m=madera();return ['Una tienda angosta, polvo flotando en el aire y miles de cajas apiladas hasta el techo.','Nadie te pregunta el nombre. Te preguntan cuándo naciste.',m?`Para el ${S.dia} de ${MESES[S.mes-1]}, la madera es una sola: ${m.n}. El núcleo y el largo los deciden los dados.`:'Sin fecha de cumpleaños no hay madera: vuelve a la carta.'];},
+ pasos:[
+  {id:'nucleo',listo:()=>!!S.core,cierra:false,
+   html:()=>`<h2>El núcleo</h2><p class="ayuda">1d6: 1–2 unicornio · 3–4 dragón · 5–6 fénix.</p>${S.core?`<p style="font:900 26px var(--d);color:var(--mostaza2);margin:4px 0">${NUCLEO(S.core)}</p>`:`<button class="secundario dado-btn" data-act="core" ${madera()?'':'disabled'}>Tirar 1d6</button>`}`},
+  {id:'largo',listo:()=>!!S.len,cierra:false,
+   html:()=>`<h2>El largo</h2><p class="ayuda">1d6 + 8 pulgadas.</p>${S.len?`<p style="font:900 26px var(--d);color:var(--mostaza2);margin:4px 0">${S.len} pulgadas <span class="nota">(${Math.round(S.len*2.54)} cm)</span></p>`:`<button class="secundario dado-btn" data-act="len">Tirar 1d6</button>`}`},
+  {id:'flex',listo:()=>!!S.flex,cierra:true,q:'Flexibilidad',r:()=>esc(S.flex),
+   html:()=>`<h2>La flexibilidad</h2><p class="ayuda">Elígela según tu carácter y qué tan abierta es tu mente.</p><div class="naipes tres unica">${FLEX.map(f=>naipe('flex',f,esc(f),S.flex===f,'')).join('')}</div>`},
+  {id:'probar',listo:()=>S.varita,cierra:false,
+   html:()=>S.varita?`<h2>Es tuya</h2><p class="nota" style="font-size:19px">${madera().n}, ${NUCLEO(S.core).toLowerCase()}, ${S.len} pulgadas, ${S.flex.toLowerCase()}.</p>`
+    :`<h2>Pruébala</h2><button class="seguir" data-act="probar"><svg class="izq" aria-hidden="true"><use href="#nudo"/></svg>Probar la varita<svg class="der" aria-hidden="true"><use href="#nudo"/></svg></button>`}]},
 
 {id:'callejon',lugar:'Callejón Diagon',t:'Compras',
  narra:()=>['Afuera, el callejón es un río de gente: lechuzas en jaulas, calderos apilados en la vereda, carteles que cambian de color.','Te falta un compañero de viaje y el resto de los útiles.'],
- ui:()=>`<h2>Tu mascota</h2><div class="ops">${['Gato','Lechuza','Sapo'].map(p=>op('pet',p,p,S.pet===p)).join('')}</div><button class="secundario dado-btn" data-act="azarPet">Que decida el dado</button>
-  <h2>¿Cómo se pagan los útiles?</h2><div class="ops">${Object.entries(PAGO).map(([k,p])=>op('pago',k,`${p[0]}<small>${p[1]}</small>`,S.pago===k)).join('')}</div>
-  <h2>Algún capricho</h2><p class="nota">Lo básico está cubierto. Tienes <b>${(S.gal||0)-gasto()}</b> de ${S.gal||0} galeones para extras (los precios definitivos los decide quien dirige la partida).</p>
-  <div class="ops">${EXTRAS.map(([n,p])=>op('extra',n,`${n}<small>${p} galeones</small>`,S.extras.includes(n),'',!S.extras.includes(n)&&p>(S.gal||0)-gasto())).join('')}</div>`,
- falta:()=>!S.pet?'Elige una mascota.':!S.pago?'Elige cómo se pagan los útiles.':''},
+ pasos:[
+  {id:'pet',listo:()=>!!S.pet,cierra:true,q:'Mascota',r:()=>esc(S.pet),
+   html:()=>`<h2>Tu mascota</h2><div class="naipes tres unica">${['Gato','Lechuza','Sapo'].map(p=>naipe('pet',p,p,S.pet===p)).join('')}</div><p style="margin-top:12px"><button class="secundario dado-btn" data-act="azarPet">Que decida el dado</button></p>`},
+  {id:'pago',listo:()=>!!S.pago,cierra:true,q:'Útiles',r:()=>PAGO[S.pago][0],
+   html:()=>`<h2>¿Cómo se pagan los útiles?</h2><div class="naipes uno unica">${Object.entries(PAGO).map(([k,p])=>naipe('pago',k,`<b>${p[0]}</b><small>${p[1]}</small>`,S.pago===k,'izq')).join('')}</div>`},
+  {id:'extras',listo:()=>true,cierra:false,
+   html:()=>`<h2>Algún capricho</h2><p class="ayuda">Opcional. Te quedan <b>${(S.gal||0)-gasto()}</b> de ${S.gal||0} galeones (los precios definitivos los decide quien dirige la partida).</p>
+    <div class="naipes tres">${EXTRAS.map(([n,p])=>naipe('extra',n,`${n}<small>${p} galeones</small>`,S.extras.includes(n),'',!S.extras.includes(n)&&p>(S.gal||0)-gasto())).join('')}</div>`}]},
 
 {id:'noche',lugar:'La última noche en casa',t:'Lo que dejas atrás',
  narra:()=>['El baúl ya está cerrado. Desde la cama escuchas a tu familia moverse por la casa.','Antes de dormir, piensa en ellos y en ti. Nada de esto es obligatorio, pero quien dirija la partida lo va a aprovechar.'],
- ui:()=>`<label class="campo"><span>Tus padres</span><textarea data-in="padres" placeholder="¿Quiénes son? ¿Siguen juntos? ¿Qué piensan de la magia? ¿Qué piensas tú de ellos?">${esc(S.padres)}</textarea></label>
-  <label class="campo"><span>Hermanos</span><textarea data-in="hermanos" placeholder="¿Cuántos? ¿Nombres, edades? ¿Alguno en Hogwarts? ¿Cómo se llevan?">${esc(S.hermanos)}</textarea></label>
-  <button class="secundario dado-btn" data-act="pariente">Tirar rasgos para un familiar (2 virtudes, 2 defectos)</button>
-  ${S.parientes.length?`<ul class="nota">${S.parientes.map((p,i)=>`<li>Familiar ${i+1}: ${esc(p)}</li>`).join('')}</ul>`:''}
-  <details style="margin-top:14px"><summary class="nota" style="cursor:pointer">Preguntas para ti (${Object.values(S.resp).filter(x=>x&&x.trim()).length}/10)</summary>
-  ${PREG.map((q,i)=>`<label class="campo"><span>${q}</span><input type="text" data-in="resp:${i}" value="${esc(S.resp[i]||'')}"></label>`).join('')}</details>`,
- falta:()=>''},
+ pasos:[],
+ opcional:()=>`<details class="pliegue" ${S.abierto.noche?'open':''} data-pliegue="noche"><summary>Tu familia <small>opcional</small></summary><div class="dentro">
+  <label class="campo"><span>Tus padres</span><textarea data-in="padres" placeholder="¿Quiénes son? ¿Qué piensan de la magia? ¿Qué piensas tú de ellos?">${esc(S.padres)}</textarea></label>
+  <label class="campo"><span>Hermanos</span><textarea data-in="hermanos" placeholder="¿Cuántos? ¿Alguno en Hogwarts? ¿Cómo se llevan?">${esc(S.hermanos)}</textarea></label>
+  <button class="secundario dado-btn" data-act="pariente">Tirar rasgos para un familiar</button>
+  ${S.parientes.length?`<ul class="nota">${S.parientes.map((p,i)=>`<li>Familiar ${i+1}: ${esc(p)}</li>`).join('')}</ul>`:''}</div></details>
+  <details class="pliegue" ${S.abierto.preg?'open':''} data-pliegue="preg"><summary>Preguntas para ti <small>${Object.values(S.resp).filter(x=>x&&x.trim()).length} de 10 · opcional</small></summary><div class="dentro">
+  ${PREG.map((q,i)=>`<label class="campo"><span>${q}</span><input type="text" data-in="resp:${i}" value="${esc(S.resp[i]||'')}"></label>`).join('')}</div></details>`},
 
 {id:'anden',lugar:'Andén nueve y tres cuartos',t:'El tren',
  narra:()=>['Atraviesas la pared con los ojos cerrados y del otro lado te recibe el vapor. A las once en punto, el tren arranca.','En el pasillo, entre paquetes de golosinas y baúles, conoces al resto del grupo. Con alguien te llevas bien desde el primer minuto; con alguien, no tanto.'],
- ui:()=>`<p class="nota">Escribe los nombres de los demás personajes del grupo.</p><div class="fila">${S.otros.map((n,i)=>`<label class="campo"><span>Estudiante ${i+1}</span><input type="text" data-in="otro:${i}" value="${esc(n)}" maxlength="40"></label>`).join('')}</div><div id="vinc">${vincHTML()}</div>`,
- falta:()=>{const n=S.otros.filter(x=>x.trim()).length;if(n<2)return '';
-  return (S.mas<0||S.menos<0||!S.otros[S.mas]?.trim()||!S.otros[S.menos]?.trim())?'Elige un +1 y un −1.':'';}},
+ pasos:[],
+ opcional:()=>`<details class="pliegue" ${S.abierto.grupo||S.otros.some(x=>x.trim())?'open':''} data-pliegue="grupo"><summary>¿Juegas en grupo? <small>opcional</small></summary><div class="dentro">
+  <p class="ayuda">Escribe los nombres de los demás personajes del compartimento.</p>
+  <div class="fila">${S.otros.map((n,i)=>`<label class="campo"><span>Estudiante ${i+1}</span><input type="text" data-in="otro:${i}" value="${esc(n)}" maxlength="40"></label>`).join('')}</div>
+  <div id="vinc">${vincHTML()}</div></div></details>`,
+ falta:()=>{const n=S.otros.filter(x=>x.trim()).length;return n>=2&&(S.mas<0||S.menos<0)?'Elige un +1 y un −1, o borra los nombres.':''}},
 
 {id:'comedor',lugar:'El Gran Comedor',t:'La Selección',
  narra:()=>['Cientos de velas flotan bajo un techo que parece el cielo nocturno. Te llaman por tu nombre y el silencio se vuelve enorme.','El Sombrero Seleccionador escucha lo que el espejo ya sabía: tus virtudes y tus defectos, en el orden en que los pusiste.'],
- ui:()=>{const p=puntajes(),max=Math.max(...Object.values(p))||1,orden=Object.keys(p).sort((a,b)=>p[b]-p[a]);
-  const cerca=orden.filter(h=>p[orden[0]]-p[h]<=5);
-  let h=`<div class="barras">${orden.map(k=>`<div class="barra ${cerca.includes(k)?'top':''}"><span>${CASAS[k]}</span><i style="width:${p[k]/max*100}%;background:${COLOR_CASA[k]}"></i><b>${p[k]}</b></div>`).join('')}</div>
-  <p class="aviso">${cerca.length>1?`El Sombrero duda entre ${cerca.map(k=>CASAS[k]).join(' y ')}. La última palabra es tuya.`:`El Sombrero sugiere ${CASAS[orden[0]]}. Si insistes en otra casa, quien dirige la partida lo tendrá en cuenta.`}</p>
-  <div class="ops">${orden.map(k=>op('casa',k,CASAS[k],S.casa===k)).join('')}</div>`;
-  if(S.casa)h+=`<h2>Beneficio de ${CASAS[S.casa]}</h2>${BENEF[S.casa].map((b,i)=>`<button class="tarjeta" data-act="benef" data-v="${i}" aria-pressed="${S.benef===i}">${b}</button>`).join('')}`;
-  return h;},
- falta:()=>!S.casa?'Elige tu casa.':S.benef<0?'Elige un beneficio.':''},
+ pasos:[
+  {id:'casa',listo:()=>!!S.casa,cierra:false,
+   html:()=>{const p=puntajes(),max=Math.max(...Object.values(p))||1,orden=Object.keys(p).sort((a,b)=>p[b]-p[a]),cerca=orden.filter(h=>p[orden[0]]-p[h]<=5);
+    return `<h2>Tu casa</h2><p class="ayuda">${cerca.length>1?`El Sombrero duda entre ${cerca.map(k=>CASAS[k]).join(' y ')}. La última palabra es tuya.`:`El Sombrero sugiere ${CASAS[orden[0]]}. Si eliges otra, quien dirige la partida lo tendrá en cuenta.`}</p>
+    <div class="estandartes ${S.casa?'hay':''}">${['G','H','R','S'].map(k=>estandarte(k,p[k],max,cerca.includes(k))).join('')}</div>`}},
+  {id:'benef',listo:()=>S.benef>=0,cierra:true,q:'Beneficio',r:()=>esc(BENEF[S.casa][S.benef]),
+   html:()=>`<h2>Beneficio de ${CASAS[S.casa]}</h2><div class="naipes uno unica">${BENEF[S.casa].map((b,i)=>naipe('benef',i,b,S.benef===i,'izq')).join('')}</div>`}]},
 
 {id:'practica',lugar:'Primera semana',t:'Primeras prácticas',
  narra:()=>['En un aula con olor a tiza vieja practicas los movimientos de varita hasta que te duelen las muñecas.',`Tres hechizos empiezan a salirte mejor que los demás: van a tu reserva y te dan +1 al lanzarlos.${tieneFamSpell()?' Y hay uno que traes de casa.':''}`],
- ui:()=>{let h='';
-  if(tieneFamSpell())h+=`<h3>Hechizo familiar</h3><select data-in="famSpell" data-re="1"><option value="">—</option>${SP1.map(s=>`<option ${S.famSpell===s[0]?'selected':''}>${s[0]}</option>`).join('')}</select>`;
-  h+=`<h3>Tu reserva (${S.bank.length}/3)</h3>`+SP1.map(([n,d,t,p])=>{const on=S.bank.includes(n),fam=n===S.famSpell;
-   return `<button class="tarjeta" data-act="bank" data-v="${esc(n)}" aria-pressed="${on||fam}" ${fam||(!on&&S.bank.length>=3)?'disabled style="opacity:.45"':''}><b>${esc(n)}</b>${p?'<span class="prov">†</span>':''} <span class="nota">· ${t}${fam?' · familiar':''}</span><br><span class="nota">${d}</span></button>`}).join('');
-  return h+`<p class="nota"><span class="prov">†</span> Nombre provisorio, a confirmar con la traducción de referencia.</p>`;},
- falta:()=>tieneFamSpell()&&!S.famSpell?'Elige tu hechizo familiar.':S.bank.length<3?'Elige tres hechizos.':''},
+ pasos:[
+  {id:'famSpell',si:()=>tieneFamSpell(),listo:()=>!tieneFamSpell()||!!S.famSpell,cierra:true,q:'Hechizo familiar',r:()=>esc(S.famSpell),
+   html:()=>`<h2>Tu hechizo familiar</h2><div class="naipes uno unica">${SP1.map(([n,d,t,p])=>naipe('famSpell',n,`<b>${esc(n)}${p?'<span class="prov">†</span>':''}</b><small>${t} · ${d}</small>`,S.famSpell===n,'izq')).join('')}</div>`},
+  {id:'bank',listo:()=>S.bank.length>=3,cierra:true,q:'Reserva',r:()=>S.bank.map(esc).join(', '),
+   html:()=>`<h2>Tu reserva (${S.bank.length} de 3)</h2><p class="ayuda">Toca tres hechizos.</p><div class="naipes uno">${SP1.map(([n,d,t,p])=>{const on=S.bank.includes(n),fam=n===S.famSpell&&tieneFamSpell();
+    return naipe('bank',n,`<b>${esc(n)}${p?'<span class="prov">†</span>':''}</b><small>${t}${fam?' · familiar':''} · ${d}</small>`,on||fam,'izq',fam||(!on&&S.bank.length>=3))}).join('')}</div>
+    <p class="nota"><span class="prov">†</span> Nombre provisorio, a confirmar con la traducción de referencia.</p>`}]},
 
 {id:'pergamino',lugar:'La sala común',t:'El pergamino',
  narra:()=>['Esa noche, junto al fuego, desenrollas un pergamino en blanco. Todo lo que decidiste cabe en una hoja. Guárdala bien: el castillo cambia a quien lo habita, y esta ficha va a cambiar contigo.'],
- ui:()=>`${hoja()}<div class="ops"><button class="secundario" data-act="copiarTxt">Copiar ficha</button><button class="secundario" data-act="copiarJson">Copiar datos</button>${SUELTA?'<button class="secundario" data-act="bajar">Descargar ficha (.json)</button><button class="secundario" data-act="imprimir">Imprimir</button>':''}
-  <label class="secundario" style="display:inline-flex;align-items:center;cursor:pointer">Cargar datos<input type="file" accept=".json,.txt,application/json" data-in="importar" class="sr"></label>
-  <button class="secundario" data-act="reiniciar">Empezar de nuevo</button><span class="copiado" id="msg"></span></div>
-  <p class="nota">${SUELTA?'El archivo .json se puede volver a cargar acá para seguir editando.':'«Copiar datos» guarda un texto que puedes pegar en un archivo .json y volver a cargar acá.'}</p>`,
- falta:()=>''}
+ pasos:[{id:'hoja',listo:()=>true,cierra:false,
+  html:()=>`${hoja()}<div class="acciones-perg"><button class="secundario" data-act="copiarTxt">Copiar ficha</button><button class="secundario" data-act="copiarJson">Copiar datos</button>
+   ${SUELTA?'<button class="secundario" data-act="bajar">Descargar (.json)</button><button class="secundario" data-act="imprimir">Imprimir</button>':''}
+   <label class="secundario" style="cursor:pointer">Cargar datos<input type="file" accept=".json,.txt,application/json" data-in="importar" class="sr"></label>
+   <button class="secundario" data-act="reiniciar">Empezar de nuevo</button></div><p class="copiado" id="msg" aria-live="polite"></p>
+   <p class="nota">${SUELTA?'El archivo .json se puede volver a cargar acá para seguir editando.':'«Copiar datos» guarda un texto que puedes pegar en un archivo .json y volver a cargar acá.'}</p>`}]}
 ];
 ESC.forEach((e,i)=>e.n=i);
 function vincHTML(){const nom=S.otros.map((n,i)=>[n.trim(),i]).filter(x=>x[0]);
- if(S.mas>=0&&!S.otros[S.mas]?.trim())S.mas=-1; if(S.menos>=0&&!S.otros[S.menos]?.trim())S.menos=-1;
- return nom.length>=2?`<h3>Con quién te llevas bien (+1)</h3><div class="ops">${nom.map(([n,i])=>op('mas',i,esc(n),S.mas===i,'',S.menos===i)).join('')}</div>
- <h3>Con quién no tanto (−1)</h3><div class="ops">${nom.map(([n,i])=>op('menos',i,esc(n),S.menos===i,'',S.mas===i)).join('')}</div>`:'<p class="nota">Con dos nombres o más, eliges tus vínculos. Si juegas en solitario, puedes seguir.</p>';}
+ if(S.mas>=0&&!S.otros[S.mas]?.trim())S.mas=-1;if(S.menos>=0&&!S.otros[S.menos]?.trim())S.menos=-1;
+ return nom.length>=2?`<h2 style="font-size:24px;margin-top:14px">Con quién te llevas bien (+1)</h2><div class="naipes unica tres">${nom.map(([n,i])=>naipe('mas',i,esc(n),S.mas===i,'',S.menos===i)).join('')}</div>
+  <h2 style="font-size:24px;margin-top:18px">Con quién no tanto (−1)</h2><div class="naipes unica tres">${nom.map(([n,i])=>naipe('menos',i,esc(n),S.menos===i,'',S.mas===i)).join('')}</div>`:'<p class="nota">Con dos nombres o más, eliges tus vínculos.</p>';}
 
-/* =========================================================
-   Ficha
-   ========================================================= */
+const pasosDe=e=>(e.pasos||[]).filter(p=>!p.si||p.si());
+function falta(e){if(e.id==='varitas'&&!madera())return 'Falta tu cumpleaños: vuelve a la carta.';
+  const p=pasosDe(e).find(x=>!x.listo());if(p)return 'Falta: '+({nombre:'tu nombre',cumple:'tu cumpleaños',fam:'tu familia',attrs:'ajustar los atributos',lados:'la ventaja y la desventaja',gal:'tirar los galeones',pos:'elegir cinco virtudes',neg:'elegir cinco defectos',body:'algo del cuerpo',eyes:'algo de los ojos',face:'algo de la cara',nucleo:'el núcleo',largo:'el largo',flex:'la flexibilidad',probar:'probar la varita',pet:'una mascota',pago:'cómo se pagan los útiles',casa:'elegir tu casa',benef:'un beneficio',famSpell:'el hechizo familiar',bank:'tres hechizos'}[p.id]||'completar la escena')+'.';
+  return e.falta?e.falta():'';}
+
 function resumen(){const m=madera(),a=attrs(),f=S.fam&&FAM[S.fam];
  return {nombre:S.name.trim(),cumple:+S.mes&&+S.dia?`${S.dia} de ${MESES[S.mes-1]}`:'',familia:f?f.c:'',a,
   pos:S.pos.map(c=>POS[c][0]),neg:S.neg.map(c=>NEG[c][0]),
@@ -543,92 +714,168 @@ function texto(){const r=resumen();return [r.nombre,[r.familia,r.casa,'Primer a�
  ATTR.map((n,i)=>`${n} ${sgn(r.a[i])}`).join(' | '),'Virtudes: '+r.pos.join(', '),'Defectos: '+r.neg.join(', '),'Ventaja: '+r.ventaja,'Desventaja: '+r.desventaja,
  'Varita: '+r.varita,'Aspecto: '+r.look,'Hechizos: '+r.hechizos.join(', '),'Beneficio: '+r.benef,'Pertenencias: '+r.cosas+' · '+r.gal,'Vínculos: '+r.rel.join(', ')].join('\n');}
 
+const ddf=(t,v)=>`<dt>${t}</dt><dd>${v?v:'<span class="vacio">todavía no</span>'}</dd>`;
+function pintarCajon(){const r=resumen();
+ $('#cajon').innerHTML=`<button class="secundario cerrar" data-act="cerrarFicha">Cerrar</button><h2>${esc(r.nombre)||'<span class="vacio">Sin nombre</span>'}</h2>
+ <div class="nota">${[r.familia,r.casa,r.cumple].filter(Boolean).map(esc).join(' · ')||'Primer año'}</div>
+ <div class="attrs">${ATTR.map((n,i)=>`<div class="attr"><div class="v">${S.fam?sgn(r.a[i]):'·'}</div><div class="n">${n}</div></div>`).join('')}</div>
+ <dl>${ddf('Virtudes',esc(r.pos.join(', ')))}${ddf('Defectos',esc(r.neg.join(', ')))}${ddf('Aspecto',esc(r.look))}${ddf('Varita',esc(r.varita))}
+ ${ddf('Pertenencias',esc(r.cosas))}${ddf('Galeones',esc(r.gal))}${ddf('Vínculos',esc(r.rel.join(' · ')))}${ddf('Beneficio de casa',esc(r.benef))}${ddf('Reserva de hechizos',esc(r.hechizos.join(', ')))}</dl>
+ <h3 style="font:400 14px var(--sc);letter-spacing:.06em;color:var(--lila);margin:22px 0 0">Escenas</h3>
+ <ol class="escenas">${ESC.map((x,i)=>`<li><button data-act="ir" data-v="${i}" aria-current="${i===S.esc}" ${i>S.max?'disabled':''}>${i+1}. ${x.t}</button></li>`).join('')}</ol>
+ <p class="legal">Guía no oficial, hecha por fans y sin fines comerciales. No tiene relación con los titulares de la obra en la que se inspira. Arte de GG. Música original de <a href="https://www.instagram.com/rodrigesualdo" target="_blank" rel="noopener">@rodrigesualdo</a>. Lo que cargas se guarda solo en este navegador.</p>`;
+ $('#btn-ficha').innerHTML=`Ficha${S.name.trim()?'':''}`;}
+
 /* =========================================================
    Pintado
    ========================================================= */
-let pintada=-1;
+let pintada=-1,visibles=0;
 function pintar(){
- const e=ESC[S.esc],nueva=pintada!==S.esc,dlg=$('#dialogo'),scroll=dlg.scrollTop;
- if(nueva){$('#arte').dataset.arte=e.id;$('#capa').innerHTML='';precargar(S.esc+1);}
- const falta=e.falta();
- dlg.innerHTML=`<div class="lugar"><h1>${e.t}</h1><small>${e.lugar}</small></div>
-  <div class="narra">${e.narra().map(p=>`<p>${p}</p>`).join('')}</div>
-  <div class="ui ${nueva?'':'ya'}">${e.ui()}
-  <div class="pie">${S.esc?`<button class="volver" data-act="atras">← Volver</button>`:'<span></span>'}
-  ${S.esc<ESC.length-1?`<button class="seguir" data-act="sigue" ${falta?'disabled':''}>Seguir</button>`:''}
-  ${falta?`<p class="falta">${falta}</p>`:''}</div></div>`;
- if(!nueva)dlg.querySelectorAll('.narra p').forEach(p=>{p.style.animation='none';p.style.opacity=1;p.style.transform='none'});
- dlg.scrollTop=nueva?0:scroll;pintada=S.esc;
- $('#velas').innerHTML=ESC.map((x,i)=>`<button data-act="ir" data-v="${i}" class="${i<=S.max?'vista':''} ${i===S.esc?'actual':''}" ${i>S.max?'disabled':''} aria-label="${x.t}" aria-current="${i===S.esc?'step':'false'}"></button>`).join('');
- cuadroDeEscena(nueva);pintarFicha();guardar();
+ const e=ESC[S.esc],nueva=pintada!==S.esc,cu=$('#cuerpo');
+ if(nueva){$('#capa').innerHTML='';precargar(S.esc+1);visibles=0;}
+ const pasos=pasosDe(e);let h=`<p class="lugar">${S.esc+1} de ${ESC.length} · ${e.lugar}</p><h1>${e.t}</h1>${sep}${narra(e.narra())}`;
+ let mostrados=0,tinta='mostaza';
+ for(const p of pasos){mostrados++;
+   const abierto=S.abierto[e.id+':'+p.id];
+   if(p.listo()&&p.cierra&&!abierto&&p!==pasos[pasos.length-1])h+=resumen_(e,p);
+   else{h+=`<section class="paso ${mostrados<=visibles?'ya':''}" id="paso-${p.id}">${p.html()}</section>`;if(p.tinta)tinta=p.tinta;}
+   if(!p.listo())break;}
+ if(e.opcional)h+=e.opcional();
+ const nuevoPaso=mostrados>visibles&&!nueva;visibles=Math.max(visibles,mostrados);
+ const scroll=window.scrollY;cu.innerHTML=h;
+ $('#app').dataset.tinta=tinta;
+ S.visto['n'+S.esc]=1;
+ if(nueva){window.scrollTo(0,0);}else{window.scrollTo(0,scroll);if(nuevoPaso){const ult=[...cu.querySelectorAll('.paso')].pop();if(ult)setTimeout(()=>ult.scrollIntoView({behavior:QUIETO?'auto':'smooth',block:'start'}),120);}}
+ const n=$('#narra');if(n)n.addEventListener('click',()=>n.classList.add('ya'),{once:true});
+ pintada=S.esc;actualizarPie();cuadroDeEscena(nueva);pintarCajon();guardar();
 }
-function actualizarPie(){const e=ESC[S.esc],falta=e.falta(),b=$('.seguir[data-act="sigue"]');if(b)b.disabled=!!falta;
- const p=$('.pie');let f=p&&p.querySelector('.falta');if(falta){if(!f){f=document.createElement('p');f.className='falta';p.appendChild(f)}f.textContent=falta}else if(f)f.remove();
- cuadroDeEscena(false);pintarFicha();guardar();}
+function resumen_(e,p){return resumenUI(e.id+':'+p.id,p.q,p.r());}
+function actualizarPie(){const e=ESC[S.esc],f=falta(e),ult=S.esc===ESC.length-1;
+ $('#seguir').hidden=ult;$('#seguir').disabled=!!f;$('#falta').textContent=f;$('#volver').style.visibility=S.esc?'visible':'hidden';
+ $('#seguir-txt').textContent=e.id==='anden'?'Bajar del tren':'Seguir';}
+function cambiarEscena(i){const cu=$('#cuerpo');if(QUIETO){S.esc=i;S.max=Math.max(S.max,i);pintar();return;}
+ cu.classList.add('sale');setTimeout(()=>{S.esc=i;S.max=Math.max(S.max,i);pintar();cu.classList.remove('sale');},240);}
+
+/* =========================================================
+   La llegada: escena puente entre El tren y La Selección
+   ========================================================= */
+const LL=[
+ {f:'llegada-01',lugar:'El Expreso, por la tarde',txt:'A media tarde pasa el carrito de golosinas. Nadie se resiste.',foco:'50% 50%',cam:[[1.04,0,0],[1.12,-2,1]],tono:'rgba(255,236,200,0)'},
+ {f:'llegada-02',txt:'Por la ventana, los campos se vuelven colinas y las colinas, montañas.',foco:'50% 50%',cam:[[1.06,0,0],[1.16,0,-1]],tono:'rgba(255,214,170,.10)'},
+ {f:'llegada-03',lugar:'Al final de las vías',txt:'Cuando el tren por fin se detiene, ya es casi de noche.',foco:'62% 50%',cam:[[1.10,3,0],[1.03,-2,0]],tono:'rgba(170,140,190,.14)'},
+ {f:'llegada-04',txt:'Los de primer año no siguen el camino: cruzan por el agua.',foco:'34% 55%',cam:[[1.04,2,1],[1.12,-1,-1]],tono:'rgba(120,110,170,.18)'},
+ {f:'llegada-05',txt:'Y al doblar el peñasco, lo ves.',foco:'50% 40%',cam:[[1.16,0,3],[1.04,0,0]],tono:'rgba(105,95,160,.20)',lento:1},
+ {f:'llegada-06',txt:'Una escalera de piedra sube desde el muelle hasta las puertas.',foco:'72% 50%',cam:[[1.05,-2,0],[1.13,-4,-2]],tono:'rgba(95,85,150,.24)'},
+ {f:'llegada-07',lugar:'El Gran Comedor',txt:'Adentro, el techo no es un techo: es el cielo de esta misma noche.',foco:'50% 40%',cam:[[1.02,0,2],[1.14,0,-2]],tono:'rgba(90,80,150,.18)',fin:1}];
+const LLDUR=5600;let llI=-1,llA=true,llReloj=null,llAnim=null;
+function llegada(){$('#llegada').hidden=false;LL.forEach(c=>{const im=new Image();im.src=`arte/${c.f}.webp`});llMostrar(0);}
+function llMostrar(k){llI=k;const c=LL[k];clearTimeout(llReloj);
+ const a=$(llA?'#llB':'#llA'),b=$(llA?'#llA':'#llB');llA=!llA;a.style.objectPosition=c.foco;
+ const arranca=()=>{a.classList.add('on');b.classList.remove('on');if(llAnim)llAnim.cancel();
+   if(!QUIETO){const [d,h]=c.cam;llAnim=a.animate([{transform:`scale(${d[0]}) translate(${d[1]}%,${d[2]}%)`},{transform:`scale(${h[0]}) translate(${h[1]}%,${h[2]}%)`}],{duration:LLDUR*(c.lento?1.5:1)+1800,easing:'ease-in-out',fill:'forwards'});}};
+ a.onload=arranca;a.src=`arte/${c.f}.webp`;if(a.complete&&a.naturalWidth)arranca();
+ $('#llAire').style.background=c.tono;let n=c.lugar?3:0;
+ $('#llLinea').innerHTML=`${c.lugar?`<span class="lugar">${c.lugar}</span>`:''}<p>${c.txt.split(' ').map(w=>`<span class="w" style="animation-delay:${(n++)*70}ms">${w}</span>`).join(' ')}</p>`;
+ $('#llHilo').style.width=`${(k+1)/LL.length*100}%`;$('#llFinal').classList.toggle('on',!!c.fin);$('#llSaltar').hidden=!!c.fin;$('#llToca').hidden=!!c.fin;
+ if(c.fin){setTimeout(()=>$('#llSeguir').focus({preventScroll:true}),900);return;}
+ llReloj=setTimeout(()=>llMostrar(k+1),LLDUR*(c.lento?1.5:1));}
+function llFin(){clearTimeout(llReloj);if(llAnim)llAnim.cancel();$('#llegada').hidden=true;S.llegada=true;cambiarEscena(8);}
+$('#llToca').addEventListener('click',()=>{if(llI<LL.length-1)llMostrar(llI+1)});
+$('#llSaltar').addEventListener('click',()=>llMostrar(LL.length-1));
+$('#llSeguir').addEventListener('click',llFin);
 
 /* =========================================================
    Acciones
    ========================================================= */
 const toggle=(arr,v,max)=>{const i=arr.indexOf(v);if(i>=0)arr.splice(i,1);else if(arr.length<max)arr.push(v);};
 async function copiar(t,msg){try{await navigator.clipboard.writeText(t);$('#msg').textContent=msg}catch(e){$('#msg').textContent='No se pudo copiar en este navegador.'}}
+function abrirCajon(si){$('#cajon').classList.toggle('abierto',si);$('#velo').classList.toggle('on',si);$('#cajon').setAttribute('aria-hidden',!si);$('#btn-ficha').setAttribute('aria-expanded',si);if(si)setTimeout(()=>$('#cajon [data-act="cerrarFicha"]').focus(),50);}
 const ACT={
- sigue(){if(ESC[S.esc].falta())return;S.esc++;S.max=Math.max(S.max,S.esc);},
- atras(){S.esc=Math.max(0,S.esc-1)},
- ir(v){if(+v<=S.max)S.esc=+v},
- fam(v){if(S.fam!==v){S.fam=v;S.plus=[];S.minus=[];S.gal=null;S.mixAdv='';S.mixDis='';}},
- plus(v){v=+v;toggle(S.plus,v,FAM[S.fam].plus)}, minus(v){v=+v;toggle(S.minus,v,FAM[S.fam].minus)},
- mixAdv(v){S.mixAdv=v}, mixDis(v){S.mixDis=v},
+ abrir(v){S.abierto[v]=true},
+ pag(v){const[k,p]=v.split(':');S.pag[k]=Math.max(1,Math.min(6,+p))},
+ fam(v){if(S.fam!==v){S.fam=v;S.plus=[];S.minus=[];S.gal=null;S.mixAdv='';S.mixDis='';}delete S.abierto['casa:fam'];campana(false)},
+ plus(v){toggle(S.plus,+v,FAM[S.fam].plus)}, minus(v){toggle(S.minus,+v,FAM[S.fam].minus)},
+ mixAdv(v){S.mixAdv=v;campana(false)}, mixDis(v){S.mixDis=v;campana(false)},
  async gal(){const n=FAM[S.fam].dados;const r=await tirar(n,r=>`${r.reduce((a,b)=>a+b,0)} + 6 = ${r.reduce((a,b)=>a+b,0)+6} galeones`);S.gal=r.reduce((a,b)=>a+b,0)+6;},
- tab(v){S.tab=v},
- tr(v){toggle(S[S.tab],v,5)},
- subir(v){v=+v;const a=S[S.tab];if(v>0)[a[v-1],a[v]]=[a[v],a[v-1]]},
- quitar(v){S[S.tab].splice(+v,1)},
- async azarTr(){const a=S[S.tab],t=TR[S.tab];if(a.length>=5)return;let r;
-  do{r=await tirar(2,x=>t[''+x[0]+x[1]][0]);}while(a.includes(''+r[0]+r[1]));a.push(''+r[0]+r[1]);},
- look(v){const[k,c]=v.split(':');toggle(S.look[k],c,6)},
- async azarLook(k){const r=await tirar(2,x=>LOOK[k].d[''+x[0]+x[1]]);const c=''+r[0]+r[1];if(!S.look[k].includes(c))S.look[k].push(c);},
+ tr(v){const[k,c]=v.split(':'),L=S[k];if(L.includes(c))L.splice(L.indexOf(c),1);else if(L.length<5){L.push(c);campana(false);if(L.length===5)delete S.abierto['espejo:'+k];}},
+ soltarTr(v){const[k,c]=v.split(':'),L=S[k];if(L.includes(c))L.splice(L.indexOf(c),1);},
+ async azarTr(k){const L=S[k],t=TR[k];if(L.length>=5)return;let r,c;do{r=await tirar(2,x=>t[''+x[0]+x[1]][0]);c=''+r[0]+r[1];}while(L.includes(c));L.push(c);S.pag[k]=r[0];},
+ mover(v){const[k,i,d]=v.split(':').map((x,j)=>j?+x:x),L=S[k],j=i+d;if(j>=0&&j<L.length)[L[i],L[j]]=[L[j],L[i]];},
+ look(v){const[k,c]=v.split(':');toggle(S.look[k],c,6);campana(false)},
+ async azarLook(k){const r=await tirar(2,x=>LOOK[k].d[''+x[0]+x[1]]);const c=''+r[0]+r[1];if(!S.look[k].includes(c)&&S.look[k].length<6)S.look[k].push(c);S.pag[k]=r[0];},
  async core(){const r=await tirar(1,x=>NUCLEO(x[0]));S.core=r[0];S.varita=false;},
  async len(){const r=await tirar(1,x=>`${x[0]} + 8 = ${x[0]+8} pulgadas`);S.len=r[0]+8;S.varita=false;},
- async probar(){await revelarVarita();S.varita=true;},
- pet(v){S.pet=v}, async azarPet(){const r=await tirar(1,x=>PET(x[0]));S.pet=PET(r[0]);},
- pago(v){S.pago=v}, extra(v){const i=S.extras.indexOf(v);if(i>=0)S.extras.splice(i,1);else S.extras.push(v)},
- async pariente(){const tomar=t=>{const o=[];while(o.length<2){const c=''+d6()+d6();if(!o.includes(c))o.push(c)}return o.map(c=>t[c][0])};
-  await tirar(4);S.parientes.push([...tomar(POS),...tomar(NEG)].join(', '));},
- mas(v){S.mas=+v}, menos(v){S.menos=+v},
- casa(v){if(S.casa!==v){S.casa=v;S.benef=-1}}, benef(v){S.benef=+v},
- bank(v){toggle(S.bank,v,3)},
+ flex(v){S.flex=v;S.varita=false;delete S.abierto['varitas:flex'];campana(false)},
+ async probar(){ponerCuadro(3);await espera(1700);ponerCuadro(4);$('#capa').innerHTML=`<div class="resultado">${esc(madera().n)}</div>`;campana(true);await espera(1600);$('#capa').innerHTML='';S.varita=true;},
+ pet(v){S.pet=v;delete S.abierto['callejon:pet'];campana(false)}, async azarPet(){const r=await tirar(1,x=>PET(x[0]));S.pet=PET(r[0]);},
+ pago(v){S.pago=v;delete S.abierto['callejon:pago'];campana(false)}, extra(v){const i=S.extras.indexOf(v);if(i>=0)S.extras.splice(i,1);else{S.extras.push(v);campana(false)}},
+ async pariente(){const tomar=t=>{const o=[];while(o.length<2){const c=''+d6()+d6();if(!o.includes(c))o.push(c)}return o.map(c=>t[c][0])};await tirar(4);S.parientes.push([...tomar(POS),...tomar(NEG)].join(', '));},
+ mas(v){S.mas=+v;campana(false)}, menos(v){S.menos=+v;campana(false)},
+ casa(v){if(S.casa!==v){S.casa=v;S.benef=-1;campana(true)}}, benef(v){S.benef=+v;delete S.abierto['comedor:benef'];campana(false)},
+ famSpell(v){S.famSpell=v;S.bank=S.bank.filter(x=>x!==v);delete S.abierto['practica:famSpell'];campana(false)},
+ bank(v){toggle(S.bank,v,3);if(S.bank.includes(v))campana(false);if(S.bank.length===3)delete S.abierto['practica:bank'];},
+ ir(v){if(+v<=S.max){abrirCajon(false);cambiarEscena(+v)}return 'no'},
  copiarTxt(){copiar(texto(),'Ficha copiada.');return 'no'},
  copiarJson(){copiar(JSON.stringify(S,null,1),'Datos copiados.');return 'no'},
- reiniciar(){const b=$('[data-act="reiniciar"]');if(b.dataset.ok){S=NUEVO();cuadroActual='';$('#portada').hidden=false;}else{b.dataset.ok=1;b.textContent='¿Seguro? Toca de nuevo';return 'no'}},
- cerrarFicha(){abrirFicha(false);return 'no'},
+ reiniciar(){const b=$('[data-act="reiniciar"]');if(b.dataset.ok){S=NUEVO();cuadroActual='';pintada=-1;$('#portada').hidden=false;}else{b.dataset.ok=1;b.textContent='¿Seguro? Toca de nuevo';return 'no'}},
+ cerrarFicha(){abrirCajon(false);return 'no'},
  bajar(){const b=new Blob([JSON.stringify(S,null,1)],{type:'application/json'}),a=document.createElement('a');
-  a.href=URL.createObjectURL(b);a.download=(S.name.trim()||'personaje').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'.json';
+  a.href=URL.createObjectURL(b);a.download=(S.name.trim()||'personaje').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'.json';
   document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);return 'no'},
  imprimir(){try{window.print()}catch(e){}return 'no'}
 };
 document.addEventListener('click',async ev=>{
+ if(desliza){desliza=false;return;}
  const b=ev.target.closest('[data-act]');if(!b||b.disabled||rodando)return;
  const f=ACT[b.dataset.act];if(!f)return;
  const r=await f(b.dataset.v);if(r!=='no')pintar();
 });
+document.addEventListener('toggle',ev=>{const d=ev.target;if(d.dataset&&d.dataset.pliegue){S.abierto[d.dataset.pliegue]=d.open;guardar();}},true);
 document.addEventListener('input',ev=>{
  const el=ev.target;const k=el.dataset&&el.dataset.in;if(!k||k==='importar')return;
  const[a,b]=k.split(':');
- if(a==='resp')S.resp[b]=el.value;else if(a==='otro'){S.otros[+b]=el.value;const v=$('#vinc');if(v)v.innerHTML=vincHTML();}
- else S[a]=el.value;
+ if(a==='resp')S.resp[b]=el.value;else if(a==='otro'){S.otros[+b]=el.value;const v=$('#vinc');if(v)v.innerHTML=vincHTML();}else S[a]=el.value;
  if(a==='mes'){const max=DIAS[(+S.mes||1)-1];if(+S.dia>max)S.dia=max;S.varita=false;}
  if(a==='dia')S.varita=false;
- if(a==='famSpell')S.bank=S.bank.filter(x=>x!==S.famSpell);
- if(el.dataset.re&&ev.type==='input'&&el.tagName!=='INPUT')pintar();else actualizarPie();
+ if(el.tagName==='SELECT'){campana(false);pintar();return;}
+ actualizarPie();cuadroDeEscena(false);pintarCajon();guardar();
 });
-document.addEventListener('change',ev=>{
+const pasoVisible=id=>!!document.getElementById('paso-'+id);
+document.addEventListener('change',ev=>{const el=ev.target;
+ if(el.dataset.in==='importar'&&el.files[0]){const fr=new FileReader();fr.onload=()=>{try{const g=JSON.parse(fr.result);if(g.v!==1)throw 0;S=Object.assign(NUEVO(),g);pintada=-1;pintar();}catch(e){$('#msg').textContent='Ese archivo no es una ficha válida.'}};fr.readAsText(el.files[0]);return;}
+ if(el.tagName==='INPUT'&&el.type==='text'&&el.dataset.in==='name'&&!pasoVisible('cumple'))pintar();
+});
+document.addEventListener('keydown',ev=>{
+ if(ev.key==='Escape'){abrirCajon(false);return;}
  const el=ev.target;
- if(el.dataset.in==='importar'&&el.files[0]){const fr=new FileReader();fr.onload=()=>{try{const g=JSON.parse(fr.result);if(g.v!==1)throw 0;S=Object.assign(NUEVO(),g);pintada=-1;pintar();}catch(e){$('#msg').textContent='Ese archivo no es una ficha válida.'}};fr.readAsText(el.files[0]);}
+ if(ev.key==='Enter'&&el.classList&&el.classList.contains('firma')){ev.preventDefault();el.blur();pintar();return;}
+ const li=el.closest&&el.closest('.orden li');
+ if(li&&ev.altKey&&(ev.key==='ArrowUp'||ev.key==='ArrowDown')){ACT.mover(`${li.parentElement.dataset.k}:${li.dataset.i}:${ev.key==='ArrowUp'?-1:1}`);pintar();const n=document.querySelector(`.orden[data-k="${li.parentElement.dataset.k}"] li[data-i="${+li.dataset.i+(ev.key==='ArrowUp'?-1:1)}"]`);if(n)n.focus();ev.preventDefault();}
 });
-function abrirFicha(si){$('#ficha').classList.toggle('abierta',si);$('#abrir-ficha').setAttribute('aria-expanded',si)}
-$('#empezar').addEventListener('click',()=>{$('#portada').hidden=true;S.empezo=true;guardar();});
+
+/* Ordenar arrastrando (dedo o mouse) */
+let arr=null;
+document.addEventListener('pointerdown',ev=>{const li=ev.target.closest('.orden li');if(!li||ev.target.closest('button'))return;
+ const ol=li.parentElement,items=[...ol.children],h=li.getBoundingClientRect().height+6;
+ arr={li,k:ol.dataset.k,i:+li.dataset.i,y0:ev.clientY,h,items,to:+li.dataset.i,id:ev.pointerId};li.setPointerCapture(ev.pointerId);li.classList.add('arrastra');});
+document.addEventListener('pointermove',ev=>{if(!arr||ev.pointerId!==arr.id)return;const dy=ev.clientY-arr.y0;arr.li.style.transform=`translateY(${dy}px)`;
+ const to=Math.max(0,Math.min(arr.items.length-1,arr.i+Math.round(dy/arr.h)));arr.to=to;
+ arr.items.forEach((x,j)=>{if(x===arr.li)return;let off=0;if(arr.i<to&&j>arr.i&&j<=to)off=-arr.h;if(arr.i>to&&j<arr.i&&j>=to)off=arr.h;x.style.transform=off?`translateY(${off}px)`:'';});});
+function soltarArrastre(){if(!arr)return;const{k,i,to}=arr;arr.li.classList.remove('arrastra');arr=null;if(to!==i){const L=S[k],[c]=L.splice(i,1);L.splice(to,0,c);campana(false);}pintar();}
+document.addEventListener('pointerup',soltarArrastre);document.addEventListener('pointercancel',soltarArrastre);
+/* Deslizar las páginas de tarjetas con el dedo */
+let x0=null,xk=null,desliza=false;
+document.addEventListener('pointerdown',ev=>{const g=ev.target.closest('[data-pags]');if(g){x0=ev.clientX;xk=g.dataset.pags}},{passive:true});
+document.addEventListener('pointerup',ev=>{if(x0==null)return;const dx=ev.clientX-x0;x0=null;if(Math.abs(dx)>60){desliza=true;setTimeout(()=>desliza=false,350);S.pag[xk]=Math.max(1,Math.min(6,(S.pag[xk]||1)+(dx<0?1:-1)));pintar();}},{passive:true});
+
+$('#seguir').addEventListener('click',()=>{const e=ESC[S.esc];if(falta(e)||rodando)return;campana(true);
+ if(e.id==='anden'){llegada();return;}cambiarEscena(S.esc+1);});
+$('#volver').addEventListener('click',()=>{if(S.esc>0)cambiarEscena(S.esc-1);});
+$('#btn-ficha').addEventListener('click',()=>abrirCajon(!$('#cajon').classList.contains('abierto')));
+$('#velo').addEventListener('click',()=>abrirCajon(false));
+$('#btn-son').addEventListener('click',()=>sonido(!son));
+$('#empezar').addEventListener('click',()=>{$('#portada').hidden=true;S.empezo=true;guardar();pintar();});
 if(!S.empezo)$('#portada').hidden=false;
-$('#abrir-ficha').addEventListener('click',()=>abrirFicha(!$('#ficha').classList.contains('abierta')));
 pintar();
 })();
 </script>
