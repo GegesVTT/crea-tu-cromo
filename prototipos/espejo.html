@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>El espejo · prototipo · Crea tu cromo</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,900&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap" rel="stylesheet">
+<style>
+/* Prototipo de la escena 3 con el ritmo de una ceremonia:
+   una decisión por pantalla, respuesta con luz de vela, sin caja encima del arte. */
+:root{
+  --noche:#0f0d1b; --noche2:#1a1730;
+  --mostaza:#e3a93b; --mostaza2:#f4cf7e; --tomate:#d2492f; --ciruela:#a2558f; --ciruela2:#e0a6d0; --lila:#b3a6de;
+  --perg:#efe3c4; --perg2:#d9c9a3; --tinta:#2a2236; --crema:#efe6d6;
+  --luz:var(--mostaza); --luz2:var(--mostaza2);
+  --t:'IM Fell English',Georgia,serif; --d:'Bodoni Moda',Georgia,serif; --sc:'IM Fell English SC',Georgia,serif;
+}
+.esc[data-tinta="ciruela"]{--luz:var(--ciruela);--luz2:var(--ciruela2)}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--noche);color:var(--crema);font:400 18px/1.5 var(--t);-webkit-font-smoothing:antialiased;min-height:100svh}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--luz2);outline-offset:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- Lienzo: el arte de GG, fundido con la noche ---------- */
+.lienzo{position:fixed;top:0;left:0;right:0;height:58svh;transition:height .7s ease;overflow:hidden;z-index:0;pointer-events:none;
+  -webkit-mask-image:radial-gradient(ellipse 78% 74% at 50% 42%,#000 48%,transparent 96%);
+          mask-image:radial-gradient(ellipse 78% 74% at 50% 42%,#000 48%,transparent 96%)}
+.cuadro{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease;filter:sepia(.12) brightness(.9) contrast(1.06)}
+.cuadro.on{opacity:1;animation:acerca 24s ease-out forwards}
+.halo{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 55% 60%,color-mix(in srgb,var(--luz) 22%,transparent),transparent 70%);mix-blend-mode:soft-light;transition:background 1.4s ease}
+@keyframes acerca{from{transform:scale(1.02)}to{transform:scale(1.09)}}
+
+.esc[data-modo="rasgo"] .lienzo{height:42svh}
+.esc[data-modo="rasgo"] .relato{padding-top:30svh}
+.esc[data-modo="rasgo"] .relato::before{inset:18svh 0 0 0}
+/* ---------- Barra superior ---------- */
+.barra{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:12px 14px;padding-top:max(12px,env(safe-area-inset-top));background:linear-gradient(rgba(15,13,27,.75),transparent)}
+.velas{display:flex;gap:7px;align-items:flex-end;list-style:none;margin:0;padding:0}
+.velas li{width:10px;height:30px;position:relative}
+.velas li::before{content:"";position:absolute;bottom:0;left:2px;width:6px;height:18px;background:var(--perg2);opacity:.3;border-radius:1px}
+.velas li.hecha::before{opacity:.75}
+.velas li.hecha::after,.velas li.ahora::after{content:"";position:absolute;bottom:19px;left:2px;width:6px;height:9px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:var(--mostaza);box-shadow:0 0 10px var(--mostaza);opacity:.55}
+.velas li.ahora::before{opacity:.9}
+.velas li.ahora::after{opacity:1;animation:llama 1.6s ease-in-out infinite}
+.acciones{display:flex;gap:8px}
+.icono{min-width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 12px;background:rgba(15,13,27,.55);border:1px solid rgba(243,207,126,.35);border-radius:22px;color:var(--crema);font:400 15px var(--sc);letter-spacing:.06em}
+.icono svg{width:20px;height:20px}
+.icono[aria-pressed="true"]{border-color:var(--mostaza);color:var(--mostaza2);box-shadow:0 0 14px rgba(227,169,59,.35)}
+.cuenta{min-width:22px;height:22px;border-radius:11px;background:var(--tomate);color:#fff7e6;font:900 13px/22px var(--d);text-align:center;padding:0 5px}
+.cuenta.late{animation:late .5s ease}
+
+/* ---------- Relato: el texto va sobre la escena, sin ventana ---------- */
+.relato{position:relative;z-index:5;min-height:100svh;padding:44svh 20px 120px;display:flex;flex-direction:column}
+.relato::before{content:"";position:absolute;inset:30svh 0 0 0;background:linear-gradient(transparent,var(--noche) 16svh);z-index:-1}
+.cuerpo{max-width:640px;width:100%;margin:0 auto;transition:opacity .25s ease,transform .25s ease}
+.cuerpo.sale{opacity:0;transform:translateY(8px)}
+.lugar{font:400 15px var(--sc);letter-spacing:.1em;color:var(--lila);margin:0 0 2px}
+h1{font:900 clamp(34px,8vw,52px)/1 var(--d);color:var(--mostaza2);margin:0 0 14px}
+h2{font:900 clamp(27px,6.4vw,40px)/1.05 var(--d);color:var(--luz2);margin:0 0 6px;transition:color 1s}
+.sub{font-style:italic;font-size:19px;margin:0 0 14px;color:var(--crema)}
+.narra p{font-style:italic;font-size:clamp(19px,4.6vw,22px);line-height:1.5;margin:0 0 .65em;text-shadow:0 1px 12px rgba(15,13,27,.9)}
+.narra .w{display:inline-block;opacity:0;filter:blur(6px);transform:translateY(4px);animation:enfoca .7s ease forwards}
+.narra.ya .w{animation:none;opacity:1;filter:none;transform:none}
+.hasta{font-size:16px;color:var(--lila);margin:0 0 14px;min-height:1.5em}
+.hasta b{font:400 16px var(--sc);color:var(--perg2);letter-spacing:.04em}
+
+/* ---------- Páginas de rasgos (la tabla de 2d6: primer dado = página) ---------- */
+.paginas{display:flex;align-items:center;gap:6px;margin:4px 0 12px}
+.cara{width:40px;height:40px;padding:0;border:1px solid rgba(243,207,126,.28);background:rgba(15,13,27,.5);border-radius:8px;display:grid;place-items:center;transition:border-color .2s,box-shadow .2s}
+.cara svg{width:24px;height:24px}
+.cara[aria-current="true"]{border-color:var(--luz);box-shadow:0 0 12px color-mix(in srgb,var(--luz) 55%,transparent)}
+.flecha{width:40px;height:40px;border:0;background:none;color:var(--perg2);font-size:26px;line-height:1;padding:0}
+.flecha:disabled{opacity:.25;cursor:default}
+.dado-btn{margin-left:auto}
+@media (max-width:480px){.dado-btn .txt{display:none}.dado-btn{padding:0 10px;gap:0}.cara,.flecha{width:36px;height:36px}.naipe{min-height:56px;padding:12px 10px}.naipes{gap:10px}}
+
+.naipes{display:grid;grid-template-columns:1fr 1fr;gap:12px;touch-action:pan-y;transition:opacity .2s,transform .2s}
+.naipes.cambia{opacity:0;transform:translateX(var(--dx,12px))}
+.naipe{position:relative;min-height:64px;padding:14px 12px;border:0;border-radius:3px;color:var(--tinta);
+  background-color:var(--perg);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .22 0 0 0 0 .1 0 0 0 .16 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),radial-gradient(ellipse at 20% 0,rgba(255,255,255,.55),transparent 60%),radial-gradient(ellipse at 100% 100%,rgba(140,100,40,.22),transparent 65%);
+  font:400 18px/1.2 var(--t);text-align:center;
+  box-shadow:0 1px 0 rgba(255,255,255,.45) inset,0 -2px 0 rgba(120,90,40,.18) inset,0 8px 18px rgba(0,0,0,.5);
+  transition:transform .22s ease,box-shadow .25s ease,opacity .3s ease,filter .3s ease}
+.naipe::before{content:"";position:absolute;inset:5px;border:3px double rgba(42,34,54,.32);border-radius:2px;pointer-events:none}
+@media (hover:hover){.naipe:not(:disabled):hover{transform:translateY(-3px);box-shadow:0 1px 0 rgba(255,255,255,.45) inset,0 0 0 2px var(--luz),0 0 30px color-mix(in srgb,var(--luz) 50%,transparent),0 12px 24px rgba(0,0,0,.5)}}
+.naipe[aria-pressed="true"]{transform:translateY(-3px);box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 0 0 2px var(--luz),0 0 44px color-mix(in srgb,var(--luz) 70%,transparent),0 12px 26px rgba(0,0,0,.5)}
+.naipes.hay .naipe:not([aria-pressed="true"]){opacity:.5;filter:saturate(.35) brightness(.78)}
+.naipe:disabled{opacity:.3!important;cursor:not-allowed;filter:saturate(.2)}
+.naipe .ya{display:block;font:400 12.5px var(--sc);letter-spacing:.04em;margin-top:3px}
+.lacre{position:absolute;top:-11px;right:-9px;width:32px;height:32px;border-radius:48% 52% 50% 46%;background:radial-gradient(circle at 35% 30%,#e36b50,#a8321f 58%,#701d12);color:#fbe9d0;font:900 15px/32px var(--d);text-align:center;box-shadow:0 2px 5px rgba(0,0,0,.55);transform:scale(0) rotate(-25deg);transition:transform .38s cubic-bezier(.3,1.7,.5,1)}
+.naipe[aria-pressed="true"] .lacre{transform:scale(1) rotate(-8deg)}
+
+/* ---------- Pie: siempre hay Seguir y Volver ---------- */
+.pie{position:fixed;left:0;right:0;bottom:0;z-index:15;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 20px;padding-bottom:max(18px,env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--noche) 45%)}
+.pie-in{max-width:640px;width:100%;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.seguir{min-height:52px;padding:10px 30px;background:var(--tomate);color:#fff7e6;border:0;border-radius:3px;font:900 20px var(--d);letter-spacing:.02em;box-shadow:0 6px 20px rgba(210,73,47,.35);transition:background .2s,box-shadow .2s}
+.seguir:disabled{background:#3d3658;color:#a39bc0;box-shadow:none;cursor:not-allowed}
+.volver{min-height:48px;background:none;border:0;color:var(--lila);text-decoration:underline;text-underline-offset:4px;font-size:17px}
+.volver[hidden]{display:inline-block;visibility:hidden}
+.secundario{min-height:40px;padding:6px 14px;border:1px solid rgba(243,207,126,.35);background:rgba(15,13,27,.5);border-radius:20px;display:inline-flex;align-items:center;gap:8px;font-size:16px}
+.secundario::before{content:"";width:16px;height:16px;border:1.5px solid currentColor;border-radius:4px;background:radial-gradient(circle,currentColor 2px,transparent 2.5px) 50%/100% 100% no-repeat}
+
+/* ---------- Cierre: el espejo se aclara ---------- */
+.reflejo{display:grid;grid-template-columns:1fr 1fr;gap:4px 24px;margin:6px 0 10px}
+.reflejo h3{font:400 16px var(--sc);letter-spacing:.08em;margin:0 0 6px}
+.reflejo .v h3{color:var(--mostaza2)} .reflejo .d h3{color:var(--ciruela2)}
+.reflejo ol{margin:0;padding:0;list-style:none;counter-reset:n}
+.reflejo li{counter-increment:n;font-size:19px;padding:5px 0;border-bottom:1px solid rgba(243,207,126,.14);opacity:0;animation:aparece .6s ease forwards}
+.reflejo li::before{content:counter(n);font:900 16px var(--d);color:var(--tomate);display:inline-block;width:20px}
+.nota{font-size:16px;color:#c9bfdc;font-style:italic}
+
+/* ---------- Cajón de la ficha ---------- */
+.cajon{position:fixed;top:0;right:0;bottom:0;width:min(88vw,380px);z-index:30;background:#16132b;border-left:1px solid rgba(243,207,126,.3);padding:20px 22px 40px;overflow:auto;transform:translateX(104%);transition:transform .38s cubic-bezier(.3,.9,.3,1);box-shadow:-24px 0 60px rgba(0,0,0,.6)}
+.cajon.abierto{transform:none}
+.cajon h2{font-size:30px;color:var(--mostaza2);margin-top:6px}
+.cajon h3{font:400 15px var(--sc);letter-spacing:.08em;color:var(--lila);margin:18px 0 4px}
+.cajon ol{margin:0;padding-left:22px}
+.cajon li{padding:2px 0}
+.cajon .vacio{color:#71698f;font-style:italic}
+.cajon .cerrar{float:right}
+.velo{position:fixed;inset:0;z-index:25;background:rgba(8,7,16,.55);opacity:0;pointer-events:none;transition:opacity .3s}
+.velo.on{opacity:1;pointer-events:auto}
+.legal{font-size:13px;color:#8a81a8;line-height:1.45;margin-top:28px}
+.vuela{position:fixed;z-index:40;pointer-events:none;font:400 18px var(--t);color:var(--tinta);background:var(--perg);padding:10px 12px;border-radius:3px;text-align:center;box-shadow:0 0 30px color-mix(in srgb,var(--luz) 70%,transparent)}
+
+/* ---------- Dados (los mismos de la herramienta) ---------- */
+.capa{position:fixed;inset:0;z-index:35;display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;align-content:center;pointer-events:none}
+.capa:empty{display:none}
+.capa::before{content:"";position:absolute;inset:0;background:radial-gradient(circle,rgba(15,13,27,.7),transparent 60%)}
+.dado{position:relative;width:60px;height:60px;background:var(--perg);border-radius:10px;box-shadow:0 10px 24px rgba(0,0,0,.55),inset 0 -4px 0 var(--perg2);display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:9px}
+.dado i{width:10px;height:10px;border-radius:50%;background:var(--tinta);place-self:center;visibility:hidden}
+.dado i.on{visibility:visible}
+.dado.rueda{animation:rueda .14s linear infinite}
+.dado.cae{animation:cae .45s cubic-bezier(.3,1.6,.5,1)}
+.resultado{position:relative;width:100%;text-align:center;font:900 30px var(--d);color:var(--mostaza2);text-shadow:0 2px 12px #000}
+
+/* ---------- Horizontal: el arte a la derecha, el relato a la izquierda ---------- */
+@media (min-width:900px) and (orientation:landscape){
+  .lienzo{left:30vw;height:100svh;
+    -webkit-mask-image:radial-gradient(ellipse 66% 74% at 54% 50%,#000 46%,transparent 94%);
+            mask-image:radial-gradient(ellipse 66% 74% at 54% 50%,#000 46%,transparent 94%)}
+  .relato{padding:110px 0 120px 6vw;justify-content:center;max-width:calc(40vw + 6vw)}
+  .relato::before{inset:0;background:linear-gradient(90deg,var(--noche) 0,rgba(15,13,27,.92) 30vw,transparent 50vw)}
+  .esc[data-modo="rasgo"] .lienzo{height:100svh}
+  .esc[data-modo="rasgo"] .relato{padding-top:110px}
+  .esc[data-modo="rasgo"] .relato::before{inset:0}
+  .cuerpo{margin:0}
+  .naipes{grid-template-columns:repeat(3,1fr)}
+  .pie{background:linear-gradient(transparent,rgba(15,13,27,.85) 50%)}
+  .pie-in{margin:0 0 0 calc(6vw - 20px);max-width:min(640px,40vw)}
+  .narra p{font-size:22px}
+}
+@media (min-width:1400px) and (orientation:landscape){.relato{max-width:calc(36vw + 6vw)}}
+
+/* ---------- Animaciones ---------- */
+@keyframes enfoca{to{opacity:1;filter:none;transform:none}}
+@keyframes aparece{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes llama{0%,100%{transform:scale(1,1)}50%{transform:scale(.9,1.12) translateY(-1px)}}
+@keyframes late{50%{transform:scale(1.35)}}
+@keyframes rueda{0%{transform:rotate(0) translateY(0)}50%{transform:rotate(180deg) translateY(-8px)}100%{transform:rotate(360deg) translateY(0)}}
+@keyframes cae{from{transform:scale(1.25) rotate(-12deg)}to{transform:none}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;animation-delay:0s!important;transition-duration:.01ms!important}
+  .narra .w{opacity:1;filter:none;transform:none}
+  .reflejo li{opacity:1}
+}
+</style>
+</head>
+<body>
+<div class="esc" id="esc" data-tinta="mostaza">
+  <div class="lienzo" aria-hidden="true">
+    <img class="cuadro" id="cuadroA" alt=""><img class="cuadro" id="cuadroB" alt="">
+    <div class="halo"></div>
+  </div>
+
+  <header class="barra">
+    <ol class="velas" aria-label="Escena 3 de 11"></ol>
+    <div class="acciones">
+      <button class="icono" id="btn-son" aria-pressed="false" title="Música">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path class="ondas" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
+        <span class="sr">Música</span>
+      </button>
+      <button class="icono" id="btn-ficha" aria-controls="cajon" aria-expanded="false">Ficha <span class="cuenta" id="cuenta">0</span></button>
+    </div>
+  </header>
+
+  <main class="relato" id="relato" aria-live="polite"><div class="cuerpo" id="cuerpo"></div></main>
+
+  <div class="pie"><div class="pie-in">
+    <button class="volver" id="volver">← Volver</button>
+    <button class="seguir" id="seguir">Seguir</button>
+  </div></div>
+
+  <div class="velo" id="velo"></div>
+  <aside class="cajon" id="cajon" aria-label="Ficha del personaje" aria-hidden="true"></aside>
+  <div class="capa" id="capa" aria-hidden="true"></div>
+</div>
+
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const QUIETO=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const espera=ms=>new Promise(r=>setTimeout(r,QUIETO?0:ms));
+const d6=()=>1+Math.floor(Math.random()*6);
+
+/* Rasgos del reglamento (los mismos de index.html): código 2d6 → [nombre, casas] */
+const POS={11:['Aventurero/a','G'],12:['Ambicioso/a','RS'],13:['Valiente','G'],14:['Atento/a con los demás','HR'],15:['Cauteloso/a','S'],16:['Encantador/a','GS'],21:['Caballeroso/a','G'],22:['Ingenioso/a','RS'],23:['Cooperativo/a','H'],24:['Creativo/a','R'],25:['Decidido/a','GS'],26:['Empático/a','H'],
+31:['Resistente','SH'],32:['Justo/a','HG'],33:['Incansable','RH'],34:['Honesto/a','HG'],35:['Trabajador/a','HG'],36:['Intimidante','SG'],41:['Intuitivo/a','R'],42:['Leal','HG'],43:['Metódico/a','S'],44:['Protector/a','HG'],45:['Observador/a','HR'],46:['Obsesivo/a','S'],
+51:['De mente abierta','RH'],52:['Paciente','H'],53:['Filosófico/a','R'],54:['Confiable','HS'],55:['Reservado/a','RS'],56:['Astuto/a','SG'],61:['Inteligente','R'],62:['Profundo/a','RS'],63:['Fuerte','GS'],64:['Estudioso/a','RH'],65:['Tradicional','S'],66:['Ocurrente','RG']};
+const NEG={11:['Áspero/a','GS'],12:['Agresivo/a','G'],13:['Distante','R'],14:['Ansioso/a','R'],15:['Arrogante','G'],16:['Insensible','S'],21:['Despistado/a','HG'],22:['Torpe','HG'],23:['Conformista','H'],24:['Crítico/a','GR'],25:['Mentiroso/a','S'],26:['Despectivo/a','RS'],
+31:['Dominante','G'],32:['Aburrido/a','H'],33:['Excéntrico/a','R'],34:['Crédulo/a','HG'],35:['Indeciso/a','R'],36:['Inseguro/a','HS'],41:['Sabelotodo','R'],42:['Perezoso/a','H'],43:['Manipulador/a','S'],44:['Melancólico/a','RS'],45:['Ingenuo/a','HG'],46:['Narcisista','GS'],
+51:['Común','H'],52:['Pasivo/a','HR'],53:['Orgulloso/a','GS'],54:['Influenciable','H'],55:['Callado/a','HR'],56:['Imprudente','G'],61:['Reservado/a en secretos','RS'],62:['Santurrón/a','G'],63:['Escéptico/a','RS'],64:['Blando/a','HS'],65:['Arisco/a','R'],66:['Estricto/a','S']};
+const TR={pos:POS,neg:NEG};
+const ORD={pos:['primera','segunda','tercera','cuarta','quinta'],neg:['primer','segundo','tercer','cuarto','quinto']};
+const ORDC=['1.ª','2.ª','3.ª','4.ª','5.ª'],ORDM=['1.º','2.º','3.º','4.º','5.º'];
+
+/* Momentos de la escena: entrada, cinco virtudes, puente, cinco defectos, cierre */
+const M=[{t:'entrada',f:1},...[0,1,2,3,4].map(i=>({t:'rasgo',k:'pos',i,f:2})),{t:'puente',f:3},...[0,1,2,3,4].map(i=>({t:'rasgo',k:'neg',i,f:3})),{t:'cierre',f:4},{t:'fin',f:4}];
+/* Encuadre de cada cuadro en pantallas angostas: dónde está lo importante */
+const FOCO={1:'34% 50%',2:'70% 45%',3:'60% 40%',4:'80% 50%'};
+
+const CLAVE='ctc-prototipo-espejo';
+const NUEVO=()=>({m:0,pos:[],neg:[],sel:null,pag:1,son:false});
+let S=NUEVO();
+try{const g=JSON.parse(localStorage.getItem(CLAVE)||'null');if(g)S=Object.assign(NUEVO(),g)}catch(e){}
+const guardar=()=>{try{localStorage.setItem(CLAVE,JSON.stringify(S))}catch(e){}};
+
+/* ---------- Música y campanita ---------- */
+let musica=null,ctx=null;
+function sonido(on){S.son=on;guardar();$('#btn-son').setAttribute('aria-pressed',on);
+  if(on){if(!musica){musica=new Audio('../audio/musica-partida-2020.mp3');musica.loop=true;musica.preload='auto';}
+    musica.volume=0;musica.play().then(()=>funde(musica,.38,1600)).catch(()=>{});}
+  else if(musica)funde(musica,0,500).then(()=>musica.pause());}
+function funde(a,hasta,ms){return new Promise(r=>{const desde=a.volume,t0=performance.now();
+  const paso=t=>{const k=Math.min(1,(t-t0)/ms);a.volume=Math.min(1,Math.max(0,desde+(hasta-desde)*k));k<1?requestAnimationFrame(paso):r()};requestAnimationFrame(paso)})}
+function campana(alto){if(!S.son)return;try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();
+  const t=ctx.currentTime,base=alto?1318.5:1046.5;
+  [[base,.045],[base*2.0,.018],[base*3.01,.008]].forEach(([f,g0])=>{const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(g0,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+1.2);
+    o.connect(g).connect(ctx.destination);o.start(t);o.stop(t+1.3);});}catch(e){}}
+
+/* ---------- Cuadros ---------- */
+let actual='',capaA=true;
+function cuadro(n){const src=`../arte/e03-f0${n}.webp`;if(src===actual)return;actual=src;
+  const a=$(capaA?'#cuadroB':'#cuadroA'),b=$(capaA?'#cuadroA':'#cuadroB');capaA=!capaA;
+  a.style.objectPosition=FOCO[n];a.onload=()=>{a.classList.remove('on');void a.offsetWidth;a.classList.add('on');b.classList.remove('on')};a.src=src;}
+[1,2,3,4].forEach(n=>{const im=new Image();im.src=`../arte/e03-f0${n}.webp`});
+
+/* ---------- Texto que entra palabra por palabra ---------- */
+function palabras(txt,desde=0){let i=desde;return txt.split(' ').map(w=>`<span class="w" style="animation-delay:${(i++)*55}ms">${w}</span>`).join(' ');}
+function narra(parrafos){let n=0;return `<div class="narra" id="narra">${parrafos.map(p=>{const h=`<p>${palabras(p,n)}</p>`;n+=p.split(' ').length+4;return h}).join('')}</div>`;}
+
+/* ---------- Dados ---------- */
+const PIPS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+const caraSVG=v=>{const pos=[[6,6],[12,6],[18,6],[6,12],[12,12],[18,12],[6,18],[12,18],[18,18]];
+  return `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="21" rx="4.5" fill="none" stroke="currentColor" stroke-width="1.4"/>${PIPS[v].map(i=>`<circle cx="${pos[i][0]}" cy="${pos[i][1]}" r="1.9" fill="currentColor"/>`).join('')}</svg>`;};
+const dadoHTML=v=>`<div class="dado">${Array.from({length:9},(_,i)=>`<i class="${PIPS[v].includes(i)?'on':''}"></i>`).join('')}</div>`;
+let rodando=false;
+async function tirar(etiqueta){rodando=true;const capa=$('#capa'),res=[d6(),d6()];
+  capa.innerHTML=res.map(()=>dadoHTML(d6())).join('');const dados=[...capa.querySelectorAll('.dado')];
+  if(!QUIETO){dados.forEach(d=>d.classList.add('rueda'));
+    for(let k=0;k<9;k++){await espera(70);dados.forEach(d=>{const v=d6();d.querySelectorAll('i').forEach((p,i)=>p.className=PIPS[v].includes(i)?'on':'')});}
+    dados.forEach(d=>{d.classList.remove('rueda');d.classList.add('cae')});}
+  dados.forEach((d,j)=>d.querySelectorAll('i').forEach((p,i)=>p.className=PIPS[res[j]].includes(i)?'on':''));
+  const r=document.createElement('div');r.className='resultado';r.textContent=etiqueta(res);capa.appendChild(r);
+  await espera(1300);capa.innerHTML='';rodando=false;return res;}
+
+/* ---------- Pintado de cada momento ---------- */
+const momento=()=>M[S.m];
+function listaHasta(k){const L=S[k];if(!L.length)return '';
+  return `${k==='pos'?'Tus virtudes':'Tus defectos'}: `+L.map((c,i)=>`<b>${i+1}</b> ${esc(TR[k][c][0])}`).join(' · ');}
+function naipesHTML(k,i){const tabla=TR[k],L=S[k],p=S.pag;
+  return [1,2,3,4,5,6].map(s=>{const c=''+p+s,nom=tabla[c][0],otro=L.indexOf(c),usado=otro>=0&&otro!==i,on=S.sel===c;
+    return `<button class="naipe" data-c="${c}" aria-pressed="${on}" ${usado?'disabled':''}>${esc(nom)}${usado?`<span class="ya">tu ${(k==='pos'?ORDC:ORDM)[otro]}</span>`:''}<span class="lacre" aria-hidden="true">${i+1}</span></button>`}).join('');}
+
+function pintar(entra=true){
+  const mo=momento(),cu=$('#cuerpo');
+  $('#esc').dataset.modo=mo.t;
+  $('#esc').dataset.tinta=(mo.t==='rasgo'&&mo.k==='neg')||mo.t==='puente'?'ciruela':'mostaza';
+  cuadro(mo.f);
+  let h='',puede=true,txtSeguir='Seguir';
+  if(mo.t==='entrada'){
+    h=`<p class="lugar">El pasillo, de noche</p><h1>El espejo</h1>`+narra(['Esa noche te detienes frente al espejo del pasillo. No te devuelve tu cara: te devuelve preguntas.','¿Qué te hace fuerte? ¿Qué te traiciona? El espejo te va a pedir cinco virtudes y cinco defectos, de a uno, del que más te define al que menos.']);
+  }else if(mo.t==='rasgo'){
+    const {k,i}=mo,L=S[k];
+    if(entra){S.sel=L[i]||null;S.pag=S.sel?+S.sel[0]:(S.pag||1);}
+    const titulo=k==='pos'?`Tu ${ORD.pos[i]} virtud`:`Tu ${ORD.neg[i]} defecto`;
+    const sub=i===0?(k==='pos'?'¿Qué te hace fuerte? Empieza por la que más te define.':'¿Qué te traiciona? Empieza por el que más pesa.')
+      :i===4?(k==='pos'?'La última: la que menos te define de las cinco.':'El último: el que menos pesa de los cinco.')
+      :(k==='pos'?'La que sigue en importancia.':'El que sigue en importancia.');
+    h=`<h2>${titulo}</h2><p class="sub">${sub}</p><p class="hasta">${listaHasta(k)}</p>
+      <div class="paginas" role="group" aria-label="Páginas de rasgos">
+        <button class="flecha" data-pag="-1" aria-label="Página anterior" ${S.pag<=1?'disabled':''}>‹</button>
+        ${[1,2,3,4,5,6].map(p=>`<button class="cara" data-ir="${p}" aria-current="${S.pag===p}" aria-label="Página ${p} de 6">${caraSVG(p)}</button>`).join('')}
+        <button class="flecha" data-pag="1" aria-label="Página siguiente" ${S.pag>=6?'disabled':''}>›</button>
+        <button class="secundario dado-btn" data-dado aria-label="Al azar: que decidan los dados"><span class="txt">Al azar</span></button>
+      </div>
+      <div class="naipes ${S.sel&&+S.sel[0]===S.pag?'hay':''}" id="naipes">${naipesHTML(k,i)}</div>`;
+    puede=!!S.sel;
+  }else if(mo.t==='puente'){
+    h=narra(['Tus cinco virtudes quedan grabadas en el marco. El vidrio se empaña y, del otro lado, tu reflejo baja la mirada.','Ahora el espejo quiere saber lo otro: qué te traiciona.']);
+  }else if(mo.t==='cierre'){
+    h=`<h2 style="color:var(--mostaza2)">Así te ve el espejo</h2>
+      <div class="reflejo"><div class="v"><h3>Virtudes</h3><ol>${S.pos.map((c,i)=>`<li style="animation-delay:${i*160}ms">${esc(POS[c][0])}</li>`).join('')}</ol></div>
+      <div class="d"><h3>Defectos</h3><ol>${S.neg.map((c,i)=>`<li style="animation-delay:${800+i*160}ms">${esc(NEG[c][0])}</li>`).join('')}</ol></div></div>
+      <p class="nota">El orden importa: al llegar al castillo, esto va a tener consecuencias.</p>`;
+    txtSeguir='Guardar en la ficha';
+  }else{
+    h=`<p class="lugar">Prototipo</p><h2 style="color:var(--mostaza2)">Fin de la prueba</h2>
+      <p class="sub">En la herramienta completa, acá sigue El reflejo. Tus diez rasgos ya están en la ficha.</p>
+      <p><button class="secundario" data-reiniciar>Empezar de nuevo</button></p>`;
+    puede=false;
+  }
+  const poner=()=>{cu.innerHTML=h;cu.classList.remove('sale');
+    $('#seguir').textContent=txtSeguir;$('#seguir').disabled=!puede;$('#seguir').hidden=mo.t==='fin';
+    $('#volver').hidden=S.m===0;
+    const n=$('#narra');if(n)n.addEventListener('click',()=>n.classList.add('ya'),{once:true});};
+  if(entra&&!QUIETO&&cu.innerHTML){cu.classList.add('sale');setTimeout(()=>{poner();window.scrollTo({top:0,behavior:'smooth'})},230);}else poner();
+  pintarBarra();pintarCajon();guardar();
+}
+function pintarBarra(){const v=$('.velas');v.innerHTML=Array.from({length:11},(_,i)=>`<li class="${i<2?'hecha':i===2?'ahora':''}"></li>`).join('');
+  $('#cuenta').textContent=S.pos.length+S.neg.length;}
+function pintarCajon(){const li=(k)=>`<ol>${[0,1,2,3,4].map(i=>S[k][i]?`<li>${esc(TR[k][S[k][i]][0])}</li>`:'<li class="vacio">—</li>').join('')}</ol>`;
+  $('#cajon').innerHTML=`<button class="secundario cerrar" data-cerrar style="padding-left:14px">Cerrar</button><h2>Tu ficha</h2>
+  <h3>Virtudes</h3>${li('pos')}<h3>Defectos</h3>${li('neg')}
+  <p class="nota">En la herramienta completa, acá está toda la ficha: atributos, varita, pertenencias, casa y hechizos.</p>
+  <p class="legal">Guía no oficial, hecha por fans y sin fines comerciales. No tiene relación con los titulares de la obra en la que se inspira. Arte de GG. Música original hecha para la partida de 2020.</p>`;}
+
+/* ---------- Cambiar de página (con animación corta) ---------- */
+function irPagina(p){p=Math.max(1,Math.min(6,p));if(p===S.pag)return;const dir=p>S.pag?1:-1,n=$('#naipes');
+  S.pag=p;if(QUIETO||!n){pintar(false);return;}
+  n.style.setProperty('--dx',`${-12*dir}px`);n.classList.add('cambia');
+  setTimeout(()=>{pintar(false);const m=$('#naipes');m.style.setProperty('--dx',`${12*dir}px`);m.classList.add('cambia');requestAnimationFrame(()=>requestAnimationFrame(()=>m.classList.remove('cambia')));},180);}
+
+/* ---------- El rasgo elegido viaja al cajón ---------- */
+function vuela(el){if(QUIETO||!el)return;const r=el.getBoundingClientRect(),d=$('#btn-ficha').getBoundingClientRect();
+  const s=document.createElement('span');s.className='vuela';s.textContent=el.firstChild.textContent;
+  Object.assign(s.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px'});document.body.appendChild(s);
+  const dx=d.left+d.width/2-(r.left+r.width/2),dy=d.top+d.height/2-(r.top+r.height/2);
+  s.animate([{transform:'none',opacity:1},{transform:`translate(${dx}px,${dy}px) scale(.25)`,opacity:.15}],{duration:720,easing:'cubic-bezier(.55,0,.3,1)'}).finished.then(()=>{s.remove();const c=$('#cuenta');c.classList.remove('late');void c.offsetWidth;c.classList.add('late');});}
+
+/* ---------- Acciones ---------- */
+function seguir(){const mo=momento();if($('#seguir').disabled||rodando)return;
+  if(mo.t==='rasgo'){const L=S[mo.k];L[mo.i]=S.sel;vuela(document.querySelector('.naipe[aria-pressed="true"]'));campana(true);}
+  if(mo.t==='cierre')campana(true);
+  S.m=Math.min(M.length-1,S.m+1);
+  /* si al volver atrás quedaron huecos, el siguiente momento es el primero sin elegir */
+  pintar(true);}
+function volver(){if(rodando||S.m===0)return;S.m--;pintar(true);}
+function abrirCajon(si){$('#cajon').classList.toggle('abierto',si);$('#velo').classList.toggle('on',si);$('#cajon').setAttribute('aria-hidden',!si);$('#btn-ficha').setAttribute('aria-expanded',si);if(si)$('#cajon [data-cerrar]').focus();}
+
+document.addEventListener('click',async ev=>{
+  if(desliza){desliza=false;return;}
+  const t=ev.target;
+  const n=t.closest('.naipe');if(n&&!n.disabled){S.sel=n.dataset.c;campana(false);pintar(false);return;}
+  const c=t.closest('[data-ir]');if(c){irPagina(+c.dataset.ir);return;}
+  const f=t.closest('[data-pag]');if(f&&!f.disabled){irPagina(S.pag+ +f.dataset.pag);return;}
+  if(t.closest('[data-dado]')&&!rodando){const mo=momento(),L=S[mo.k],tabla=TR[mo.k];let r,c2;
+    do{r=await tirar(x=>tabla[''+x[0]+x[1]][0]);c2=''+r[0]+r[1];}while(L.includes(c2)&&L.indexOf(c2)!==mo.i);
+    S.pag=r[0];S.sel=c2;campana(false);pintar(false);return;}
+  if(t.closest('[data-cerrar]')||t.closest('#velo')){abrirCajon(false);return;}
+  if(t.closest('[data-reiniciar]')){const son=S.son;S=NUEVO();S.son=son;pintar(true);return;}
+});
+$('#seguir').addEventListener('click',seguir);
+$('#volver').addEventListener('click',volver);
+$('#btn-ficha').addEventListener('click',()=>abrirCajon(!$('#cajon').classList.contains('abierto')));
+$('#btn-son').addEventListener('click',()=>sonido(!S.son));
+document.addEventListener('keydown',ev=>{
+  if(ev.key==='Escape'){abrirCajon(false);return;}
+  if($('#cajon').classList.contains('abierto'))return;
+  if(momento().t==='rasgo'&&(ev.key==='ArrowRight'||ev.key==='ArrowLeft')&&!ev.target.closest('input,textarea,select')){irPagina(S.pag+(ev.key==='ArrowRight'?1:-1));ev.preventDefault();}
+});
+/* Deslizar las páginas con el dedo */
+let x0=null,desliza=false;
+document.addEventListener('pointerdown',ev=>{if(ev.target.closest('#naipes'))x0=ev.clientX},{passive:true});
+document.addEventListener('pointerup',ev=>{if(x0==null)return;const dx=ev.clientX-x0;x0=null;if(Math.abs(dx)>60){desliza=true;setTimeout(()=>desliza=false,350);irPagina(S.pag+(dx<0?1:-1));}},{passive:true});
+
+/* La música nunca arranca sola: el navegador exige un toque, y además va apagada por defecto. */
+$('#btn-son').setAttribute('aria-pressed',false);S.son=false;
+pintar(false);
+})();
+</script>
+</body>
+</html>

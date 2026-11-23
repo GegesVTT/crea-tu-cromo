@@ -11,6 +11,8 @@ Abrí la página y tocá **Empezar**. El avance se guarda en el navegador, así 
 ## Estructura
 
 - `index.html`: toda la herramienta (HTML, CSS y JavaScript, sin dependencias).
+- `audio/musica-partida-2020.mp3`: música original hecha para la partida de 2020. Suena solo si se activa el sonido.
+- `prototipos/`: pruebas de diseño que todavía no están en la herramienta. `espejo.html` rehace la escena 3 con una decisión por pantalla.
 - `arte/eNN-fNN.webp`: cuadros del storyboard. `NN` de la `e` es la escena (01 a 11) y `NN` de la `f` es el cuadro dentro de la escena. Para cambiar una ilustración, se reemplaza el archivo con el mismo nombre.
 
 ## Aviso
