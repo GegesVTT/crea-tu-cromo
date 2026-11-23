@@ -39,14 +39,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .esc[data-modo="rasgo"] .relato{padding-top:30svh}
 .esc[data-modo="rasgo"] .relato::before{inset:18svh 0 0 0}
 /* ---------- Barra superior ---------- */
-.barra{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:12px 14px;padding-top:max(12px,env(safe-area-inset-top));background:linear-gradient(rgba(15,13,27,.75),transparent)}
-.velas{display:flex;gap:7px;align-items:flex-end;list-style:none;margin:0;padding:0}
-.velas li{width:10px;height:30px;position:relative}
-.velas li::before{content:"";position:absolute;bottom:0;left:2px;width:6px;height:18px;background:var(--perg2);opacity:.3;border-radius:1px}
-.velas li.hecha::before{opacity:.75}
-.velas li.hecha::after,.velas li.ahora::after{content:"";position:absolute;bottom:19px;left:2px;width:6px;height:9px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:var(--mostaza);box-shadow:0 0 10px var(--mostaza);opacity:.55}
-.velas li.ahora::before{opacity:.9}
-.velas li.ahora::after{opacity:1;animation:llama 1.6s ease-in-out infinite}
+.barra{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:flex-end;align-items:center;padding:12px 14px;padding-top:max(12px,env(safe-area-inset-top));background:linear-gradient(rgba(15,13,27,.75),transparent)}
 .acciones{display:flex;gap:8px}
 .icono{min-width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 12px;background:rgba(15,13,27,.55);border:1px solid rgba(243,207,126,.35);border-radius:22px;color:var(--crema);font:400 15px var(--sc);letter-spacing:.06em}
 .icono svg{width:20px;height:20px}
@@ -99,8 +92,20 @@ h2{font:900 clamp(27px,6.4vw,40px)/1.05 var(--d);color:var(--luz2);margin:0 0 6p
 /* ---------- Pie: siempre hay Seguir y Volver ---------- */
 .pie{position:fixed;left:0;right:0;bottom:0;z-index:15;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 20px;padding-bottom:max(18px,env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--noche) 45%)}
 .pie-in{max-width:640px;width:100%;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
-.seguir{min-height:52px;padding:10px 30px;background:var(--tomate);color:#fff7e6;border:0;border-radius:3px;font:900 20px var(--d);letter-spacing:.02em;box-shadow:0 6px 20px rgba(210,73,47,.35);transition:background .2s,box-shadow .2s}
-.seguir:disabled{background:#3d3658;color:#a39bc0;box-shadow:none;cursor:not-allowed}
+/* Seguir: cartela art nouveau. Los remates son SVG (latigazo de ancho variable que nace del rombo);
+   las reglas de arriba y abajo siguen en CSS, así el botón se estira con el texto. */
+.seguir{--o-estructura:var(--mostaza);--o-filamento:var(--perg2);--o-joya:var(--tomate);--o-texto:var(--mostaza2);
+  position:relative;height:64px;min-width:190px;padding:0 64px;border:0;background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(227,169,59,.12),rgba(15,13,27,.0) 70%);
+  color:var(--o-texto);font:900 21px/64px var(--d);letter-spacing:.03em;white-space:nowrap;transition:color .25s,filter .3s}
+.seguir::before,.seguir::after{content:"";position:absolute;left:55px;right:55px;height:1.5px;background:var(--o-estructura);transition:background .25s}
+.seguir::before{top:5.25px}.seguir::after{bottom:5.25px}
+.seguir svg{position:absolute;top:0;width:56px;height:64px;overflow:visible}
+.seguir .izq{left:0}.seguir .der{right:0;transform:scaleX(-1)}
+@media (hover:hover){.seguir:not(:disabled):hover{--o-estructura:var(--mostaza2);--o-filamento:#fff2cf;--o-texto:#fff7e6;filter:drop-shadow(0 0 10px rgba(243,185,95,.45))}}
+.seguir:not(:disabled):active{filter:drop-shadow(0 0 16px rgba(243,185,95,.7))}
+.seguir:disabled{--o-estructura:#4e4769;--o-filamento:#433d5d;--o-joya:#5c5379;--o-texto:#8a83a8;background:none;cursor:not-allowed}
+.seguir:focus-visible{outline-offset:-2px}
+
 .volver{min-height:48px;background:none;border:0;color:var(--lila);text-decoration:underline;text-underline-offset:4px;font-size:17px}
 .volver[hidden]{display:inline-block;visibility:hidden}
 .secundario{min-height:40px;padding:6px 14px;border:1px solid rgba(243,207,126,.35);background:rgba(15,13,27,.5);border-radius:20px;display:inline-flex;align-items:center;gap:8px;font-size:16px}
@@ -173,6 +178,7 @@ h2{font:900 clamp(27px,6.4vw,40px)/1.05 var(--d);color:var(--luz2);margin:0 0 6p
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="remate" viewBox="0 0 56 64"><path style="fill:var(--o-estructura)" d="M11.7,22.6L12.1,22.0L12.4,21.5L12.7,21.0L12.9,20.5L13.2,20.1L13.5,19.6L13.7,19.2L14.0,18.8L14.3,18.4L14.6,18.0L15.0,17.6L15.3,17.3L15.6,16.9L16.0,16.6L16.4,16.2L16.8,15.9L17.2,15.5L17.6,15.2L18.1,14.9L18.5,14.6L19.0,14.3L19.5,14.0L20.1,13.7L20.6,13.4L21.2,13.1L21.8,12.8L22.4,12.5L23.0,12.3L23.6,12.0L24.3,11.8L25.0,11.5L25.7,11.3L26.4,11.0L27.1,10.8L27.9,10.6L28.7,10.3L29.5,10.1L30.3,9.9L31.1,9.7L31.9,9.5L32.8,9.3L33.7,9.1L34.6,9.0L35.5,8.8L36.4,8.6L37.3,8.5L38.2,8.3L39.2,8.2L40.2,8.0L41.1,7.9L42.1,7.8L43.1,7.7L44.2,7.6L45.2,7.4L46.2,7.3L47.3,7.2L48.3,7.2L49.4,7.1L50.5,7.0L51.6,6.9L52.7,6.9L53.8,6.8L54.9,6.8L56.0,6.7L56.0,5.3L54.9,5.2L53.8,5.2L52.6,5.2L51.5,5.1L50.4,5.1L49.4,5.1L48.3,5.1L47.2,5.1L46.1,5.1L45.1,5.1L44.0,5.1L43.0,5.1L41.9,5.1L40.9,5.1L39.9,5.1L38.9,5.2L37.9,5.2L36.9,5.3L36.0,5.3L35.0,5.4L34.1,5.5L33.1,5.6L32.2,5.7L31.3,5.8L30.4,5.9L29.5,6.1L28.6,6.2L27.8,6.4L26.9,6.5L26.1,6.7L25.2,6.9L24.4,7.1L23.6,7.3L22.9,7.6L22.1,7.8L21.4,8.1L20.6,8.4L19.9,8.7L19.2,9.0L18.5,9.3L17.9,9.6L17.2,10.0L16.6,10.4L16.0,10.8L15.4,11.2L14.8,11.6L14.3,12.1L13.8,12.6L13.3,13.1L12.8,13.6L12.4,14.1L12.0,14.7L11.6,15.2L11.3,15.8L11.0,16.4L10.7,17.0L10.5,17.7L10.3,18.3L10.2,19.0L10.1,19.7L10.0,20.3L10.0,21.0L10.0,21.7L10.3,22.4Z"/><path style="fill:var(--o-estructura)" d="M10.3,41.6L10.0,42.3L10.0,43.0L10.0,43.7L10.1,44.3L10.2,45.0L10.3,45.7L10.5,46.3L10.7,47.0L11.0,47.6L11.3,48.2L11.6,48.8L12.0,49.3L12.4,49.9L12.8,50.4L13.3,50.9L13.8,51.4L14.3,51.9L14.8,52.4L15.4,52.8L16.0,53.2L16.6,53.6L17.2,54.0L17.9,54.4L18.5,54.7L19.2,55.0L19.9,55.3L20.6,55.6L21.4,55.9L22.1,56.2L22.9,56.4L23.6,56.7L24.4,56.9L25.2,57.1L26.1,57.3L26.9,57.5L27.8,57.6L28.6,57.8L29.5,57.9L30.4,58.1L31.3,58.2L32.2,58.3L33.1,58.4L34.1,58.5L35.0,58.6L36.0,58.7L36.9,58.7L37.9,58.8L38.9,58.8L39.9,58.9L40.9,58.9L41.9,58.9L43.0,58.9L44.0,58.9L45.1,58.9L46.1,58.9L47.2,58.9L48.3,58.9L49.4,58.9L50.4,58.9L51.5,58.9L52.6,58.8L53.8,58.8L54.9,58.8L56.0,58.7L56.0,57.3L54.9,57.2L53.8,57.2L52.7,57.1L51.6,57.1L50.5,57.0L49.4,56.9L48.3,56.8L47.3,56.8L46.2,56.7L45.2,56.6L44.2,56.4L43.1,56.3L42.1,56.2L41.1,56.1L40.2,56.0L39.2,55.8L38.2,55.7L37.3,55.5L36.4,55.4L35.5,55.2L34.6,55.0L33.7,54.9L32.8,54.7L31.9,54.5L31.1,54.3L30.3,54.1L29.5,53.9L28.7,53.7L27.9,53.4L27.1,53.2L26.4,53.0L25.7,52.7L25.0,52.5L24.3,52.2L23.6,52.0L23.0,51.7L22.4,51.5L21.8,51.2L21.2,50.9L20.6,50.6L20.1,50.3L19.5,50.0L19.0,49.7L18.5,49.4L18.1,49.1L17.6,48.8L17.2,48.5L16.8,48.1L16.4,47.8L16.0,47.4L15.6,47.1L15.3,46.7L15.0,46.4L14.6,46.0L14.3,45.6L14.0,45.2L13.7,44.8L13.5,44.4L13.2,43.9L12.9,43.5L12.7,43.0L12.4,42.5L12.1,42.0L11.7,41.4Z"/><path style="fill:var(--o-filamento)" d="M16.4,13.4L16.8,13.9L17.2,14.4L17.6,14.8L18.1,15.2L18.5,15.6L18.9,15.9L19.4,16.3L19.8,16.6L20.3,16.9L20.7,17.2L21.1,17.5L21.6,17.8L22.0,18.0L22.4,18.3L22.8,18.6L23.1,18.8L23.5,19.0L23.9,19.3L24.2,19.5L24.5,19.7L24.8,19.9L25.0,20.1L25.3,20.3L25.5,20.4L25.7,20.6L25.9,20.8L26.0,20.9L26.1,21.1L26.2,21.2L26.3,21.3L26.4,21.4L26.4,21.5L26.4,21.7L26.4,21.8L26.4,22.0L26.4,22.2L26.3,22.4L26.1,22.6L25.9,22.9L25.7,23.1L26.3,23.9L26.6,23.6L26.9,23.3L27.2,23.1L27.4,22.8L27.6,22.5L27.7,22.2L27.8,21.9L27.9,21.5L27.9,21.2L27.9,20.9L27.8,20.6L27.7,20.2L27.5,19.9L27.3,19.6L27.1,19.3L26.9,19.1L26.6,18.8L26.4,18.5L26.1,18.3L25.7,18.0L25.4,17.7L25.1,17.5L24.7,17.2L24.3,17.0L24.0,16.7L23.6,16.5L23.2,16.2L22.7,15.9L22.3,15.7L21.9,15.4L21.4,15.1L21.0,14.9L20.5,14.6L20.0,14.3L19.6,14.0L19.1,13.8L18.6,13.5L18.1,13.2L17.6,12.9L17.1,12.7Z"/><path style="fill:var(--o-filamento)" d="M17.1,51.3L17.6,51.1L18.1,50.8L18.6,50.5L19.1,50.2L19.6,50.0L20.0,49.7L20.5,49.4L21.0,49.1L21.4,48.9L21.9,48.6L22.3,48.3L22.7,48.1L23.2,47.8L23.6,47.5L24.0,47.3L24.3,47.0L24.7,46.8L25.1,46.5L25.4,46.3L25.7,46.0L26.1,45.7L26.4,45.5L26.6,45.2L26.9,44.9L27.1,44.7L27.3,44.4L27.5,44.1L27.7,43.8L27.8,43.4L27.9,43.1L27.9,42.8L27.9,42.5L27.8,42.1L27.7,41.8L27.6,41.5L27.4,41.2L27.2,40.9L26.9,40.7L26.6,40.4L26.3,40.1L25.7,40.9L25.9,41.1L26.1,41.4L26.3,41.6L26.4,41.8L26.4,42.0L26.4,42.2L26.4,42.3L26.4,42.5L26.4,42.6L26.3,42.7L26.2,42.8L26.1,42.9L26.0,43.1L25.9,43.2L25.7,43.4L25.5,43.6L25.3,43.7L25.0,43.9L24.8,44.1L24.5,44.3L24.2,44.5L23.9,44.7L23.5,45.0L23.1,45.2L22.8,45.4L22.4,45.7L22.0,46.0L21.6,46.2L21.1,46.5L20.7,46.8L20.3,47.1L19.8,47.4L19.4,47.7L18.9,48.1L18.5,48.4L18.1,48.8L17.6,49.2L17.2,49.6L16.8,50.1L16.4,50.6Z"/><circle style="fill:var(--o-filamento)" cx="26.0" cy="23.5" r="1.9"/><circle style="fill:var(--o-filamento)" cx="26.0" cy="40.5" r="1.9"/><polygon style="fill:var(--o-joya);stroke:var(--o-estructura);stroke-width:1.2" points="11,22.5 20.5,32 11,41.5 1.5,32"/><polygon style="fill:var(--o-estructura)" points="11,27.5 15.5,32 11,36.5 6.5,32"/></symbol></defs></svg>
 <div class="esc" id="esc" data-tinta="mostaza">
   <div class="lienzo" aria-hidden="true">
     <img class="cuadro" id="cuadroA" alt=""><img class="cuadro" id="cuadroB" alt="">
@@ -180,7 +186,6 @@ h2{font:900 clamp(27px,6.4vw,40px)/1.05 var(--d);color:var(--luz2);margin:0 0 6p
   </div>
 
   <header class="barra">
-    <ol class="velas" aria-label="Escena 3 de 11"></ol>
     <div class="acciones">
       <button class="icono" id="btn-son" aria-pressed="false" title="Música">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path class="ondas" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
@@ -194,7 +199,7 @@ h2{font:900 clamp(27px,6.4vw,40px)/1.05 var(--d);color:var(--luz2);margin:0 0 6p
 
   <div class="pie"><div class="pie-in">
     <button class="volver" id="volver">← Volver</button>
-    <button class="seguir" id="seguir">Seguir</button>
+    <button class="seguir" id="seguir"><svg class="izq" aria-hidden="true"><use href="#remate"/></svg><span id="seguir-txt">Seguir</span><svg class="der" aria-hidden="true"><use href="#remate"/></svg></button>
   </div></div>
 
   <div class="velo" id="velo"></div>
@@ -320,14 +325,13 @@ function pintar(entra=true){
     puede=false;
   }
   const poner=()=>{cu.innerHTML=h;cu.classList.remove('sale');
-    $('#seguir').textContent=txtSeguir;$('#seguir').disabled=!puede;$('#seguir').hidden=mo.t==='fin';
+    $('#seguir-txt').textContent=txtSeguir;$('#seguir').disabled=!puede;$('#seguir').hidden=mo.t==='fin';
     $('#volver').hidden=S.m===0;
     const n=$('#narra');if(n)n.addEventListener('click',()=>n.classList.add('ya'),{once:true});};
   if(entra&&!QUIETO&&cu.innerHTML){cu.classList.add('sale');setTimeout(()=>{poner();window.scrollTo({top:0,behavior:'smooth'})},230);}else poner();
   pintarBarra();pintarCajon();guardar();
 }
-function pintarBarra(){const v=$('.velas');v.innerHTML=Array.from({length:11},(_,i)=>`<li class="${i<2?'hecha':i===2?'ahora':''}"></li>`).join('');
-  $('#cuenta').textContent=S.pos.length+S.neg.length;}
+function pintarBarra(){$('#cuenta').textContent=S.pos.length+S.neg.length;}
 function pintarCajon(){const li=(k)=>`<ol>${[0,1,2,3,4].map(i=>S[k][i]?`<li>${esc(TR[k][S[k][i]][0])}</li>`:'<li class="vacio">—</li>').join('')}</ol>`;
   $('#cajon').innerHTML=`<button class="secundario cerrar" data-cerrar style="padding-left:14px">Cerrar</button><h2>Tu ficha</h2>
   <h3>Virtudes</h3>${li('pos')}<h3>Defectos</h3>${li('neg')}
