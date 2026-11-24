@@ -260,6 +260,12 @@ h2{font:400 clamp(25px,6vw,36px)/1.08 var(--d);color:var(--luz2);margin:0 0 6px}
 .portada .nudo-sep{margin:16px auto 0;width:220px}
 .portada .bajada{font:italic 400 20px/1.4 var(--t);color:#efe6d6;margin:14px auto 22px;max-width:28em}
 
+/* ---------- Destello: transición de papel entre escenas ---------- */
+.destello{position:fixed;inset:0;z-index:40;pointer-events:none;background:var(--noche);opacity:0}
+.destello img{width:100%;height:100%;object-fit:cover;transform:scale(1.04)}
+.destello.on{animation:destella 1.5s ease forwards}.destello.on img{animation:acerca2 1.5s ease-out forwards}
+@keyframes destella{0%{opacity:0}30%{opacity:1}60%{opacity:1}100%{opacity:0}}
+@keyframes acerca2{to{transform:scale(1.12)}}
 /* ---------- La llegada: escena puente a pantalla completa ---------- */
 .llegada{position:fixed;inset:0;z-index:45;background:var(--noche);overflow:hidden}
 .llegada .lienzo2{position:absolute;inset:0;-webkit-mask-image:radial-gradient(ellipse 80% 78% at 50% 46%,#000 52%,transparent 97%);mask-image:radial-gradient(ellipse 80% 78% at 50% 46%,#000 52%,transparent 97%)}
@@ -322,7 +328,7 @@ h2{font:400 clamp(25px,6vw,36px)/1.08 var(--d);color:var(--luz2);margin:0 0 6px}
 </defs></svg>
 
 <div class="portada" id="portada" hidden>
-  <img src="arte/e11-f03.webp" alt="">
+  <img src="arte/v2/e11-f01.webp" alt="">
   <div class="portada-txt">
     <p class="sobre">Hechicería y Magia · creación de personajes</p>
     <h1>Crea tu<span>cromo</span></h1>
@@ -335,6 +341,7 @@ h2{font:400 clamp(25px,6vw,36px)/1.08 var(--d);color:var(--luz2);margin:0 0 6px}
 
 <div class="app" id="app" data-tinta="mostaza">
   <div class="lienzo" aria-hidden="true"><img class="cuadro" id="cuadroA" alt=""><img class="cuadro" id="cuadroB" alt=""></div>
+  <div class="destello" id="destello" aria-hidden="true" hidden><img alt=""></div>
   <header class="barra">
     <button class="icono" id="btn-son" aria-pressed="false" title="Música">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
@@ -511,32 +518,59 @@ async function tirar(n,etiqueta){rodando=true;const capa=$('#capa'),res=Array.fr
   await espera(1200);capa.innerHTML='';rodando=false;campana(false);return res;}
 
 /* =========================================================
-   Cuadros del storyboard (arte de GG): arte/eNN-fNN.webp
+   Arte de las escenas (estilo de la selección vieja): arte/v2/
+   c: cuadros de la escena · f: qué cuadro va según lo elegido
+   p: placa según lo elegido · d: destello al pasar a la escena siguiente
    ========================================================= */
-let cuadroActual='',capaA=true,relojes=[];
-function ponerCuadro(i){const n=String(S.esc+1).padStart(2,'0'),src=`arte/e${n}-f${String(i+1).padStart(2,'0')}.webp`;
-  if(src===cuadroActual)return;cuadroActual=src;
+const V='v2/';
+let cuadroActual='',capaA=true,relojes=[],previa=false;
+function mostrar(src){src=`arte/${src}.webp`;if(src===cuadroActual)return;cuadroActual=src;
   const a=$(capaA?'#cuadroB':'#cuadroA'),b=$(capaA?'#cuadroA':'#cuadroB');capaA=!capaA;
   a.onload=()=>{a.classList.remove('on');void a.offsetWidth;a.classList.add('on');b.classList.remove('on')};a.src=src;}
-function precargar(e){if(e>=ESC.length)return;const n=String(e+1).padStart(2,'0');for(let i=1;i<=(CUAD[ESC[e].id]||{n:0}).n;i++){const im=new Image();im.src=`arte/e${n}-f${String(i).padStart(2,'0')}.webp`;}}
+function ponerCuadro(i){const c=CUAD[ESC[S.esc].id];mostrar(c.c[Math.min(i,c.c.length-1)]);}
 const enGrupo=()=>S.otros.some(x=>x.trim());
+const NUC_P=r=>r<=2?'e05-p01':r<=4?'e05-p02':'e05-p03';
+const PLACA={
+ fam:{muggle:'e02-p01',mixed:'e02-p02',pure:'e02-p03'},
+ pet:{Lechuza:'e06-p01',Gato:'e06-p02',Sapo:'e06-p03'},
+ casa:{G:'e09-p01',H:'e09-p02'},
+ bank:{'Campanilla de flama':'e10-p01','Bolas de nieve embrujadas':'e10-p02','Reparo':'e10-p03','Reducio':'e10-p04','Hechizo lavaplatos':'e10-p05','Maleficio resbaladizo':'e10-p07'}};
+const pl=(t,k)=>PLACA[t][k]?V+PLACA[t][k]:null;
 const CUAD={
- carta:{n:5,auto:[0,1,2],f:()=>!S.name.trim()?null:(!+S.mes||!+S.dia)?3:4},
- casa:{n:4,f:()=>!S.fam?0:S.gal!=null?3:(S.plus.length>=FAM[S.fam].plus&&S.minus.length>=FAM[S.fam].minus)?2:1},
- espejo:{n:4,f:()=>{const t=S.pos.length+S.neg.length;return t===0?0:t<5?1:t<10?2:3}},
- reflejo:{n:4,f:()=>Object.values(S.look).filter(a=>a.length).length},
- varitas:{n:5,f:()=>S.varita?4:(S.core&&S.len&&S.flex)?2:(S.core||S.len)?1:0},
- callejon:{n:4,f:()=>S.pet&&S.pago?3:S.pago?2:S.pet?1:0},
- noche:{n:4,f:()=>[S.padres.trim(),S.hermanos.trim()||S.parientes.length,Object.values(S.resp).some(x=>x&&x.trim())].filter(Boolean).length},
- anden:{n:5,auto:[0,1,2,3],f:()=>enGrupo()?4:null},
- comedor:{n:4,auto:[0,1],f:()=>S.benef>=0?3:S.casa?2:null},
- practica:{n:5,f:()=>{const b=S.bank.length;return b===3?4:b?b:(tieneFamSpell()&&S.famSpell)?3:0}},
- pergamino:{n:3,auto:[0,1,2],f:()=>null}
+ carta:{c:[V+'e01-f01',V+'e01-f02',V+'obj-sobre'],auto:[0,1],f:()=>!S.name.trim()?null:2,d:'e01-d01'},
+ casa:{c:[V+'e02-f01'],f:()=>0,p:()=>S.fam?pl('fam',S.fam):null,d:'e02-d01'},
+ espejo:{c:[V+'e03-f01',V+'e03-f02',V+'e03-f03'],f:()=>{const t=S.pos.length+S.neg.length;return t===0?0:t<5?1:2}},
+ reflejo:{c:[V+'e04-f02',V+'e04-f01'],f:()=>Object.values(S.look).some(a=>a.length)?1:0},
+ varitas:{c:[V+'e05-f01',V+'e05-f02',V+'e05-f04',V+'e05-f05',V+'e05-f06',V+'e05-f07'],
+  f:()=>S.varita?5:(S.core&&S.len&&S.flex)?1:0,p:()=>S.core&&!S.varita&&!(S.len&&S.flex)?V+NUC_P(S.core):null,d:'e05-d01'},
+ callejon:{c:[V+'e06-f01'],f:()=>0,p:()=>S.pet?pl('pet',S.pet):null,d:'e06-d01'},
+ noche:{c:[V+'e07-f01',V+'e07-f02'],f:()=>[S.padres.trim(),S.hermanos.trim()||S.parientes.length,Object.values(S.resp).some(x=>x&&x.trim())].some(Boolean)?1:0},
+ anden:{c:[V+'e08-f01',V+'e08-f02',V+'e08-f05'],auto:[0,1],f:()=>enGrupo()?2:null},
+ comedor:{c:[V+'e09-f01'],f:()=>0,p:()=>S.casa?pl('casa',S.casa):null},
+ practica:{c:[V+'e10-f01'],f:()=>0,p:()=>{for(let k=S.bank.length-1;k>=0;k--){const x=pl('bank',S.bank[k]);if(x)return x}return null},d:'e10-d01'},
+ pergamino:{c:[V+'e11-f01'],f:()=>0}
 };
-function cuadroDeEscena(nueva){const c=CUAD[ESC[S.esc].id];relojes.forEach(clearTimeout);relojes=[];
-  const v=c.f();if(v!=null){ponerCuadro(Math.min(v,c.n-1));return;}
+function precargar(e){if(e>=ESC.length)return;const c=CUAD[ESC[e].id],l=[...c.c];if(c.d)l.push(V+c.d);
+  if(e===1)l.push(...Object.values(PLACA.fam).map(x=>V+x));if(e===5)l.push(...Object.values(PLACA.pet).map(x=>V+x));
+  if(e===8)l.push(...Object.values(PLACA.casa).map(x=>V+x));if(e===9)l.push(...Object.values(PLACA.bank).map(x=>V+x));
+  if(e===4)l.push(V+'e05-p01',V+'e05-p02',V+'e05-p03');
+  l.forEach(x=>{const im=new Image();im.src=`arte/${x}.webp`});}
+function cuadroDeEscena(nueva){const c=CUAD[ESC[S.esc].id];relojes.forEach(clearTimeout);relojes=[];previa=false;
+  const pp=c.p&&c.p();if(pp){mostrar(pp);return;}
+  const v=c.f();if(v!=null){ponerCuadro(v);return;}
   if(nueva&&c.auto)c.auto.forEach((k,i)=>relojes.push(setTimeout(()=>{if(c.f()==null)ponerCuadro(k)},QUIETO?0:i*2600)));
   else if(nueva)ponerCuadro(0);}
+/* Al pasar por una opción (puntero o teclado), la escena muestra su placa */
+function previaDe(el){const b=el.closest&&el.closest('[data-act]');if(!b||!$('#cuerpo').contains(b))return null;
+  const t=b.dataset.act,v=b.dataset.v;
+  if(t==='core')return null;if(PLACA[t])return pl(t,v);return null;}
+document.addEventListener('pointerover',e=>{if(e.pointerType==='touch')return;const x=previaDe(e.target);if(x){previa=true;mostrar(x);}});
+document.addEventListener('pointerout',e=>{if(!previa)return;const x=previaDe(e.target);if(x&&!(e.relatedTarget&&previaDe(e.relatedTarget)))cuadroDeEscena(false);});
+document.addEventListener('focusin',e=>{const x=previaDe(e.target);if(x){previa=true;mostrar(x);}else if(previa)cuadroDeEscena(false);});
+/* Destello: transición de papel a pantalla completa entre una escena y la siguiente */
+function destello(src){if(QUIETO||!src)return 0;const d=$('#destello'),im=d.querySelector('img');
+  im.src=`arte/${V}${src}.webp`;d.hidden=false;d.classList.remove('on');void d.offsetWidth;d.classList.add('on');
+  setTimeout(()=>{d.classList.remove('on');d.hidden=true},1500);return 520;}
 
 /* =========================================================
    Piezas que se repiten
@@ -797,19 +831,20 @@ function actualizarPie(){const e=ESC[S.esc],f=falta(e),ult=S.esc===ESC.length-1;
  $('#seguir').hidden=ult;$('#seguir').disabled=!!f;$('#falta').textContent=f;$('#volver').style.visibility=S.esc?'visible':'hidden';
  $('#seguir-txt').textContent=e.id==='anden'?'Bajar del tren':'Seguir';}
 function cambiarEscena(i){const cu=$('#cuerpo');if(QUIETO){S.esc=i;S.max=Math.max(S.max,i);pintar();return;}
- cu.classList.add('sale');setTimeout(()=>{S.esc=i;S.max=Math.max(S.max,i);pintar();cu.classList.remove('sale');},240);}
+ const c=CUAD[ESC[S.esc].id],t=i===S.esc+1&&c&&c.d?destello(c.d):0;
+ cu.classList.add('sale');setTimeout(()=>{S.esc=i;S.max=Math.max(S.max,i);pintar();cu.classList.remove('sale');},Math.max(240,t));}
 
 /* =========================================================
    La llegada: escena puente entre El tren y La Selección
    ========================================================= */
 const LL=[
- {f:'llegada-01',lugar:'El Expreso, por la tarde',txt:'A media tarde pasa el carrito de golosinas. Nadie se resiste.',foco:'50% 50%',cam:[[1.04,0,0],[1.12,-2,1]],tono:'rgba(255,236,200,0)'},
- {f:'llegada-02',txt:'Por la ventana, los campos se vuelven colinas y las colinas, montañas.',foco:'50% 50%',cam:[[1.06,0,0],[1.16,0,-1]],tono:'rgba(255,214,170,.10)'},
+ {f:'v2/llegada-01',lugar:'El Expreso, por la tarde',txt:'A media tarde pasa el carrito de golosinas. Nadie se resiste.',foco:'50% 50%',cam:[[1.04,0,0],[1.12,-2,1]],tono:'rgba(255,236,200,0)'},
+ {f:'v2/llegada-02',txt:'Por la ventana, los campos se vuelven colinas y las colinas, montañas.',foco:'50% 50%',cam:[[1.06,0,0],[1.16,0,-1]],tono:'rgba(255,214,170,.10)'},
  {f:'llegada-03',lugar:'Al final de las vías',txt:'Cuando el tren por fin se detiene, ya es casi de noche.',foco:'62% 50%',cam:[[1.10,3,0],[1.03,-2,0]],tono:'rgba(170,140,190,.14)'},
- {f:'llegada-04',txt:'Los de primer año no siguen el camino: cruzan por el agua.',foco:'34% 55%',cam:[[1.04,2,1],[1.12,-1,-1]],tono:'rgba(120,110,170,.18)'},
+ {f:'v2/llegada-04',txt:'Los de primer año no siguen el camino: cruzan por el agua.',foco:'34% 55%',cam:[[1.04,2,1],[1.12,-1,-1]],tono:'rgba(120,110,170,.18)'},
  {f:'llegada-05',txt:'Y al doblar el peñasco, lo ves.',foco:'50% 40%',cam:[[1.16,0,3],[1.04,0,0]],tono:'rgba(105,95,160,.20)',lento:1},
  {f:'llegada-06',txt:'Una escalera de piedra sube desde el muelle hasta las puertas.',foco:'72% 50%',cam:[[1.05,-2,0],[1.13,-4,-2]],tono:'rgba(95,85,150,.24)'},
- {f:'llegada-07',lugar:'El Gran Comedor',txt:'Adentro, el techo no es un techo: es el cielo de esta misma noche.',foco:'50% 40%',cam:[[1.02,0,2],[1.14,0,-2]],tono:'rgba(90,80,150,.18)',fin:1}];
+ {f:'v2/llegada-07',lugar:'El Gran Comedor',txt:'Adentro, el techo no es un techo: es el cielo de esta misma noche.',foco:'50% 40%',cam:[[1.02,0,2],[1.14,0,-2]],tono:'rgba(90,80,150,.18)',fin:1}];
 const LLDUR=5600;let llI=-1,llA=true,llReloj=null,llAnim=null;
 function llegada(){$('#llegada').hidden=false;LL.forEach(c=>{const im=new Image();im.src=`arte/${c.f}.webp`});llMostrar(0);}
 function llMostrar(k){llI=k;const c=LL[k];clearTimeout(llReloj);
@@ -822,7 +857,7 @@ function llMostrar(k){llI=k;const c=LL[k];clearTimeout(llReloj);
  $('#llHilo').style.width=`${(k+1)/LL.length*100}%`;$('#llFinal').classList.toggle('on',!!c.fin);$('#llSaltar').hidden=!!c.fin;$('#llToca').hidden=!!c.fin;
  if(c.fin){setTimeout(()=>$('#llSeguir').focus({preventScroll:true}),900);return;}
  llReloj=setTimeout(()=>llMostrar(k+1),LLDUR*(c.lento?1.5:1));}
-function llFin(){clearTimeout(llReloj);if(llAnim)llAnim.cancel();$('#llegada').hidden=true;S.llegada=true;cambiarEscena(8);}
+function llFin(){clearTimeout(llReloj);if(llAnim)llAnim.cancel();destello('llegada-d01');setTimeout(()=>{$('#llegada').hidden=true;S.llegada=true;cambiarEscena(8);},QUIETO?0:520);}
 $('#llToca').addEventListener('click',()=>{if(llI<LL.length-1)llMostrar(llI+1)});
 $('#llSaltar').addEventListener('click',()=>llMostrar(LL.length-1));
 $('#llSeguir').addEventListener('click',llFin);
@@ -851,7 +886,7 @@ const ACT={
  async core(){const r=await tirar(1,x=>NUCLEO(x[0]));S.core=r[0];S.varita=false;},
  async len(){const r=await tirar(1,x=>`${x[0]} + 8 = ${x[0]+8} pulgadas`);S.len=r[0]+8;S.varita=false;},
  flex(v){S.flex=v;S.varita=false;delete S.abierto['varitas:flex'];campana(false)},
- async probar(){ponerCuadro(3);await espera(1700);ponerCuadro(4);$('#capa').innerHTML=`<div class="resultado">${esc(madera().n)}</div>`;campana(true);await espera(1600);$('#capa').innerHTML='';S.varita=true;},
+ async probar(){ponerCuadro(2);await espera(1100);ponerCuadro(3);await espera(1100);ponerCuadro(4);$('#capa').innerHTML=`<div class="resultado">${esc(madera().n)}</div>`;campana(true);await espera(1600);$('#capa').innerHTML='';S.varita=true;},
  pet(v){S.pet=v;delete S.abierto['callejon:pet'];campana(false)}, async azarPet(){const r=await tirar(1,x=>PET(x[0]));S.pet=PET(r[0]);},
  pago(v){S.pago=v;delete S.abierto['callejon:pago'];campana(false)}, extra(v){const i=S.extras.indexOf(v);if(i>=0)S.extras.splice(i,1);else{S.extras.push(v);campana(false)}},
  async pariente(){const r=await tirar(8);const cod=i=>''+r[i]+r[i+1];
