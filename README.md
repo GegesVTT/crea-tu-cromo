@@ -23,4 +23,6 @@ Abrí la página y tocá **Empezar**. El avance se guarda en el navegador, así 
 
 ## Aviso
 
-Guía no oficial, hecha por fans y sin fines comerciales. No tiene relación con los titulares de la obra en la que se inspira. Arte de GG. Música original de [@rodrigesualdo](https://www.instagram.com/rodrigesualdo).
+Guía no oficial, hecha por fans y sin fines comerciales. No tiene relación con los titulares de la obra en la que se inspira. Arte de GG. Música original de [@rodrigesualdo](https://www.instagram.com/rodrigesualdo). Íconos de [game-icons.net](https://game-icons.net) (Lorc, Delapouite y colaboradores), bajo licencia [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
+
+Las reseñas de maderas y núcleos de la varita son material adicional, no de los libros: salen de los escritos de Ollivander citados en *Wands & Wizards*, redactados con palabras propias. Abedul, hiedra y caña llevan una reseña propia, a partir de la tradición celta y del árbol.
