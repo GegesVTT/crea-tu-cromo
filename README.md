@@ -2,7 +2,7 @@
 
 Creación de personajes interactiva para el juego de rol de mesa **Hechicería y Magia** (adaptación en español de *Witchcraft and Wizardry*, de TableStory, sobre el sistema *Powered by the Apocalypse*).
 
-Once escenas, de la carta de admisión al banquete de bienvenida, con una escena puente de llegada al castillo entre el tren y La Selección. Cada escena se resuelve de a un paso: se elige tocando, y «Seguir» solo cambia de escena. Al terminar, el personaje queda listo para jugar: se puede imprimir, descargar como `.json` y volver a cargar.
+Nueve escenas, de la carta de admisión al banquete de bienvenida, con una escena puente de llegada al castillo entre el tren y La Selección. En la tienda de varitas el puntero se vuelve tu varita: un d4 secreto decide en qué intento acierta, y antes de eso cada fallo depende de dónde apuntes. Cada escena se resuelve de a un paso: se elige tocando, y «Seguir» solo cambia de escena. Al terminar, el personaje queda listo para jugar: se puede imprimir, descargar como `.json` y volver a cargar.
 
 ## Cómo se usa
 
@@ -17,7 +17,9 @@ Abrí la página y tocá **Empezar**. El avance se guarda en el navegador, así 
 - `arte/llegada-NN.webp`: cuadros de la escena puente entre el tren y La Selección (del carrito de golosinas al techo del Gran Comedor), tomados de la biblia visual de GG.
 - `prototipos/`: pruebas de diseño que todavía no están en la herramienta. `espejo.html` rehace la escena 3 (elegir con un toque y ordenar al final); `llegada.html` es la escena puente de la llegada al castillo.
 - `arte/eNN-fNN.webp`: cuadros del storyboard original. Quedan como respaldo y para La llegada, donde todavía faltan cuadros nuevos.
-- `arte/v2/`: arte de las escenas en el estilo de la selección vieja. `eNN-fNN` son los cuadros de cada escena, `eNN-pNN` las placas de cada opción (familia, núcleo, mascota, casa, hechizo), `eNN-dNN` los destellos de transición entre escenas y `obj-` los objetos sueltos. `arte/v2/LEEME.md` dice de dónde salió cada imagen y qué falta. Para cambiar una ilustración, se reemplaza el archivo con el mismo nombre.
+- `arte/a/`: arte de las escenas en el estilo A (formas planas de color pleno, hecho con ComfyUI). Se nombra por escena: `escena-fNN` son los cuadros, `escena-pNN` las placas de cada opción (familia, mascota, casa, hechizo), `varitas-nNN` los núcleos, `varitas-f05a/b/c` la revelación según el núcleo y `fallo-*` los fallos de la prueba de la varita. Es el arte que usa la herramienta.
+- `arte/a/anim/`: animaciones de la tienda de varitas (MP4, 720p, audio normalizado): `fallo-*-ida/vuelta` y `revelacion-a/b/c` con su `revelacion-cierre-a/b/c`. Se saltean si el sistema pide menos movimiento.
+- `arte/v2/`: arte anterior, en el estilo de la selección vieja (ya no lo usa la herramienta). `eNN-fNN` son los cuadros de cada escena, `eNN-pNN` las placas de cada opción (familia, núcleo, mascota, casa, hechizo), `eNN-dNN` los destellos de transición entre escenas y `obj-` los objetos sueltos. `arte/v2/LEEME.md` dice de dónde salió cada imagen y qué falta. Para cambiar una ilustración, se reemplaza el archivo con el mismo nombre.
 
 ## Aviso
 

@@ -313,6 +313,59 @@ h2{font:400 clamp(25px,6vw,36px)/1.08 var(--d);color:var(--luz2);margin:0 0 6px}
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;animation-delay:0s!important;transition-duration:.01ms!important}
   .narra .w,.llegada .w{opacity:1;filter:none;transform:none}
 }
+/* ---------- Estilo A: ambiente, transiciones, «?» y la prueba de la varita ---------- */
+.cuadro{filter:none;translate:var(--px,0) var(--py,0)}
+.motas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.transicion{position:fixed;inset:0;z-index:48;pointer-events:none}
+.transicion .t-plano{position:absolute;inset:0;clip-path:inset(0 0 0 100%)}
+.transicion .t1{display:grid;place-items:center}
+.transicion .t-sil{width:min(34vw,34svh,230px);height:auto;fill:currentColor;opacity:0}
+.que{display:inline-grid;place-items:center;width:22px;height:22px;margin:0 0 0 8px;padding:0;vertical-align:.18em;border-radius:50%;border:1px solid color-mix(in srgb,var(--luz,#e3a93b) 70%,transparent);background:rgba(15,13,27,.5);color:var(--luz2,#f4cf7e);font:400 13px/1 var(--sc);letter-spacing:0;cursor:help;position:relative}
+.que::after{content:"";position:absolute;inset:-11px}
+.que[aria-expanded="true"]{background:var(--luz,#e3a93b);color:var(--noche)}
+.attr .n .que{width:18px;height:18px;margin-left:4px;font-size:11px}
+.que-pop{position:fixed;z-index:60;background:#16132b;border:1px solid rgba(243,207,126,.4);border-radius:6px;padding:12px 14px;box-shadow:0 14px 40px rgba(0,0,0,.6);font-size:15.5px;line-height:1.45;color:var(--crema)}
+.que-pop .qt{display:block;font:400 18px var(--sc);letter-spacing:.04em;color:var(--mostaza2);margin-bottom:4px}
+.que-pop p{margin:0 0 6px}.que-pop p:last-child{margin:0}.que-pop ul{margin:4px 0 6px;padding-left:18px}.que-pop .pend{color:#9a91b8;font-style:italic;font-size:14px}
+body.quieto{overflow:hidden}
+.recuerdo{margin:22px 0 8px;font-style:italic;color:var(--perg2)}
+/* La tienda */
+.tienda{position:fixed;inset:0;z-index:46;background:#0b0a14;overflow:hidden;touch-action:none;-webkit-user-select:none;user-select:none}
+.tienda .escenario{position:absolute;overflow:hidden}
+.tienda .escenario>img,.tienda video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.tienda video{opacity:0}.tienda video.on{opacity:1}
+@media (pointer:fine){.tienda .escenario{cursor:none}}
+.zonas{position:absolute;inset:0;pointer-events:none}
+.zona{position:absolute;opacity:0;border:0;background:none;color:transparent;font-size:1px;pointer-events:none}
+.zona:focus-visible{opacity:1;outline:2px dashed var(--mostaza2);outline-offset:-4px;background:rgba(243,207,126,.08)}
+.t-oscuro{position:absolute;inset:0;background:#06050f;opacity:0;pointer-events:none;transition:opacity .1s}
+.t-oscuro.on{opacity:.97}
+.t-oscuro.vuelve{animation:vuelveLuz .8s steps(1,end) forwards}
+@keyframes vuelveLuz{0%{opacity:.97}20%{opacity:.2}35%{opacity:.9}55%{opacity:.1}70%{opacity:.6}100%{opacity:0}}
+.t-oscuro .ojo{position:absolute;top:69.2%;width:1.1%;height:1.4%;border-radius:50%;background:#ffd84a;box-shadow:0 0 10px #ffd84a;animation:parpadeo 1.6s infinite}
+.t-oscuro .ojo:nth-child(1){left:68.1%}.t-oscuro .ojo:nth-child(2){left:69.7%}
+@keyframes parpadeo{0%,42%,50%,88%,100%{transform:scaleY(1)}46%,92%{transform:scaleY(.1)}}
+.t-tinta{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;fill:#0d0b14;opacity:0}
+.t-tinta.on{opacity:1}.t-tinta.se-va{opacity:0;transition:opacity .6s}
+.t-tinta .mancha{animation:mancha .28s cubic-bezier(.2,.9,.3,1.3) both}
+.t-tinta .gota{transform-box:fill-box;transform-origin:top;animation:gotea 1.6s ease-in both}
+@keyframes mancha{from{transform:scale(0)}}
+@keyframes gotea{from{transform:scaleY(0)}}
+.varita-cursor{position:fixed;left:0;top:0;z-index:3;pointer-events:none;opacity:0;transition:opacity .15s}
+.varita-cursor.ve{opacity:1}.varita-cursor.fuera{opacity:0!important}
+.varita-cursor .vara{position:absolute;left:-14px;top:-14px;transform-origin:14px 14px;transform:rotate(35deg);filter:drop-shadow(0 3px 4px rgba(0,0,0,.55))}
+.varita-cursor .brillo{opacity:.45;animation:brilla 1.8s ease-in-out infinite}
+@keyframes brilla{50%{opacity:.15}}
+.chispa{position:fixed;z-index:4;width:5px;height:5px;margin:-2.5px;border-radius:50%;pointer-events:none;animation:chispa .65s ease-out forwards;box-shadow:0 0 6px currentColor}
+@keyframes chispa{to{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0}}
+.t-linea{position:absolute;left:0;right:0;bottom:max(96px,calc(env(safe-area-inset-bottom) + 86px));padding:0 22px;text-align:center;pointer-events:none}
+.t-linea p{max-width:30em;margin:0 auto;font-style:italic;font-size:clamp(19px,4.6vw,25px);line-height:1.4;text-shadow:0 2px 14px rgba(11,10,20,.95),0 0 3px #0b0a14}
+.tienda::after{content:"";position:absolute;left:0;right:0;bottom:0;height:42svh;background:linear-gradient(transparent,rgba(11,10,20,.9) 70%);pointer-events:none}
+.t-linea,.t-pie,.tienda .saltar{z-index:2}
+.t-pie{position:absolute;left:0;right:0;bottom:max(22px,env(safe-area-inset-bottom));display:flex;justify-content:center}
+.tienda .saltar{position:absolute;top:max(12px,env(safe-area-inset-top));right:14px}
+@media (max-aspect-ratio:23/20){.tienda::after{height:58svh}}
+@media (prefers-reduced-motion:reduce){.varita-cursor .brillo,.t-oscuro .ojo{animation:none}}
 </style>
 </head>
 <body>
@@ -328,12 +381,12 @@ h2{font:400 clamp(25px,6vw,36px)/1.08 var(--d);color:var(--luz2);margin:0 0 6px}
 </defs></svg>
 
 <div class="portada" id="portada" hidden>
-  <img src="arte/v2/e11-f01.webp" alt="">
+  <img src="arte/a/portada.webp" alt="">
   <div class="portada-txt">
     <p class="sobre">Hechicería y Magia · creación de personajes</p>
     <h1>Crea tu<span>cromo</span></h1>
     <svg class="nudo-sep" aria-hidden="true"><use href="#sep"/></svg>
-    <p class="bajada">Once escenas, de la carta al banquete. Al final, tu personaje listo para jugar.</p>
+    <p class="bajada">Nueve escenas, de la carta al banquete. Al final, tu personaje listo para jugar.</p>
     <button class="seguir" id="empezar"><svg class="izq" aria-hidden="true"><use href="#nudo"/></svg>Empezar<svg class="der" aria-hidden="true"><use href="#nudo"/></svg></button>
     <p class="legal">Guía no oficial, hecha por fans y sin fines comerciales. Arte de GG. Música original de <a href="https://www.instagram.com/rodrigesualdo" target="_blank" rel="noopener">@rodrigesualdo</a>.</p>
   </div>
@@ -341,7 +394,7 @@ h2{font:400 clamp(25px,6vw,36px)/1.08 var(--d);color:var(--luz2);margin:0 0 6px}
 
 <div class="app" id="app" data-tinta="mostaza">
   <div class="lienzo" aria-hidden="true"><img class="cuadro" id="cuadroA" alt=""><img class="cuadro" id="cuadroB" alt=""></div>
-  <div class="destello" id="destello" aria-hidden="true" hidden><img alt=""></div>
+  <div class="transicion" id="transicion" aria-hidden="true" hidden><div class="t-plano t2"></div><div class="t-plano t1"><svg class="t-sil" viewBox="0 0 100 100"></svg></div></div>
   <header class="barra">
     <button class="icono" id="btn-son" aria-pressed="false" title="Música">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg>
@@ -369,6 +422,21 @@ h2{font:400 clamp(25px,6vw,36px)/1.08 var(--d);color:var(--luz2);margin:0 0 6px}
   <button class="icono saltar" id="llSaltar">Saltar</button>
   <div class="final" id="llFinal"><button class="seguir" id="llSeguir"><svg class="izq" aria-hidden="true"><use href="#nudo"/></svg>Entrar al Gran Comedor<svg class="der" aria-hidden="true"><use href="#nudo"/></svg></button></div>
 </div>
+
+<div class="tienda" id="tienda" hidden>
+  <div class="escenario" id="tEsc">
+    <img id="tImg" alt="La tienda de varitas: estantes repletos de cajas a la izquierda, una vitrina sobre el mostrador, un perchero con un sombrero a la derecha, una lámpara colgada del techo y un gato negro en la punta del mostrador.">
+    <video id="tVid1" muted playsinline preload="auto" aria-hidden="true"></video><video id="tVid2" muted playsinline preload="auto" aria-hidden="true"></video>
+    <div class="t-oscuro" id="tOscuro" aria-hidden="true"><i class="ojo"></i><i class="ojo"></i></div>
+    <svg class="t-tinta" id="tTinta" viewBox="0 0 1000 571.4" preserveAspectRatio="none" aria-hidden="true"></svg>
+    <div class="zonas" id="tZonas"></div>
+  </div>
+  <div class="varita-cursor" id="tVarita" aria-hidden="true"></div>
+  <div class="t-linea" id="tLinea" aria-live="polite"></div>
+  <div class="t-pie"><button class="seguir" id="tSeguir" hidden><svg class="izq" aria-hidden="true"><use href="#nudo"/></svg>Volver al mostrador<svg class="der" aria-hidden="true"><use href="#nudo"/></svg></button></div>
+  <button class="icono saltar" id="tSalir">Salir</button>
+</div>
+<div class="que-pop" id="quePop" role="tooltip" hidden></div>
 
 <script>
 (()=>{
@@ -468,9 +536,12 @@ const CLAVE='escenas-personaje-v1';
 const NUEVO=()=>({v:1,esc:0,max:0,name:'',mes:0,dia:0,fam:'',plus:[],minus:[],mixAdv:'',mixDis:'',gal:null,pos:[],neg:[],tab:'pos',
   look:{body:[],eyes:[],face:[]},core:0,len:0,flex:'',varita:false,pet:'',pago:'',extras:[],padres:'',hermanos:'',parientes:[],resp:{},
   empezo:false,firma:'pinyon',otros:['','','',''],mas:-1,menos:-1,casa:'',benef:-1,famSpell:'',bank:[],
-  pag:{pos:1,neg:1,body:1,eyes:1,face:1},abierto:{},visto:{},llegada:false});
+  pag:{pos:1,neg:1,body:1,eyes:1,face:1},abierto:{},visto:{},llegada:false,m2:1,prueba:null});
+/* Antes había 11 escenas: el reflejo se sumó al espejo y la última noche, al tren */
+const MAPA2=[0,1,2,2,3,4,5,5,6,7,8];
+const migrar=x=>{if(!x.m2){x.esc=MAPA2[x.esc]??0;x.max=MAPA2[x.max]??0;x.visto={};x.m2=1;}return x;};
 let S=NUEVO();
-try{const g=JSON.parse(localStorage.getItem(CLAVE)||'null');if(g&&g.v===1)S=Object.assign(NUEVO(),g,{pag:Object.assign(NUEVO().pag,g.pag||{})})}catch(e){}
+try{const g=JSON.parse(localStorage.getItem(CLAVE)||'null');if(g&&g.v===1)S=migrar(Object.assign(NUEVO(),g,{m2:g.m2||0,pag:Object.assign(NUEVO().pag,g.pag||{})}))}catch(e){}
 const RENOMBRE={'Acoso':'Atejonar','Bolas de nieve encantadas':'Bolas de nieve embrujadas','Llamas de campanilla':'Campanilla de flama','Moco en exceso':'Mucus ad nauseam','Reducción':'Reducio','Reparación':'Reparo','Maleficio de tropiezo':'Zancadilla'};
 S.bank=(S.bank||[]).map(n=>RENOMBRE[n]||n);if(S.famSpell)S.famSpell=RENOMBRE[S.famSpell]||S.famSpell;
 const guardar=()=>{try{localStorage.setItem(CLAVE,JSON.stringify(S))}catch(e){}};
@@ -518,47 +589,47 @@ async function tirar(n,etiqueta){rodando=true;const capa=$('#capa'),res=Array.fr
   await espera(1200);capa.innerHTML='';rodando=false;campana(false);return res;}
 
 /* =========================================================
-   Arte de las escenas (estilo de la selección vieja): arte/v2/
+   Arte de las escenas, estilo A: arte/a/
    c: cuadros de la escena · f: qué cuadro va según lo elegido
-   p: placa según lo elegido · d: destello al pasar a la escena siguiente
+   p: placa según lo elegido · auto: cuadros que pasan solos al entrar
    ========================================================= */
-const V='v2/';
+const V='a/';
 let cuadroActual='',capaA=true,relojes=[],previa=false;
 function mostrar(src){src=`arte/${src}.webp`;if(src===cuadroActual)return;cuadroActual=src;
   const a=$(capaA?'#cuadroB':'#cuadroA'),b=$(capaA?'#cuadroA':'#cuadroB');capaA=!capaA;
   a.onload=()=>{a.classList.remove('on');void a.offsetWidth;a.classList.add('on');b.classList.remove('on')};a.src=src;}
 function ponerCuadro(i){const c=CUAD[ESC[S.esc].id];mostrar(c.c[Math.min(i,c.c.length-1)]);}
 const enGrupo=()=>S.otros.some(x=>x.trim());
-const NUC_P=r=>r<=2?'e05-p01':r<=4?'e05-p02':'e05-p03';
+const NUC_P=r=>r<=2?'varitas-n01':r<=4?'varitas-n02':'varitas-n03';
 const PLACA={
- fam:{muggle:'e02-p01',mixed:'e02-p02',pure:'e02-p03'},
- pet:{Lechuza:'e06-p01',Gato:'e06-p02',Sapo:'e06-p03'},
- casa:{G:'e09-p01',H:'e09-p02'},
- bank:{'Campanilla de flama':'e10-p01','Bolas de nieve embrujadas':'e10-p02','Reparo':'e10-p03','Reducio':'e10-p04','Hechizo lavaplatos':'e10-p05','Maleficio resbaladizo':'e10-p07'}};
+ fam:{muggle:'casa-p01',mixed:'casa-p02',pure:'casa-p03'},
+ pet:{Lechuza:'callejon-p01',Gato:'callejon-p02',Sapo:'callejon-p03'},
+ casa:{G:'comedor-p01',H:'comedor-p02',R:'comedor-p03',S:'comedor-p04'},
+ bank:{'Campanilla de flama':'practica-p01','Bolas de nieve embrujadas':'practica-p02','Reparo':'practica-p03','Reducio':'practica-p04',
+  'Hechizo lavaplatos':'practica-p05','Mucus ad nauseam':'practica-p06','Maleficio resbaladizo':'practica-p07','Zancadilla':'practica-p08','Atejonar':'practica-p09'}};
 const pl=(t,k)=>PLACA[t][k]?V+PLACA[t][k]:null;
 const CUAD={
- carta:{c:[V+'e01-f01',V+'e01-f02',V+'obj-sobre'],auto:[0,1],f:()=>!S.name.trim()?null:2,d:'e01-d01'},
- casa:{c:[V+'e02-f01'],f:()=>0,p:()=>S.fam?pl('fam',S.fam):null,d:'e02-d01'},
- espejo:{c:[V+'e03-f01',V+'e03-f02',V+'e03-f03'],f:()=>{const t=S.pos.length+S.neg.length;return t===0?0:t<5?1:2}},
- reflejo:{c:[V+'e04-f02',V+'e04-f01'],f:()=>Object.values(S.look).some(a=>a.length)?1:0},
- varitas:{c:[V+'e05-f01',V+'e05-f02',V+'e05-f04',V+'e05-f05',V+'e05-f06',V+'e05-f07'],
-  f:()=>S.varita?5:(S.core&&S.len&&S.flex)?1:0,p:()=>S.core&&!S.varita&&!(S.len&&S.flex)?V+NUC_P(S.core):null,d:'e05-d01'},
- callejon:{c:[V+'e06-f01'],f:()=>0,p:()=>S.pet?pl('pet',S.pet):null,d:'e06-d01'},
- noche:{c:[V+'e07-f01',V+'e07-f02'],f:()=>[S.padres.trim(),S.hermanos.trim()||S.parientes.length,Object.values(S.resp).some(x=>x&&x.trim())].some(Boolean)?1:0},
- anden:{c:[V+'e08-f01',V+'e08-f02',V+'e08-f05'],auto:[0,1],f:()=>enGrupo()?2:null},
- comedor:{c:[V+'e09-f01'],f:()=>0,p:()=>S.casa?pl('casa',S.casa):null},
- practica:{c:[V+'e10-f01'],f:()=>0,p:()=>{for(let k=S.bank.length-1;k>=0;k--){const x=pl('bank',S.bank[k]);if(x)return x}return null},d:'e10-d01'},
- pergamino:{c:[V+'e11-f01'],f:()=>0}
+ carta:{c:[V+'carta-f01',V+'carta-f02',V+'carta-f03'],auto:[0,1],f:()=>!S.name.trim()?null:2},
+ casa:{c:[V+'casa-f01'],f:()=>0,p:()=>S.fam?pl('fam',S.fam):null},
+ espejo:{c:[V+'espejo-f01',V+'espejo-f02',V+'espejo-f03',V+'espejo-f04'],
+  f:()=>S.pos.length>=5&&S.neg.length>=5?3:S.pos.length>=5?2:S.pos.length?1:0},
+ varitas:{c:[V+'varitas-f01',V+'varitas-f02',V+'varitas-f06'],f:()=>S.varita?2:(S.core&&S.len&&S.flex)?1:0,
+  p:()=>S.core&&!S.varita&&!(S.len&&S.flex)?V+NUC_P(S.core):null},
+ callejon:{c:[V+'callejon-f01',V+'callejon-f02'],auto:[0,1],f:()=>null,p:()=>S.pet?pl('pet',S.pet):null},
+ tren:{c:[V+'tren-f01',V+'tren-f02',V+'tren-f00'],auto:[0,1],f:()=>(S.abierto.noche||S.abierto.preg)?2:enGrupo()?1:null},
+ comedor:{c:[V+'comedor-f01'],f:()=>0,p:()=>S.casa?pl('casa',S.casa):null},
+ practica:{c:[V+'practica-f01'],f:()=>0,p:()=>{for(let k=S.bank.length-1;k>=0;k--){const x=pl('bank',S.bank[k]);if(x)return x}return null}},
+ pergamino:{c:[V+'pergamino-f01'],f:()=>0}
 };
-function precargar(e){if(e>=ESC.length)return;const c=CUAD[ESC[e].id],l=[...c.c];if(c.d)l.push(V+c.d);
-  if(e===1)l.push(...Object.values(PLACA.fam).map(x=>V+x));if(e===5)l.push(...Object.values(PLACA.pet).map(x=>V+x));
-  if(e===8)l.push(...Object.values(PLACA.casa).map(x=>V+x));if(e===9)l.push(...Object.values(PLACA.bank).map(x=>V+x));
-  if(e===4)l.push(V+'e05-p01',V+'e05-p02',V+'e05-p03');
+const PLACA_DE={casa:'fam',callejon:'pet',comedor:'casa',practica:'bank'};
+function precargar(e){if(e>=ESC.length)return;const id=ESC[e].id,l=[...CUAD[id].c];
+  if(PLACA_DE[id])l.push(...Object.values(PLACA[PLACA_DE[id]]).map(x=>V+x));
+  if(id==='varitas')l.push(V+'varitas-n01',V+'varitas-n02',V+'varitas-n03');
   l.forEach(x=>{const im=new Image();im.src=`arte/${x}.webp`});}
 function cuadroDeEscena(nueva){const c=CUAD[ESC[S.esc].id];relojes.forEach(clearTimeout);relojes=[];previa=false;
   const pp=c.p&&c.p();if(pp){mostrar(pp);return;}
   const v=c.f();if(v!=null){ponerCuadro(v);return;}
-  if(nueva&&c.auto)c.auto.forEach((k,i)=>relojes.push(setTimeout(()=>{if(c.f()==null)ponerCuadro(k)},QUIETO?0:i*2600)));
+  if(nueva&&c.auto)c.auto.forEach((k,i)=>relojes.push(setTimeout(()=>{if(c.f()==null&&!(c.p&&c.p()))ponerCuadro(k)},QUIETO?0:i*2600)));
   else if(nueva)ponerCuadro(0);}
 /* Al pasar por una opción (puntero o teclado), la escena muestra su placa */
 function previaDe(el){const b=el.closest&&el.closest('[data-act]');if(!b||!$('#cuerpo').contains(b))return null;
@@ -567,10 +638,77 @@ function previaDe(el){const b=el.closest&&el.closest('[data-act]');if(!b||!$('#c
 document.addEventListener('pointerover',e=>{if(e.pointerType==='touch')return;const x=previaDe(e.target);if(x){previa=true;mostrar(x);}});
 document.addEventListener('pointerout',e=>{if(!previa)return;const x=previaDe(e.target);if(x&&!(e.relatedTarget&&previaDe(e.relatedTarget)))cuadroDeEscena(false);});
 document.addEventListener('focusin',e=>{const x=previaDe(e.target);if(x){previa=true;mostrar(x);}else if(previa)cuadroDeEscena(false);});
-/* Destello: transición de papel a pantalla completa entre una escena y la siguiente */
-function destello(src){if(QUIETO||!src)return 0;const d=$('#destello'),im=d.querySelector('img');
-  im.src=`arte/${V}${src}.webp`;d.hidden=false;d.classList.remove('on');void d.offsetWidth;d.classList.add('on');
-  setTimeout(()=>{d.classList.remove('on');d.hidden=true},1500);return 520;}
+
+/* Ambiente: el cuadro sigue apenas al puntero (o la inclinación del teléfono) y flotan motas de polvo */
+(()=>{if(QUIETO)return;const lz=$('.lienzo');let px=0,py=0,tx=0,ty=0,raf=0;
+  const mover=()=>{px+=(tx-px)*.06;py+=(ty-py)*.06;lz.style.setProperty('--px',px.toFixed(2)+'px');lz.style.setProperty('--py',py.toFixed(2)+'px');
+    raf=Math.abs(tx-px)+Math.abs(ty-py)>.05?requestAnimationFrame(mover):0;};
+  const apunta=(x,y)=>{tx=x*-10;ty=y*-7;if(!raf)raf=requestAnimationFrame(mover);};
+  addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;apunta(e.clientX/innerWidth-.5,e.clientY/innerHeight-.5)},{passive:true});
+  addEventListener('deviceorientation',e=>{if(e.gamma==null)return;apunta(Math.max(-1,Math.min(1,e.gamma/30))*.5,Math.max(-1,Math.min(1,(e.beta-40)/30))*.5)},{passive:true});
+  const cv=document.createElement('canvas');cv.className='motas';lz.appendChild(cv);const g=cv.getContext('2d');let W=0,H=0;
+  const M=Array.from({length:26},()=>({x:Math.random(),y:Math.random(),r:.6+Math.random()*1.6,v:.00012+Math.random()*.00028,f:Math.random()*6.3}));
+  const tam=()=>{const r=lz.getBoundingClientRect(),d=Math.min(2,devicePixelRatio||1);W=r.width;H=r.height;cv.width=W*d;cv.height=H*d;g.setTransform(d,0,0,d,0,0);};
+  tam();addEventListener('resize',tam);
+  const paso=t=>{if(!document.hidden&&!$('#app').hidden){g.clearRect(0,0,W,H);
+    M.forEach(m=>{m.y-=m.v*16;if(m.y<-.02){m.y=1.02;m.x=Math.random();}const x=(m.x+Math.sin(t/2600+m.f)*.012)*W,y=m.y*H,a=.25+.35*Math.sin(t/900+m.f*3)**2;
+      g.beginPath();g.arc(x,y,m.r,0,6.283);g.fillStyle=`rgba(255,226,170,${a.toFixed(3)})`;g.fill();});}
+    requestAnimationFrame(paso);};requestAnimationFrame(paso);})();
+
+/* Transición entre escenas: dos planos de color que barren la pantalla y una silueta propia de la escena */
+const SIL={
+ sobre:'<path d="M16 30h68v42H16z"/><path d="M16 30l34 25 34-25" fill="none" stroke="var(--fondo)" stroke-width="3.5" stroke-linejoin="round"/><circle cx="50" cy="56" r="6" fill="var(--fondo)"/>',
+ casa:'<path d="M50 16 86 46h-9v36H23V46h-9z"/><rect x="42" y="58" width="16" height="24" fill="var(--fondo)"/><rect x="30" y="50" width="9" height="9" fill="var(--fondo)"/><rect x="61" y="50" width="9" height="9" fill="var(--fondo)"/>',
+ espejo:'<path d="M30 86V42a20 20 0 0 1 40 0v44z"/><path d="M36 82V43a14 14 0 0 1 28 0v39z" fill="var(--fondo)"/><circle cx="50" cy="50" r="6.5"/><path d="M38 82c0-12 5-20 12-20s12 8 12 20z"/>',
+ varita:'<path d="M22 82 70 34" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><path d="M22 82l10-10" stroke="var(--fondo)" stroke-width="2" stroke-linecap="round"/><path d="M76 14l3.6 9.4 9.4 3.6-9.4 3.6L76 40l-3.6-9.4L63 27l9.4-3.6z"/>',
+ lechuza:'<path d="M50 20l-15 9v8c-7 9-7 31 15 45 22-14 22-36 15-45v-8z"/><circle cx="42" cy="40" r="5.5" fill="var(--fondo)"/><circle cx="58" cy="40" r="5.5" fill="var(--fondo)"/><path d="M50 45l-3 5h6z" fill="var(--fondo)"/>',
+ tren:'<path d="M14 66V46h34V36h-6v-6h20v6h-6v10h14V30h16v36z"/><rect x="72" y="36" width="8" height="8" fill="var(--fondo)"/><circle cx="26" cy="72" r="8"/><circle cx="48" cy="72" r="8"/><circle cx="74" cy="72" r="8"/><circle cx="26" cy="72" r="3" fill="var(--fondo)"/><circle cx="48" cy="72" r="3" fill="var(--fondo)"/><circle cx="74" cy="72" r="3" fill="var(--fondo)"/><path d="M8 66l6-6v6z"/>',
+ castillo:'<path d="M14 84V46l5-8 5 8v10h8V38l6-10 6 10v14h12V30l6-12 6 12v22h12V38l6-10 6 10v46z"/><path d="M45 84V70a5 5 0 0 1 10 0v14z" fill="var(--fondo)"/>',
+ sombrero:'<path d="M50 14c-4 14-6 28-12 42l-16 7c14 9 42 9 56 0l-16-7c-4-14-8-26-12-42z"/><path d="M38 56c8 4 16 4 24 0" fill="none" stroke="var(--fondo)" stroke-width="2.5"/>',
+ libro:'<path d="M14 28h30c4 0 6 3 6 3s2-3 6-3h30v46H56c-4 0-6 3-6 3s-2-3-6-3H14z"/><path d="M50 31v46" stroke="var(--fondo)" stroke-width="2.5"/><path d="M20 38h22M20 46h22M20 54h16M58 38h22M58 46h22" stroke="var(--fondo)" stroke-width="2"/>',
+ pergamino:'<path d="M24 22h52v56H24z"/><circle cx="24" cy="26" r="6"/><circle cx="76" cy="74" r="6"/><path d="M32 36h36M32 46h36M32 56h24" stroke="var(--fondo)" stroke-width="2.5"/>'};
+const TRANS={carta:['#0f6f7a','#e8b04a','sobre'],casa:['#d99a1e','#127a86','casa'],espejo:['#6e1328','#e7d7c2','espejo'],
+ varitas:['#cf4a1f','#2b3a1e','varita'],callejon:['#1f7a45','#f0c419','lechuza'],tren:['#b52d1d','#f2a65a','tren'],
+ llegada:['#1d2350','#c9b8e8','castillo'],comedor:['#7a1d1d','#e8b04a','sombrero'],practica:['#5d6b1e','#efe3c4','libro'],pergamino:['#efe3c4','#7a2f1c','pergamino']};
+function transicion(id){if(QUIETO||!TRANS[id]||!document.body.animate)return 0;const [c1,c2,s]=TRANS[id],el=$('#transicion'),p1=el.querySelector('.t1'),p2=el.querySelector('.t2'),sv=el.querySelector('.t-sil');
+  el.style.setProperty('--fondo',c1);p1.style.background=c1;p2.style.background=c2;sv.style.color=c2;sv.innerHTML=SIL[s];el.hidden=false;
+  const ida=[{clipPath:'inset(0 0 0 100%)'},{clipPath:'inset(0 0 0 0)'}],vuelta=[{clipPath:'inset(0 0 0 0)'},{clipPath:'inset(0 100% 0 0)'}];
+  const o={duration:360,easing:'cubic-bezier(.7,0,.3,1)',fill:'forwards'};
+  p2.animate(ida,o);p1.animate(ida,{...o,delay:90});
+  sv.animate([{transform:'scale(.55) rotate(-10deg)',opacity:0},{transform:'scale(1) rotate(0)',opacity:1}],{duration:440,delay:220,easing:'cubic-bezier(.2,.8,.3,1.25)',fill:'forwards'});
+  setTimeout(()=>{sv.animate([{opacity:1,transform:'scale(1)'},{opacity:0,transform:'scale(1.15)'}],{duration:240,fill:'forwards'});
+    p1.animate(vuelta,{...o,delay:60});p2.animate(vuelta,{...o,delay:140});setTimeout(()=>{el.hidden=true},560);},920);
+  return 470;}
+
+/* =========================================================
+   «?»: qué significa cada elección (mismos textos que la ficha para la mesa)
+   ========================================================= */
+const QUE={
+ attr0:['Cuerpo','<p>Fuerza, velocidad y salud.</p><p>Se suma al tirar <b>Rápido y en silencio</b>, <b>Forcejear</b> y <b>Aguantar el golpe</b>.</p>'],
+ attr1:['Corazón','<p>Comunicación, intuición y curación.</p><p>Se suma al tirar <b>Convencer</b>, <b>Leer entre líneas</b> y <b>Curar heridas</b>.</p>'],
+ attr2:['Mente','<p>Intelecto, ingenio y conocimiento.</p><p>Se suma al tirar <b>Leí sobre eso</b>, <b>Investigar</b> y <b>Notar algo</b>.</p>'],
+ attr3:['Alma','<p>Expresión, inspiración y valor.</p><p>Se suma al tirar <b>Inspirar a otros</b>, <b>Resistir la influencia</b> y <b>Mostrar valor</b>.</p>'],
+ attr4:['Magia','<p>Lo que usas al lanzar hechizos.</p><p>Se suma al tirar <b>Lanzar un hechizo</b>.</p>'],
+ attrs:['Atributos','<p>Cuando el resultado de algo es incierto, tiras dos dados de seis caras y sumas el atributo que corresponde.</p><p><b>10 o más:</b> éxito. <b>7 a 9:</b> éxito a medias. <b>6 o menos:</b> sale mal.</p><p>Cada atributo queda siempre entre −2 y +2. Toca el «?» de cada uno para ver qué cubre.</p>'],
+ familia:['Ventaja y desventaja de familia','<p>Vienen de la familia en la que creciste y se aplican cuando la tirada trata esos temas (tecnología, ciencia o historia muggle; historia de brujas y magos).</p><p>El hechizo familiar del linaje puro está siempre en tu reserva.</p>'],
+ galeones:['Galeones','<p>Tu dinero. Empiezas con lo que salga en los dados (1d6, 2d6 o 3d6 según tu familia, más 6). Los precios de las cosas del callejón los decide quien dirige.</p><p>Al empezar cada año se tiran 10d6 por lo que juntaste en las vacaciones.</p>'],
+ rasgos:['Virtudes y defectos','<p>Se ordenan del que más te define al que menos. Ese orden decide tu casa en la Selección.</p><p>Al final de cada sesión, si actuaste en contra de un rasgo y el grupo está de acuerdo en que fue suficiente, puedes cambiarlo por otro.</p>'],
+ orden:['El orden','<p>Arriba va lo que más te define. En la Selección, cada rasgo suma puntos a las casas con las que tiene que ver, y los de arriba pesan más.</p>'],
+ varita:['Tu varita','<ul><li><b>Madera:</b> la que corresponde a tu cumpleaños en el calendario celta.</li><li><b>Núcleo:</b> 1d6 (1–2 pelo de unicornio, 3–4 fibra de corazón de dragón, 5–6 pluma de fénix).</li><li><b>Largo:</b> 1d6 + 8 pulgadas.</li><li><b>Flexibilidad:</b> según tus rasgos y qué tan abierta es tu mente.</li></ul><p class="pend">El reglamento no explica qué significa cada madera ni cada núcleo, ni les da efecto en las tiradas.</p>'],
+ vinc:['Vínculos','<p>Cuando una tirada involucra directamente a otra persona del grupo, sumas tu vínculo con ella.</p><p>Al final de cada sesión, si el grupo está de acuerdo, puedes acercarte a alguien (+1) o alejarte (−1, y ganas 1 de experiencia).</p>'],
+ seleccion:['La Selección','<p>Cada virtud y cada defecto suma puntos a una o más casas; los que pusiste más arriba en el espejo pesan más. El Sombrero sugiere la casa con más puntos, pero la última palabra es tuya.</p>'],
+ benef:['Beneficio de casa','<p>Eliges uno de los tres beneficios de tu casa. Se usa <b>una vez por día</b>.</p><p>Con la experiencia puedes cambiarlo por otro de tu casa.</p>'],
+ reserva:['Reserva de hechizos','<p>Son los hechizos que practicaste y te salen mejor: al lanzarlos con <b>Lanzar un hechizo</b> sumas <b>+1</b>.</p><p>En primer año tienes tres; quien viene de una familia de linaje puro, o eligió ese lado siendo de sangre mixta, suma su hechizo familiar, que siempre está en la reserva.</p>']};
+const q=k=>`<button type="button" class="que" data-act="que" data-v="${k}" aria-label="Qué significa" aria-expanded="false">?</button>`;
+let queBtn=null;
+function cerrarQue(){const p=$('#quePop');p.hidden=true;p.dataset.k='';if(queBtn)queBtn.setAttribute('aria-expanded','false');queBtn=null;}
+function abrirQue(k,b){const p=$('#quePop');if(p.dataset.k===k&&!p.hidden){cerrarQue();return;}cerrarQue();
+  const [t,h]=QUE[k]||['',''];p.innerHTML=`<b class="qt">${t}</b>${h}`;p.dataset.k=k;p.hidden=false;queBtn=b;b.setAttribute('aria-expanded','true');
+  const r=b.getBoundingClientRect(),w=Math.min(330,innerWidth-24);p.style.width=w+'px';
+  p.style.left=Math.min(Math.max(12,r.left+r.width/2-w/2),innerWidth-w-12)+'px';
+  const abajo=r.bottom+10;p.style.top=(abajo+p.offsetHeight>innerHeight-96&&r.top-10-p.offsetHeight>8?r.top-10-p.offsetHeight:abajo)+'px';}
+document.addEventListener('click',ev=>{if(!ev.target.closest('.que,#quePop'))cerrarQue();},true);
+addEventListener('scroll',()=>{if(queBtn)cerrarQue()},{passive:true});
 
 /* =========================================================
    Piezas que se repiten
@@ -620,50 +758,46 @@ const ESC=[
  narra:()=>[`En el desayuno, la carta pasa de mano en mano. ${S.name.trim()?esc(S.name.trim().split(' ')[0])+', nadie':'Nadie'} dice mucho, pero todos te miran distinto.`,'La familia en la que creciste dice mucho de ti, aunque todavía no sepas qué. ¿Quiénes son?'],
  pasos:[
   {id:'fam',listo:()=>!!S.fam,cierra:true,q:'Familia',r:()=>FAM[S.fam].n,
-   html:()=>`<h2>Tu familia</h2><div class="naipes uno unica">${Object.entries(FAM).map(([k,f])=>naipe('fam',k,`<b>${f.n}</b><small>${f.d}</small>`,S.fam===k,'izq')).join('')}</div>`},
+   html:()=>`<h2>Tu familia${q('familia')}</h2><div class="naipes uno unica">${Object.entries(FAM).map(([k,f])=>naipe('fam',k,`<b>${f.n}</b><small>${f.d}</small>`,S.fam===k,'izq')).join('')}</div>`},
   {id:'attrs',listo:()=>S.fam&&S.plus.length>=FAM[S.fam].plus&&S.minus.length>=FAM[S.fam].minus,cierra:false,
-   html:()=>{const f=FAM[S.fam],a=attrs();return `<h2>Tus atributos</h2><p class="ayuda">${S.fam==='mixed'?'Suma 1 a dos atributos y resta 1 a otros dos.':'Suma 1 a un atributo.'} Ninguno pasa de +2 ni baja de −2.</p>
+   html:()=>{const f=FAM[S.fam],a=attrs();return `<h2>Tus atributos${q('attrs')}</h2><p class="ayuda">${S.fam==='mixed'?'Suma 1 a dos atributos y resta 1 a otros dos.':'Suma 1 a un atributo.'} Ninguno pasa de +2 ni baja de −2.</p>
     <div class="attrs">${ATTR.map((n,i)=>{const pOn=S.plus.includes(i),mOn=S.minus.includes(i);
-     return `<div class="attr"><div class="v">${sgn(a[i])}</div><div class="n">${n}</div><div class="aj">
+     return `<div class="attr"><div class="v">${sgn(a[i])}</div><div class="n">${n}${q('attr'+i)}</div><div class="aj">
      ${f.minus?`<button data-act="minus" data-v="${i}" aria-pressed="${mOn}" aria-label="Restar 1 a ${n}" ${(!mOn&&(pOn||S.minus.length>=f.minus||a[i]<=-2))?'disabled':''}>−</button>`:''}
      <button data-act="plus" data-v="${i}" aria-pressed="${pOn}" aria-label="Sumar 1 a ${n}" ${(!pOn&&(mOn||S.plus.length>=f.plus||a[i]>=2))?'disabled':''}>+</button></div></div>`}).join('')}</div>`}},
   {id:'lados',listo:()=>S.fam!=='mixed'||(S.mixAdv&&S.mixDis),cierra:false,
-   html:()=>{const f=FAM[S.fam];if(S.fam!=='mixed')return `<h2>Lo que trae tu familia</h2><p class="nota"><b>Ventaja.</b> ${f.adv.join(' ')}</p><p class="nota"><b>Desventaja.</b> ${f.dis.join(' ')}</p>`;
-    return `<h2>Lo que trae cada lado</h2><p class="ayuda">Ventaja: elige un lado de la familia.</p><div class="naipes unica">${naipe('mixAdv','muggle',MIX_ADV.muggle,S.mixAdv==='muggle','izq')}${naipe('mixAdv','pure',MIX_ADV.pure,S.mixAdv==='pure','izq')}</div>
+   html:()=>{const f=FAM[S.fam];if(S.fam!=='mixed')return `<h2>Lo que trae tu familia${q('familia')}</h2><p class="nota"><b>Ventaja.</b> ${f.adv.join(' ')}</p><p class="nota"><b>Desventaja.</b> ${f.dis.join(' ')}</p>`;
+    return `<h2>Lo que trae cada lado${q('familia')}</h2><p class="ayuda">Ventaja: elige un lado de la familia.</p><div class="naipes unica">${naipe('mixAdv','muggle',MIX_ADV.muggle,S.mixAdv==='muggle','izq')}${naipe('mixAdv','pure',MIX_ADV.pure,S.mixAdv==='pure','izq')}</div>
      <p class="ayuda" style="margin-top:16px">Desventaja: elige un lado.</p><div class="naipes unica">${naipe('mixDis','muggle',MIX_DIS.muggle,S.mixDis==='muggle','izq')}${naipe('mixDis','pure',MIX_DIS.pure,S.mixDis==='pure','izq')}</div>`}},
   {id:'gal',listo:()=>S.gal!=null,cierra:false,
-   html:()=>{const f=FAM[S.fam];return `<h2>La bolsa para el viaje</h2><p class="ayuda">Antes de salir, te dan unas monedas: ${f.dados}d6 + 6 galeones.</p>
+   html:()=>{const f=FAM[S.fam];return `<h2>La bolsa para el viaje${q('galeones')}</h2><p class="ayuda">Antes de salir, te dan unas monedas: ${f.dados}d6 + 6 galeones.</p>
     ${S.gal==null?`<button class="secundario dado-btn" data-act="gal">Tirar ${f.dados}d6</button>`:`<p style="font:400 28px var(--d);color:var(--mostaza2);margin:4px 0">${S.gal} galeones</p>`}`}}]},
 
 {id:'espejo',lugar:'El pasillo, de noche',t:'El espejo',
  narra:()=>['Esa noche te detienes frente al espejo del pasillo, y el vidrio empieza a hacerte preguntas.','¿Qué te hace fuerte? ¿Qué te traiciona? Toca para elegir; después vas a poder ordenarlos.'],
  pasos:[
   {id:'pos',listo:()=>S.pos.length>=5,cierra:true,q:'Virtudes',r:()=>S.pos.map(c=>POS[c][0]).join(', '),
-   html:()=>{const n=S.pos.length;return `<h2>${n<5?`Tu ${['primera','segunda','tercera','cuarta','quinta'][n]} virtud`:'Tus cinco virtudes'}</h2><p class="ayuda">Toca para elegir. Toca de nuevo, o la cruz, para soltar.</p>${huecos('pos',S.pos,POS)}${paginas('pos',POS,n>=5,'azarTr')}${grilla('pos',POS,S.pos,5,'tr',true)}`}},
+   html:()=>{const n=S.pos.length;return `<h2>${n<5?`Tu ${['primera','segunda','tercera','cuarta','quinta'][n]} virtud`:'Tus cinco virtudes'}${q('rasgos')}</h2><p class="ayuda">Toca para elegir. Toca de nuevo, o la cruz, para soltar.</p>${huecos('pos',S.pos,POS)}${paginas('pos',POS,n>=5,'azarTr')}${grilla('pos',POS,S.pos,5,'tr',true)}`}},
   {id:'neg',listo:()=>S.neg.length>=5,cierra:true,q:'Defectos',r:()=>S.neg.map(c=>NEG[c][0]).join(', '),tinta:'ciruela',
-   html:()=>{const n=S.neg.length;return `<p class="nota">El vidrio se empaña y, del otro lado, tu reflejo baja la mirada.</p><h2>${n<5?`Tu ${['primer','segundo','tercer','cuarto','quinto'][n]} defecto`:'Tus cinco defectos'}</h2><p class="ayuda">Toca para elegir. Toca de nuevo, o la cruz, para soltar.</p>${huecos('neg',S.neg,NEG)}${paginas('neg',NEG,n>=5,'azarTr')}${grilla('neg',NEG,S.neg,5,'tr',true)}`}},
+   html:()=>{const n=S.neg.length;return `<p class="nota">El vidrio se empaña y, del otro lado, tu reflejo baja la mirada.</p><h2>${n<5?`Tu ${['primer','segundo','tercer','cuarto','quinto'][n]} defecto`:'Tus cinco defectos'}${q('rasgos')}</h2><p class="ayuda">Toca para elegir. Toca de nuevo, o la cruz, para soltar.</p>${huecos('neg',S.neg,NEG)}${paginas('neg',NEG,n>=5,'azarTr')}${grilla('neg',NEG,S.neg,5,'tr',true)}`}},
   {id:'orden',listo:()=>true,cierra:false,
-   html:()=>`<h2 style="color:var(--mostaza2)">Así te ve el espejo</h2><p class="ayuda">Ordénalos arrastrando: arriba, lo que más te define. El orden importa al llegar al castillo.</p>
-    <div class="dos"><div class="v"><h3>Virtudes</h3>${ordenable('pos')}</div><div class="d"><h3>Defectos</h3>${ordenable('neg')}</div></div>`}]},
-
-{id:'reflejo',lugar:'El pasillo, de noche',t:'El reflejo',
- narra:()=>['Ahora sí, el espejo te muestra tal cual eres. Mírate bien: así te van a ver mañana en el andén.','Elige al menos un rasgo de cada parte, o deja que los dados decidan.'],
- pasos:['body','eyes','face'].map(k=>({id:k,listo:()=>S.look[k].length>0,cierra:false,
-   html:()=>`<h2>${LOOK[k].t}</h2>${paginas(k,LOOK[k].d,S.look[k].length>=6,'azarLook')}${grilla(k,LOOK[k].d,S.look[k],6,'look',false)}${k==='face'?'<p class="nota">* Las brujas y los magos pueden encontrar maneras creativas de compensarlo. Convérsalo con tu grupo.</p>':''}`})),
- pie:()=>''},
+   html:()=>`<h2 style="color:var(--mostaza2)">Así te ve el espejo${q('orden')}</h2><p class="ayuda">Ordénalos arrastrando: arriba, lo que más te define. El orden importa al llegar al castillo.</p>
+    <div class="dos"><div class="v"><h3>Virtudes</h3>${ordenable('pos')}</div><div class="d"><h3>Defectos</h3>${ordenable('neg')}</div></div>`},
+  ...['body','eyes','face'].map(k=>({id:k,listo:()=>S.look[k].length>0,cierra:false,
+   html:()=>`${k==='body'?'<p class="recuerdo">Ahora sí, el espejo te muestra tal cual eres. Mírate bien: así te van a ver en el castillo. Elige al menos un rasgo de cada parte, o deja que los dados decidan.</p>':''}<h2>${LOOK[k].t}</h2>${paginas(k,LOOK[k].d,S.look[k].length>=6,'azarLook')}${grilla(k,LOOK[k].d,S.look[k],6,'look',false)}${k==='face'?'<p class="nota">* Las brujas y los magos pueden encontrar maneras creativas de compensarlo. Convérsalo con tu grupo.</p>':''}`}))]},
 
 {id:'varitas',lugar:'Callejón Diagon',t:'La tienda de varitas',
  narra:()=>{const m=madera();return ['Una tienda angosta, polvo flotando en el aire y miles de cajas apiladas hasta el techo.','Nadie te pregunta el nombre. Te preguntan cuándo naciste.',m?`Para el ${S.dia} de ${MESES[S.mes-1]}, la madera es una sola: ${m.n}. El núcleo y el largo los deciden los dados.`:'Sin fecha de cumpleaños no hay madera: vuelve a la carta.'];},
  pasos:[
   {id:'nucleo',listo:()=>!!S.core,cierra:false,
-   html:()=>`<h2>El núcleo</h2><p class="ayuda">1d6: 1–2 unicornio · 3–4 dragón · 5–6 fénix.</p>${S.core?`<p style="font:400 26px var(--d);color:var(--mostaza2);margin:4px 0">${NUCLEO(S.core)}</p>`:`<button class="secundario dado-btn" data-act="core" ${madera()?'':'disabled'}>Tirar 1d6</button>`}`},
+   html:()=>`<h2>El núcleo${q('varita')}</h2><p class="ayuda">1d6: 1–2 unicornio · 3–4 dragón · 5–6 fénix.</p>${S.core?`<p style="font:400 26px var(--d);color:var(--mostaza2);margin:4px 0">${NUCLEO(S.core)}</p>`:`<button class="secundario dado-btn" data-act="core" ${madera()?'':'disabled'}>Tirar 1d6</button>`}`},
   {id:'largo',listo:()=>!!S.len,cierra:false,
-   html:()=>`<h2>El largo</h2><p class="ayuda">1d6 + 8 pulgadas.</p>${S.len?`<p style="font:400 26px var(--d);color:var(--mostaza2);margin:4px 0">${S.len} pulgadas <span class="nota">(${Math.round(S.len*2.54)} cm)</span></p>`:`<button class="secundario dado-btn" data-act="len">Tirar 1d6</button>`}`},
+   html:()=>`<h2>El largo${q('varita')}</h2><p class="ayuda">1d6 + 8 pulgadas.</p>${S.len?`<p style="font:400 26px var(--d);color:var(--mostaza2);margin:4px 0">${S.len} pulgadas <span class="nota">(${Math.round(S.len*2.54)} cm)</span></p>`:`<button class="secundario dado-btn" data-act="len">Tirar 1d6</button>`}`},
   {id:'flex',listo:()=>!!S.flex,cierra:true,q:'Flexibilidad',r:()=>esc(S.flex),
-   html:()=>`<h2>La flexibilidad</h2><p class="ayuda">Elígela según tu carácter y qué tan abierta es tu mente.</p><div class="naipes tres unica">${FLEX.map(f=>naipe('flex',f,esc(f),S.flex===f,'')).join('')}</div>`},
+   html:()=>`<h2>La flexibilidad${q('varita')}</h2><p class="ayuda">Elígela según tu carácter y qué tan abierta es tu mente.</p><div class="naipes tres unica">${FLEX.map(f=>naipe('flex',f,esc(f),S.flex===f,'')).join('')}</div>`},
   {id:'probar',listo:()=>S.varita,cierra:false,
    html:()=>S.varita?`<h2>Es tuya</h2><p class="nota" style="font-size:19px">${madera().n}, ${NUCLEO(S.core).toLowerCase()}, ${S.len} pulgadas, ${S.flex.toLowerCase()}.</p>`
-    :`<h2>Pruébala</h2><button class="seguir" data-act="probar"><svg class="izq" aria-hidden="true"><use href="#nudo"/></svg>Probar la varita<svg class="der" aria-hidden="true"><use href="#nudo"/></svg></button>`}]},
+    :`<h2>Pruébala</h2><p class="ayuda">Cada varita elige a quien la usa. Puede que la primera no sea.</p><button class="seguir" data-act="probar"><svg class="izq" aria-hidden="true"><use href="#nudo"/></svg>Probar la varita<svg class="der" aria-hidden="true"><use href="#nudo"/></svg></button>`}]},
 
 {id:'callejon',lugar:'Callejón Diagon',t:'Compras',
  narra:()=>['Afuera, el callejón es un río de gente: lechuzas en jaulas, calderos apilados en la vereda, carteles que cambian de color.','Te falta un compañero de viaje y el resto de los útiles.'],
@@ -676,24 +810,21 @@ const ESC=[
    html:()=>`<h2>Algún capricho</h2><p class="ayuda">Opcional. Te quedan <b>${(S.gal||0)-gasto()}</b> de ${S.gal||0} galeones (los precios definitivos los decide quien dirige la partida).</p>
     <div class="naipes tres">${EXTRAS.map(([n,p])=>naipe('extra',n,`${n}<small>${p} galeones</small>`,S.extras.includes(n),'',!S.extras.includes(n)&&p>(S.gal||0)-gasto())).join('')}</div>`}]},
 
-{id:'noche',lugar:'La última noche en casa',t:'Lo que dejas atrás',
- narra:()=>['El baúl ya está cerrado. Desde la cama escuchas a tu familia moverse por la casa.','Antes de dormir, piensa en ellos y en ti. Nada de esto es obligatorio, pero quien dirija la partida lo va a aprovechar.'],
- pasos:[],
- opcional:()=>`<details class="pliegue" ${S.abierto.noche?'open':''} data-pliegue="noche"><summary>Tu familia <small>opcional</small></summary><div class="dentro">
-  <label class="campo"><span>Tus padres</span><textarea data-in="padres" placeholder="¿Quiénes son? ¿Qué piensan de la magia? ¿Qué piensas tú de ellos?">${esc(S.padres)}</textarea></label>
-  <label class="campo"><span>Hermanos</span><textarea data-in="hermanos" placeholder="¿Cuántos? ¿Alguno en Hogwarts? ¿Cómo se llevan?">${esc(S.hermanos)}</textarea></label>
-  <button class="secundario dado-btn" data-act="pariente">Tirar rasgos para un familiar</button>
-  ${S.parientes.length?`<ul class="nota">${S.parientes.map((p,i)=>`<li>Familiar ${i+1}: ${esc(p)}</li>`).join('')}</ul>`:''}</div></details>
-  <details class="pliegue" ${S.abierto.preg?'open':''} data-pliegue="preg"><summary>Preguntas para ti <small>${Object.values(S.resp).filter(x=>x&&x.trim()).length} de 10 · opcional</small></summary><div class="dentro">
-  ${PREG.map((q,i)=>`<label class="campo"><span>${q}</span><input type="text" data-in="resp:${i}" value="${esc(S.resp[i]||'')}"></label>`).join('')}</div></details>`},
-
-{id:'anden',lugar:'Andén nueve y tres cuartos',t:'El tren',
+{id:'tren',lugar:'Andén nueve y tres cuartos',t:'El tren',
  narra:()=>['Atraviesas la pared con los ojos cerrados y del otro lado te recibe el vapor. A las once en punto, el tren arranca.','En el pasillo, entre paquetes de golosinas y baúles, conoces al resto del grupo. Con alguien te llevas bien desde el primer minuto; con alguien, no tanto.'],
  pasos:[],
  opcional:()=>`<details class="pliegue" ${S.abierto.grupo||S.otros.some(x=>x.trim())?'open':''} data-pliegue="grupo"><summary>¿Juegas en grupo? <small>opcional</small></summary><div class="dentro">
   <p class="ayuda">Escribe los nombres de los demás personajes del compartimento.</p>
   <div class="fila">${S.otros.map((n,i)=>`<label class="campo"><span>Estudiante ${i+1}</span><input type="text" data-in="otro:${i}" value="${esc(n)}" maxlength="40"></label>`).join('')}</div>
-  <div id="vinc">${vincHTML()}</div></div></details>`,
+  <div id="vinc">${vincHTML()}</div></div></details>
+  <p class="recuerdo">Mientras el tren arranca, te acuerdas de la última noche en casa: el baúl ya cerrado y tu familia moviéndose por la casa. Nada de esto es obligatorio, pero quien dirija la partida lo va a aprovechar.</p>
+  <details class="pliegue" ${S.abierto.noche?'open':''} data-pliegue="noche"><summary>Tu familia <small>opcional</small></summary><div class="dentro">
+  <label class="campo"><span>Tus padres</span><textarea data-in="padres" placeholder="¿Quiénes son? ¿Qué piensan de la magia? ¿Qué piensas tú de ellos?">${esc(S.padres)}</textarea></label>
+  <label class="campo"><span>Hermanos</span><textarea data-in="hermanos" placeholder="¿Cuántos? ¿Alguno en Hogwarts? ¿Cómo se llevan?">${esc(S.hermanos)}</textarea></label>
+  <button class="secundario dado-btn" data-act="pariente">Tirar rasgos para un familiar</button>
+  ${S.parientes.length?`<ul class="nota">${S.parientes.map((p,i)=>`<li>Familiar ${i+1}: ${esc(p)}</li>`).join('')}</ul>`:''}</div></details>
+  <details class="pliegue" ${S.abierto.preg?'open':''} data-pliegue="preg"><summary>Preguntas para ti <small>${Object.values(S.resp).filter(x=>x&&x.trim()).length} de 10 · opcional</small></summary><div class="dentro">
+  ${PREG.map((q,i)=>`<label class="campo"><span>${q}</span><input type="text" data-in="resp:${i}" value="${esc(S.resp[i]||'')}"></label>`).join('')}</div></details>`,
  falta:()=>{const n=S.otros.filter(x=>x.trim()).length;return n>=2&&(S.mas<0||S.menos<0)?'Elige un +1 y un −1, o borra los nombres.':''}},
 
 {id:'comedor',lugar:'El Gran Comedor',t:'La Selección',
@@ -701,18 +832,18 @@ const ESC=[
  pasos:[
   {id:'casa',listo:()=>!!S.casa,cierra:false,
    html:()=>{const p=puntajes(),max=Math.max(...Object.values(p))||1,orden=Object.keys(p).sort((a,b)=>p[b]-p[a]),cerca=orden.filter(h=>p[orden[0]]-p[h]<=5);
-    return `<h2>Tu casa</h2><p class="ayuda">${cerca.length>1?`El Sombrero duda entre ${cerca.map(k=>CASAS[k]).join(' y ')}. La última palabra es tuya.`:`El Sombrero sugiere ${CASAS[orden[0]]}. Si eliges otra, quien dirige la partida lo tendrá en cuenta.`}</p>
+    return `<h2>Tu casa${q('seleccion')}</h2><p class="ayuda">${cerca.length>1?`El Sombrero duda entre ${cerca.map(k=>CASAS[k]).join(' y ')}. La última palabra es tuya.`:`El Sombrero sugiere ${CASAS[orden[0]]}. Si eliges otra, quien dirige la partida lo tendrá en cuenta.`}</p>
     <div class="estandartes ${S.casa?'hay':''}">${['G','H','R','S'].map(k=>estandarte(k,p[k],max,cerca.includes(k))).join('')}</div>`}},
   {id:'benef',listo:()=>S.benef>=0,cierra:true,q:'Beneficio',r:()=>esc(BENEF[S.casa][S.benef]),
-   html:()=>`<h2>Beneficio de ${CASAS[S.casa]}</h2><div class="naipes uno unica">${BENEF[S.casa].map((b,i)=>naipe('benef',i,b,S.benef===i,'izq')).join('')}</div>`}]},
+   html:()=>`<h2>Beneficio de ${CASAS[S.casa]}${q('benef')}</h2><div class="naipes uno unica">${BENEF[S.casa].map((b,i)=>naipe('benef',i,b,S.benef===i,'izq')).join('')}</div>`}]},
 
 {id:'practica',lugar:'Primera semana',t:'Primeras prácticas',
  narra:()=>['En un aula con olor a tiza vieja practicas los movimientos de varita hasta que te duelen las muñecas.',`Tres hechizos empiezan a salirte mejor que los demás: van a tu reserva y te dan +1 al lanzarlos.${tieneFamSpell()?' Y hay uno que traes de casa.':''}`],
  pasos:[
   {id:'famSpell',si:()=>tieneFamSpell(),listo:()=>!tieneFamSpell()||!!S.famSpell,cierra:true,q:'Hechizo familiar',r:()=>esc(S.famSpell),
-   html:()=>`<h2>Tu hechizo familiar</h2><div class="naipes uno unica">${SP1.map(([n,d,t,p])=>naipe('famSpell',n,`<b>${esc(n)}${p?'<span class="prov">†</span>':''}</b><small>${t} · ${d}</small>`,S.famSpell===n,'izq')).join('')}</div>`},
+   html:()=>`<h2>Tu hechizo familiar${q('reserva')}</h2><div class="naipes uno unica">${SP1.map(([n,d,t,p])=>naipe('famSpell',n,`<b>${esc(n)}${p?'<span class="prov">†</span>':''}</b><small>${t} · ${d}</small>`,S.famSpell===n,'izq')).join('')}</div>`},
   {id:'bank',listo:()=>S.bank.length>=3,cierra:true,q:'Reserva',r:()=>S.bank.map(esc).join(', '),
-   html:()=>`<h2>Tu reserva (${S.bank.length} de 3)</h2><p class="ayuda">Toca tres hechizos.</p><div class="naipes uno">${SP1.filter(([n])=>verTodos||S.bank.length<3||S.bank.includes(n)||(n===S.famSpell&&tieneFamSpell())).map(([n,d,t,p])=>{const on=S.bank.includes(n),fam=n===S.famSpell&&tieneFamSpell();
+   html:()=>`<h2>Tu reserva (${S.bank.length} de 3)${q('reserva')}</h2><p class="ayuda">Toca tres hechizos.</p><div class="naipes uno">${SP1.filter(([n])=>verTodos||S.bank.length<3||S.bank.includes(n)||(n===S.famSpell&&tieneFamSpell())).map(([n,d,t,p])=>{const on=S.bank.includes(n),fam=n===S.famSpell&&tieneFamSpell();
     return naipe('bank',n,`<b>${esc(n)}${p?'<span class="prov">†</span>':''}</b><small>${t}${fam?' · familiar':''} · ${d}</small>`,on||fam,'izq',fam||(!on&&S.bank.length>=3))}).join('')}</div>${S.bank.length>=3?`<button class="secundario ver-todos" data-act="verTodos">${verTodos?'Ver solo los míos':'Ver todos los hechizos'}</button>`:''}
     <p class="nota"><span class="prov">†</span> Nombre provisorio, a confirmar con la traducción de referencia.</p>`}]},
 
@@ -728,7 +859,7 @@ const ESC=[
 ESC.forEach((e,i)=>e.n=i);
 function vincHTML(){const nom=S.otros.map((n,i)=>[n.trim(),i]).filter(x=>x[0]);
  if(S.mas>=0&&!S.otros[S.mas]?.trim())S.mas=-1;if(S.menos>=0&&!S.otros[S.menos]?.trim())S.menos=-1;
- return nom.length>=2?`<h2 style="font-size:24px;margin-top:14px">Con quién te llevas bien (+1)</h2><div class="naipes unica tres">${nom.map(([n,i])=>naipe('mas',i,esc(n),S.mas===i,'',S.menos===i)).join('')}</div>
+ return nom.length>=2?`<h2 style="font-size:24px;margin-top:14px">Con quién te llevas bien (+1)${q('vinc')}</h2><div class="naipes unica tres">${nom.map(([n,i])=>naipe('mas',i,esc(n),S.mas===i,'',S.menos===i)).join('')}</div>
   <h2 style="font-size:24px;margin-top:18px">Con quién no tanto (−1)</h2><div class="naipes unica tres">${nom.map(([n,i])=>naipe('menos',i,esc(n),S.menos===i,'',S.mas===i)).join('')}</div>`:'<p class="nota">Con dos nombres o más, eliges tus vínculos.</p>';}
 
 const pasosDe=e=>(e.pasos||[]).filter(p=>!p.si||p.si());
@@ -829,22 +960,22 @@ function pintar(){
 function resumen_(e,p){return resumenUI(e.id+':'+p.id,p.q,p.r());}
 function actualizarPie(){const e=ESC[S.esc],f=falta(e),ult=S.esc===ESC.length-1;
  $('#seguir').hidden=ult;$('#seguir').disabled=!!f;$('#falta').textContent=f;$('#volver').style.visibility=S.esc?'visible':'hidden';
- $('#seguir-txt').textContent=e.id==='anden'?'Bajar del tren':'Seguir';}
-function cambiarEscena(i){const cu=$('#cuerpo');if(QUIETO){S.esc=i;S.max=Math.max(S.max,i);pintar();return;}
- const c=CUAD[ESC[S.esc].id],t=i===S.esc+1&&c&&c.d?destello(c.d):0;
+ $('#seguir-txt').textContent=e.id==='tren'?'Bajar del tren':'Seguir';}
+function cambiarEscena(i,sinTrans){const cu=$('#cuerpo');cerrarQue();if(QUIETO){S.esc=i;S.max=Math.max(S.max,i);pintar();return;}
+ const t=!sinTrans&&i===S.esc+1?transicion(ESC[i].id):0;
  cu.classList.add('sale');setTimeout(()=>{S.esc=i;S.max=Math.max(S.max,i);pintar();cu.classList.remove('sale');},Math.max(240,t));}
 
 /* =========================================================
    La llegada: escena puente entre El tren y La Selección
    ========================================================= */
 const LL=[
- {f:'v2/llegada-01',lugar:'El Expreso, por la tarde',txt:'A media tarde pasa el carrito de golosinas. Nadie se resiste.',foco:'50% 50%',cam:[[1.04,0,0],[1.12,-2,1]],tono:'rgba(255,236,200,0)'},
- {f:'v2/llegada-02',txt:'Por la ventana, los campos se vuelven colinas y las colinas, montañas.',foco:'50% 50%',cam:[[1.06,0,0],[1.16,0,-1]],tono:'rgba(255,214,170,.10)'},
- {f:'llegada-03',lugar:'Al final de las vías',txt:'Cuando el tren por fin se detiene, ya es casi de noche.',foco:'62% 50%',cam:[[1.10,3,0],[1.03,-2,0]],tono:'rgba(170,140,190,.14)'},
- {f:'v2/llegada-04',txt:'Los de primer año no siguen el camino: cruzan por el agua.',foco:'34% 55%',cam:[[1.04,2,1],[1.12,-1,-1]],tono:'rgba(120,110,170,.18)'},
- {f:'llegada-05',txt:'Y al doblar el peñasco, lo ves.',foco:'50% 40%',cam:[[1.16,0,3],[1.04,0,0]],tono:'rgba(105,95,160,.20)',lento:1},
- {f:'llegada-06',txt:'Una escalera de piedra sube desde el muelle hasta las puertas.',foco:'72% 50%',cam:[[1.05,-2,0],[1.13,-4,-2]],tono:'rgba(95,85,150,.24)'},
- {f:'v2/llegada-07',lugar:'El Gran Comedor',txt:'Adentro, el techo no es un techo: es el cielo de esta misma noche.',foco:'50% 40%',cam:[[1.02,0,2],[1.14,0,-2]],tono:'rgba(90,80,150,.18)',fin:1}];
+ {f:V+'llegada-01',lugar:'El Expreso, por la tarde',txt:'A media tarde pasa el carrito de golosinas. Nadie se resiste.',foco:'50% 50%',cam:[[1.04,0,0],[1.12,-2,1]],tono:'rgba(255,236,200,0)'},
+ {f:V+'llegada-02',txt:'Por la ventana, los campos se vuelven colinas y las colinas, montañas.',foco:'50% 50%',cam:[[1.06,0,0],[1.16,0,-1]],tono:'rgba(255,214,170,.10)'},
+ {f:V+'llegada-03',lugar:'Al final de las vías',txt:'Cuando el tren por fin se detiene, ya es casi de noche.',foco:'62% 50%',cam:[[1.10,3,0],[1.03,-2,0]],tono:'rgba(170,140,190,.14)'},
+ {f:V+'llegada-04',txt:'Los de primer año no siguen el camino: cruzan por el agua.',foco:'34% 55%',cam:[[1.04,2,1],[1.12,-1,-1]],tono:'rgba(120,110,170,.18)'},
+ {f:V+'llegada-05',txt:'Y al doblar el peñasco, lo ves.',foco:'50% 40%',cam:[[1.16,0,3],[1.04,0,0]],tono:'rgba(105,95,160,.20)',lento:1},
+ {f:V+'llegada-06',txt:'Una escalera de piedra sube desde el muelle hasta las puertas.',foco:'72% 50%',cam:[[1.05,-2,0],[1.13,-4,-2]],tono:'rgba(95,85,150,.24)'},
+ {f:V+'llegada-07',lugar:'El Gran Comedor',txt:'Adentro, el techo no es un techo: es el cielo de esta misma noche.',foco:'50% 40%',cam:[[1.02,0,2],[1.14,0,-2]],tono:'rgba(90,80,150,.18)',fin:1}];
 const LLDUR=5600;let llI=-1,llA=true,llReloj=null,llAnim=null;
 function llegada(){$('#llegada').hidden=false;LL.forEach(c=>{const im=new Image();im.src=`arte/${c.f}.webp`});llMostrar(0);}
 function llMostrar(k){llI=k;const c=LL[k];clearTimeout(llReloj);
@@ -857,10 +988,111 @@ function llMostrar(k){llI=k;const c=LL[k];clearTimeout(llReloj);
  $('#llHilo').style.width=`${(k+1)/LL.length*100}%`;$('#llFinal').classList.toggle('on',!!c.fin);$('#llSaltar').hidden=!!c.fin;$('#llToca').hidden=!!c.fin;
  if(c.fin){setTimeout(()=>$('#llSeguir').focus({preventScroll:true}),900);return;}
  llReloj=setTimeout(()=>llMostrar(k+1),LLDUR*(c.lento?1.5:1));}
-function llFin(){clearTimeout(llReloj);if(llAnim)llAnim.cancel();destello('llegada-d01');setTimeout(()=>{$('#llegada').hidden=true;S.llegada=true;cambiarEscena(8);},QUIETO?0:520);}
+function llFin(){clearTimeout(llReloj);if(llAnim)llAnim.cancel();const t=transicion('comedor');setTimeout(()=>{$('#llegada').hidden=true;S.llegada=true;cambiarEscena(ESC.findIndex(x=>x.id==='comedor'),true);},t);}
 $('#llToca').addEventListener('click',()=>{if(llI<LL.length-1)llMostrar(llI+1)});
 $('#llSaltar').addEventListener('click',()=>llMostrar(LL.length-1));
 $('#llSeguir').addEventListener('click',llFin);
+
+/* =========================================================
+   La prueba de la varita: el puntero es tu varita.
+   Un d4 secreto decide en qué intento acierta; antes, cada fallo depende de dónde apuntes.
+   ========================================================= */
+const MADERA_COLOR={Abedul:['#efe2c2','#b9a77e'],Serbal:['#c98b5a','#8a5530'],Fresno:['#dcc59a','#a68b5c'],Aliso:['#b8643c','#7a3a1e'],
+ Sauce:['#d3bf8c','#9a8556'],Espino:['#8f5d3b','#5a3520'],Roble:['#93602f','#5c3a18'],Acebo:['#f1e9d6','#c4b493'],Avellano:['#ad7a48','#6f4a26'],
+ Vid:['#6e4330','#432517'],Hiedra:['#7d6c4b','#4c4029'],'Caña':['#cdb56c','#8f7a3c'],'Saúco':['#5d4c42','#33281f']};
+const NUC_COLOR=r=>r<=2?'#8ff5ec':r<=4?'#ff6a45':'#ffbf4d';
+const NUC_LETRA=r=>r<=2?'a':r<=4?'b':'c';
+function varitaSVG(){const m=madera(),[c1,c2]=MADERA_COLOR[m?m.n:'Roble']||MADERA_COLOR.Roble,L=Math.round(64+((S.len||11)-9)*10),g=NUC_COLOR(S.core||1),m0=L-30;
+  return `<svg class="vara" viewBox="-14 -14 ${L+28} 28" width="${L+28}" height="28" aria-hidden="true">
+   <circle class="brillo" cx="0" cy="0" r="9" fill="${g}"/>
+   <path d="M0 -1.1 L${m0} -2.6 L${m0} 2.6 L0 1.1 Z" fill="${c1}" stroke="#1a1208" stroke-width=".8"/>
+   <path d="M${m0} -3.6 Q${m0+6} -4.6 ${m0+12} -3.4 L${L-2} -3.8 Q${L+1} 0 ${L-2} 3.8 L${m0+12} 3.4 Q${m0+6} 4.6 ${m0} 3.6 Z" fill="${c2}" stroke="#1a1208" stroke-width=".8"/>
+   <path d="M${m0+4} -4 V4 M${m0+15} -3.6 V3.6" stroke="#1a1208" stroke-width=".8" opacity=".6"/>
+   <circle cx="0" cy="0" r="1.6" fill="#fff8e6"/></svg>`;}
+const ZONAS=[['lampara',.50,.00,.60,.23,'Apuntar a la lámpara'],['sombrero',.56,.10,.74,.72,'Apuntar al perchero'],
+ ['vitrina',.35,.52,.53,.75,'Apuntar a la vitrina'],['estantes',.10,.00,.49,.66,'Apuntar a los estantes']];
+const FALLO={
+ estantes:{v:'fallo-cajas',txt:'Cientos de cajas se vienen abajo de golpe.'},
+ vitrina:{v:'fallo-vidrio',txt:'La vitrina estalla en mil pedazos… y vuelve a armarse sola.'},
+ sombrero:{v:'fallo-sombrero',txt:'El sombrero sale volando del perchero. El gato salta del susto.'},
+ lampara:{txt:'Se apagan todas las luces. En la oscuridad, solo parpadean los ojos del gato.'},
+ tinta:{txt:'La punta escupe un chorro de tinta que mancha todo.'}};
+const OTRA=['El vendedor ni se inmuta y te alcanza otra caja.','Otra caja más. Esta parece más tranquila.','Una más. El vendedor la mira con atención.'];
+const RAT=1344/768,TACTIL=matchMedia('(pointer:coarse)').matches;
+let T=null,vidUno=true;
+const tLinea=t=>{const l=$('#tLinea');l.innerHTML=`<p>${esc(t)}</p>`;};
+function encuadre(){const W=innerWidth,H=innerHeight,e=$('#tEsc');let w,h,l,t;
+  if(W/H<1.15){h=Math.max(W/RAT,Math.min(H*.44,W*1.55/RAT));w=h*RAT;l=Math.min(0,Math.max(W-w,W/2-.45*w));t=Math.max(64,H*.11);}else{w=Math.max(W,H*RAT);h=w/RAT;l=(W-w)/2;t=(H-h)/2;}
+  Object.assign(e.style,{width:w+'px',height:h+'px',left:l+'px',top:t+'px'});
+  const ln=$('#tLinea');if(W/H<1.15){ln.style.top=(t+h+18)+'px';ln.style.bottom='auto';}else{ln.style.top='';ln.style.bottom='';}}
+function abrirTienda(){if(!S.prueba)S.prueba={d4:1+Math.floor(Math.random()*4),n:0,usados:[]};guardar();
+  const t=$('#tienda');$('#tImg').src=`arte/${V}varitas-f01.webp`;$('#tVarita').innerHTML=varitaSVG();$('#tVarita').classList.remove('fuera','ve');
+  $('#tSeguir').hidden=true;$('#tSalir').hidden=false;ocultarVideos();
+  $('#tZonas').innerHTML=ZONAS.map(([id,x1,y1,x2,y2,n])=>`<button class="zona" data-z="${id}" style="left:${x1*100}%;top:${y1*100}%;width:${(x2-x1)*100}%;height:${(y2-y1)*100}%">${n}</button>`).join('')
+   +`<button class="zona" data-z="tinta" style="left:2%;top:80%;width:20%;height:16%">Agitar la varita al aire</button>`;
+  t.hidden=false;document.body.classList.add('quieto');encuadre();
+  tLinea(S.prueba.n?'Prueba otra vez. Apunta a cualquier parte y agita la varita.':TACTIL?'El vendedor te pone una varita en la mano. Toca donde quieras apuntar y suelta para agitarla.':'El vendedor te pone una varita en la mano. Apunta a cualquier parte y haz clic para agitarla.');
+  T={ocupado:false};
+  ['fallo-cajas-ida','fallo-cajas-vuelta','fallo-vidrio-ida','fallo-vidrio-vuelta','fallo-sombrero-ida','fallo-sombrero-vuelta','revelacion-'+NUC_LETRA(S.core),'revelacion-cierre-'+NUC_LETRA(S.core)]
+   .forEach(n=>{try{fetch(`arte/a/anim/${n}.mp4`).catch(()=>{})}catch(e){}});
+  ['varitas-f02','varitas-f06','fallo-cajas-b','fallo-vidrio-b','fallo-sombrero-b','varitas-f05'+NUC_LETRA(S.core)].forEach(n=>{const im=new Image();im.src=`arte/${V}${n}.webp`});
+  setTimeout(()=>$('#tSalir').focus({preventScroll:true}),50);}
+function cerrarTienda(){$('#tienda').hidden=true;document.body.classList.remove('quieto');ocultarVideos();T=null;pintar();}
+function ponVarita(x,y){const v=$('#tVarita');v.style.transform=`translate(${x}px,${y}px)`;v.classList.add('ve');}
+function flick(){const v=$('#tVarita .vara');if(v&&!QUIETO&&v.animate)v.animate([{transform:'rotate(35deg)'},{transform:'rotate(8deg)'},{transform:'rotate(50deg)'},{transform:'rotate(35deg)'}],{duration:320,easing:'ease-out'});}
+function chispas(x,y){if(QUIETO)return;const c=NUC_COLOR(S.core||1),t=$('#tienda');
+  for(let i=0;i<10;i++){const s=document.createElement('i');s.className='chispa';const a=Math.random()*6.283,d=30+Math.random()*50;
+   s.style.cssText=`left:${x}px;top:${y}px;background:${c};--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px`;t.appendChild(s);setTimeout(()=>s.remove(),700);}}
+async function lanzar(fx,fy,x,y){if(!T||T.ocupado)return;T.ocupado=true;flick();chispas(x,y);campana(false);await espera(300);
+  const P=S.prueba;P.n++;guardar();
+  if(P.n>=P.d4){await acierto();return;}
+  let z=fx==null?'tinta':(ZONAS.find(([,x1,y1,x2,y2])=>fx>=x1&&fx<=x2&&fy>=y1&&fy<=y2)||['tinta'])[0];
+  if(P.usados.includes(z))z=['tinta','estantes','vitrina','sombrero','lampara'].find(k=>!P.usados.includes(k))||'tinta';
+  P.usados.push(z);guardar();
+  await fallo(z,fx==null?.5:fx,fy==null?.4:fy);
+  if(!T)return;tLinea(OTRA[Math.min(P.n-1,OTRA.length-1)]+(TACTIL?' Toca y suelta para probarla.':' Apunta y haz clic para probarla.'));T.ocupado=false;}
+async function fallo(z,fx,fy){const F=FALLO[z];tLinea(F.txt);
+  if(F.v){const im=$('#tImg');
+    if(QUIETO){im.src=`arte/${V}${F.v}-b.webp`;await espera(1800);im.src=`arte/${V}varitas-f01.webp`;return;}
+    await video(F.v+'-ida');im.src=`arte/${V}${F.v}-b.webp`;await espera(650);await video(F.v+'-vuelta',1.3);im.src=`arte/${V}varitas-f01.webp`;await espera(60);ocultarVideos();}
+  else if(z==='lampara')await apagon();else await tinta(fx,fy);}
+function video(n,rate=1){return new Promise(res=>{const v=$(vidUno?'#tVid1':'#tVid2'),o=$(vidUno?'#tVid2':'#tVid1');vidUno=!vidUno;
+  let hecho=false,tt=0;const fin=()=>{if(hecho)return;hecho=true;clearTimeout(tt);v.onended=v.onerror=v.onplaying=null;res();};
+  v.muted=!son;v.volume=.8;v.onplaying=()=>{v.classList.add('on');o.classList.remove('on');};v.onended=fin;v.onerror=fin;
+  v.onloadedmetadata=()=>{v.playbackRate=rate};v.src=`arte/a/anim/${n}.mp4`;v.playbackRate=rate;
+  const pr=v.play();if(pr)pr.catch(()=>{v.muted=true;v.play().catch(fin)});tt=setTimeout(fin,9000);});}
+function ocultarVideos(){['#tVid1','#tVid2'].forEach(s=>{const v=$(s);v.classList.remove('on');try{v.pause()}catch(e){}});}
+async function apagon(){const o=$('#tOscuro');o.classList.add('on');await espera(QUIETO?1500:2800);
+  if(!QUIETO){o.classList.add('vuelve');await espera(800);}o.classList.remove('on','vuelve');}
+async function tinta(fx,fy){const s=$('#tTinta'),n=26,p=[];
+  for(let i=0;i<n;i++){const a=i/n*6.283+Math.random()*.1,r=i%2?.42+Math.random()*.16:.8+Math.random()*.55;p.push([Math.cos(a)*r,Math.sin(a)*r*.9]);}
+  const d='M'+p.map(q=>q.map(v=>v.toFixed(3)).join(' ')).join('L')+'Z';
+  const gotas=Array.from({length:6},()=>{const x=(Math.random()-.5)*1.1,l=.5+Math.random()*1.1,w=.05+Math.random()*.07;
+    return `<rect class="gota" x="${(x-w/2).toFixed(3)}" y=".2" width="${w.toFixed(3)}" height="${l.toFixed(3)}" rx="${(w/2).toFixed(3)}" style="animation-delay:${(Math.random()*.3).toFixed(2)}s"/>`}).join('');
+  const motas=Array.from({length:9},()=>{const a=Math.random()*6.283,r=1.3+Math.random()*.7;return `<circle cx="${(Math.cos(a)*r).toFixed(3)}" cy="${(Math.sin(a)*r).toFixed(3)}" r="${(.04+Math.random()*.08).toFixed(3)}"/>`}).join('');
+  s.innerHTML=`<g transform="translate(${(fx*1000).toFixed(1)} ${(fy*571.4).toFixed(1)}) scale(95)"><g class="mancha"><path d="${d}"/>${motas}${gotas}</g></g>`;
+  s.classList.add('on');await espera(QUIETO?1600:2300);s.classList.add('se-va');await espera(QUIETO?0:650);s.classList.remove('on','se-va');s.innerHTML='';}
+async function acierto(){const k=NUC_LETRA(S.core),im=$('#tImg');$('#tVarita').classList.add('fuera');$('#tSalir').hidden=true;
+  tLinea('Esta vez la varita responde.');im.src=`arte/${V}varitas-f02.webp`;await espera(900);
+  if(QUIETO){im.src=`arte/${V}varitas-f05${k}.webp`;await espera(1600);}
+  else{await video('revelacion-'+k);im.src=`arte/${V}varitas-f05${k}.webp`;await video('revelacion-cierre-'+k);}
+  im.src=`arte/${V}varitas-f06.webp`;await espera(60);ocultarVideos();campana(true);
+  S.varita=true;S.prueba=null;guardar();
+  tLinea(`Es tuya: ${madera().n}, ${NUCLEO(S.core).toLowerCase()}, ${S.len} pulgadas, ${S.flex.toLowerCase()}.`);
+  $('#tSeguir').hidden=false;$('#tSeguir').focus({preventScroll:true});}
+(()=>{const t=$('#tienda'),e=$('#tEsc');let abajo=false;
+  const fr=(x,y)=>{const r=e.getBoundingClientRect();const fx=(x-r.left)/r.width,fy=(y-r.top)/r.height;return fx>=0&&fx<=1&&fy>=0&&fy<=1?[fx,fy]:null;};
+  t.addEventListener('pointermove',ev=>{if(!T)return;if(ev.pointerType==='mouse'||abajo)ponVarita(ev.clientX,ev.clientY);});
+  t.addEventListener('pointerdown',ev=>{if(!T||ev.target.closest('button'))return;abajo=true;ponVarita(ev.clientX,ev.clientY);});
+  t.addEventListener('pointerleave',ev=>{if(ev.pointerType==='mouse')$('#tVarita').classList.remove('ve');});
+  t.addEventListener('pointerup',ev=>{if(!T||!abajo)return;abajo=false;if(ev.target.closest('button'))return;const f=fr(ev.clientX,ev.clientY);
+    if(f)lanzar(f[0],f[1],ev.clientX,ev.clientY);if(ev.pointerType!=='mouse')setTimeout(()=>{if(T&&!T.ocupado)$('#tVarita').classList.remove('ve')},700);});
+  t.addEventListener('pointercancel',()=>{abajo=false});
+  $('#tZonas').addEventListener('click',ev=>{const b=ev.target.closest('.zona');if(!b||!T)return;const z=b.dataset.z,r=b.getBoundingClientRect(),q=e.getBoundingClientRect();
+    const x=r.left+r.width/2,y=r.top+r.height/2;ponVarita(x,y);lanzar(z==='tinta'?null:(x-q.left)/q.width,z==='tinta'?null:(y-q.top)/q.height,x,y);});
+  $('#tSeguir').addEventListener('click',cerrarTienda);$('#tSalir').addEventListener('click',cerrarTienda);
+  addEventListener('resize',()=>{if(T)encuadre()});
+  addEventListener('keydown',ev=>{if(ev.key==='Escape'&&T&&!T.ocupado)cerrarTienda();});})();
 
 /* =========================================================
    Acciones
@@ -886,7 +1118,8 @@ const ACT={
  async core(){const r=await tirar(1,x=>NUCLEO(x[0]));S.core=r[0];S.varita=false;},
  async len(){const r=await tirar(1,x=>`${x[0]} + 8 = ${x[0]+8} pulgadas`);S.len=r[0]+8;S.varita=false;},
  flex(v){S.flex=v;S.varita=false;delete S.abierto['varitas:flex'];campana(false)},
- async probar(){ponerCuadro(2);await espera(1100);ponerCuadro(3);await espera(1100);ponerCuadro(4);$('#capa').innerHTML=`<div class="resultado">${esc(madera().n)}</div>`;campana(true);await espera(1600);$('#capa').innerHTML='';S.varita=true;},
+ probar(){abrirTienda();return 'no'},
+ que(v,b){abrirQue(v,b);return 'no'},
  pet(v){S.pet=v;delete S.abierto['callejon:pet'];campana(false)}, async azarPet(){const r=await tirar(1,x=>PET(x[0]));S.pet=PET(r[0]);},
  pago(v){S.pago=v;delete S.abierto['callejon:pago'];campana(false)}, extra(v){const i=S.extras.indexOf(v);if(i>=0)S.extras.splice(i,1);else{S.extras.push(v);campana(false)}},
  async pariente(){const r=await tirar(8);const cod=i=>''+r[i]+r[i+1];
@@ -911,7 +1144,7 @@ document.addEventListener('click',async ev=>{
  if(desliza){desliza=false;return;}
  const b=ev.target.closest('[data-act]');if(!b||b.disabled||rodando)return;
  const f=ACT[b.dataset.act];if(!f)return;
- const r=await f(b.dataset.v);if(r!=='no')pintar();
+ const r=await f(b.dataset.v,b);if(r!=='no')pintar();
 });
 document.addEventListener('toggle',ev=>{const d=ev.target;if(d.dataset&&d.dataset.pliegue){S.abierto[d.dataset.pliegue]=d.open;guardar();}},true);
 document.addEventListener('input',ev=>{
@@ -928,11 +1161,11 @@ document.addEventListener('mousedown',e=>{if(e.target.closest('.firmas'))e.preve
 addEventListener('scroll',()=>{const b=document.querySelector('.barra');if(b)b.classList.toggle('fija',scrollY>24)},{passive:true});
 const pasoVisible=id=>!!document.getElementById('paso-'+id);
 document.addEventListener('change',ev=>{const el=ev.target;
- if(el.dataset.in==='importar'&&el.files[0]){const fr=new FileReader();fr.onload=()=>{try{const g=JSON.parse(fr.result);if(g.v!==1)throw 0;S=Object.assign(NUEVO(),g);pintada=-1;pintar();}catch(e){$('#msg').textContent='Ese archivo no es una ficha válida.'}};fr.readAsText(el.files[0]);return;}
+ if(el.dataset.in==='importar'&&el.files[0]){const fr=new FileReader();fr.onload=()=>{try{const g=JSON.parse(fr.result);if(g.v!==1)throw 0;S=migrar(Object.assign(NUEVO(),g,{m2:g.m2||0}));pintada=-1;pintar();}catch(e){$('#msg').textContent='Ese archivo no es una ficha válida.'}};fr.readAsText(el.files[0]);return;}
  if(el.tagName==='INPUT'&&el.type==='text'&&el.dataset.in==='name'&&!pasoVisible('cumple'))pintar();
 });
 document.addEventListener('keydown',ev=>{
- if(ev.key==='Escape'){abrirCajon(false);return;}
+ if(ev.key==='Escape'){cerrarQue();abrirCajon(false);return;}
  const el=ev.target;
  if(ev.key==='Enter'&&el.classList&&el.classList.contains('firma')){ev.preventDefault();el.blur();pintar();return;}
  const li=el.closest&&el.closest('.orden li');
@@ -955,7 +1188,7 @@ document.addEventListener('pointerdown',ev=>{const g=ev.target.closest('[data-pa
 document.addEventListener('pointerup',ev=>{if(x0==null)return;const dx=ev.clientX-x0;x0=null;if(Math.abs(dx)>60){desliza=true;setTimeout(()=>desliza=false,350);S.pag[xk]=Math.max(1,Math.min(6,(S.pag[xk]||1)+(dx<0?1:-1)));pintar();}},{passive:true});
 
 $('#seguir').addEventListener('click',()=>{const e=ESC[S.esc];if(falta(e)||rodando)return;campana(true);
- if(e.id==='anden'){llegada();return;}cambiarEscena(S.esc+1);});
+ if(e.id==='tren'){const t=transicion('llegada');setTimeout(llegada,t);return;}cambiarEscena(S.esc+1);});
 $('#volver').addEventListener('click',()=>{if(S.esc>0)cambiarEscena(S.esc-1);});
 $('#btn-ficha').addEventListener('click',()=>abrirCajon(!$('#cajon').classList.contains('abierto')));
 $('#velo').addEventListener('click',()=>abrirCajon(false));
